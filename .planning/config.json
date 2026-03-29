@@ -1,0 +1,10 @@
+{
+  "project_type": "homework",
+  "workflow": {
+    "research_agents": false,
+    "browser_testing": false,
+    "atomic_commits": true,
+    "verification": false
+  },
+  "model_profile": "balanced"
+}
