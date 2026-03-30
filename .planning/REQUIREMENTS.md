@@ -132,4 +132,83 @@ All assignments for the semester, ordered by due date. Today: 2026-03-29.
 | Library Assignments (3x) | 30 |
 | Discussion Post | ~10-20 |
 
-**High-value targets:** Crafting RQs (100), Final Presentation (100), Check-in 3 (60), Check-in 1 (40)
+### 14. Co-Curricular Reflection
+- **Due:** Apr 12
+- **Points:** 100
+- **Format:** File upload
+- **Requirements:**
+  - 500+ words short essay
+  - Summarize at least 2 co-curricular events attended (day/time, speaker, activity)
+  - Personal reaction, thoughts, perspectives, feelings
+  - Reflection on common intellectual/scholarly practices at the events
+  - How did the speaker approach the topic? What question/problem? What methods? How connected to broader issues?
+  - MLA, APA, or Chicago style
+- **Rubric:** Capstone Rubric (Design, Prepare, Create, Communicate, Reflect)
+- **MLOs:** 3.4 (Connect GE courses, background, research process), 3.5 (Evaluate commonalities in scholarly inquiry)
+- **Status:** BLOCKED — user hasn't attended events yet
+
+### 15. Research Documentation
+- **Due:** Apr 12 (available until Apr 14)
+- **Points:** 100
+- **Format:** File upload
+- **Requirements:**
+  - **TWO parts:** (1) Research narrative 750+ words, (2) Bibliography of 10+ potential sources
+  - **Research narrative sections:**
+    - **Scope:** Define research project parameters, genre/medium. Background research using FSW libraries (primary/secondary/tertiary sources)
+    - **Approach/Perspective:** Critical lens, methods, philosophy, strategies, design. Reflect on knowledge, purposes, reasoning. What college courses shaped topic? Background knowledge? Why important to you/audience?
+    - **Process and plan:** Describe research process, overview of execution plan
+    - **Context:** Define audience, situate in scholarly conversation, connect to GE courses, background reflection
+  - 10+ potential sources in bibliography
+  - APA style (locked from Phase 1)
+- **Rubric:** Capstone Rubric (Design, Prepare, Create, Communicate, Reflect) — target Capstone level on all
+- **Status:** NOT SUBMITTED
+
+### 16. Revision & Reflection
+- **Due:** Apr 19
+- **Points:** 100
+- **Format:** File upload
+- **Requirements:**
+  - **TWO parts:** (1) Reflection narrative 500+ words, (2) Revised bibliography (10+ sources)
+  - **Reflection narrative sections:**
+    - **A) Project thesis:** State thesis, how arrived at it through research
+    - **B) Research process since Research Documentation:** How project evolved on: Scope (shifted? redefined parameters? genre/medium?), Approach/Perspective (what shifted critical lens?), Context (scholarly conversation shifted? audience refined?)
+    - **C) Strategies:** What strategies used for execution? Effective? Why/why not?
+  - Revised bibliography (10+ sources)
+  - APA style
+- **Rubric:** Capstone Rubric (Design, Prepare, Create, Communicate, Reflect)
+- **Status:** NOT SUBMITTED
+
+### 17. Final Project (Research Artifact)
+- **Due:** Apr 19
+- **Points:** 100
+- **Format:** Text entry, URL, media recording, or file upload
+- **Requirements:**
+  - Synthesize research from Research Documentation with own ideas
+  - "Answer" research question in medium/genre suited to audience
+  - At least 5 sources used
+  - Can be essay, proposal, report, creative project, or "unessay"
+  - Must demonstrate: evidence of research, analysis, synthesis, integration with accuracy/fairness/relevance, clarity/precision, suited to audience/context
+- **Rubric:** Capstone Rubric (Design, Prepare, Create, Communicate, Reflect)
+- **Status:** NOT SUBMITTED — will be the interactive website
+
+## Point Distribution
+| Category | Points |
+|----------|--------|
+| Lightning Talks (DONE) | ~20 |
+| Crafting RQs | 100 |
+| Final Presentation | 100 |
+| Co-Curricular Reflection | 100 |
+| Research Documentation | 100 |
+| Revision & Reflection | 100 |
+| Final Project | 100 |
+| Check-in 3 | 60 |
+| Check-in 1 | 40 |
+| Short Proposal | 20 |
+| Brainstorm Discussion | 20 |
+| Check-in 2 | 20 |
+| Presentation Worksheet | 20 |
+| Library Assignments (3x) | 30 |
+| Discussion Post | ~10-20 |
+| **Total** | **~850** |
+
+**High-value targets:** Crafting RQs (100), Final Presentation (100), Co-Curricular (100), Research Documentation (100), Revision & Reflection (100), Final Project (100)
