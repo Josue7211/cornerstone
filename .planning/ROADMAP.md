@@ -117,16 +117,17 @@ Plans:
 - Revised and finalized bibliography
 
 ### Phase 11: Final Project — Interactive Website
-**Goal:** Build and submit the final vibe-coded interactive website as the research artifact.
+**Goal:** Build an Awwwards-level immersive 3D website as the research artifact — cyberpunk lobby with GLTF models, WASD movement, 3 portals leading to Research Paper, Presentation, and Interactive Experience sections.
 **Points:** 100
 **Due:** Apr 19
-**Status:** NOT STARTED
+**Status:** PLANNING COMPLETE
 **Depends on:** Phase 7 (presentation content) + Phase 10 (final research paper)
-**Deliverables:**
-- Interactive website with animated architecture schematics (vibe-coded)
-- Research paper embedded or linked
-- 99% non-technical audience — must be accessible and visual
-- Meta-narrative: used AI to build a website explaining AI hardware democratization
+**Plans:** 3 plans
+
+Plans:
+- [ ] 11-01-PLAN.md — Core 3D scene rebuild: GLTF load, HDRI, post-processing, WASD movement, portals, panel skeleton
+- [ ] 11-02-PLAN.md — Content panels: Research Paper (5 sections), Presentation (6 cinematic slides, no iframe), Experience (CPU vs GPU demo, pioneer photos, stat counters)
+- [ ] 11-03-PLAN.md — Polish + bug fixes from checkpoint feedback, final submission-ready state
 
 ---
 
@@ -134,7 +135,7 @@ Plans:
 
 | Phase | Assignment(s) | Points | Due | Status |
 |-------|--------------|--------|-----|--------|
-| — | Lightning Talks Discussion (#4) | ~20 | Feb 2 | ✅ DONE |
+| — | Lightning Talks Discussion (#4) | ~20 | Feb 2 | DONE |
 | 1 | Discussion Post (#1) + Library #1 (#2) + Credo Sources (#3) + Library #3 (#6) | 50 | Jan–Feb | IN PROGRESS |
 | 2 | Crafting Research Questions (#5) | 100 | Feb 15 | NOT STARTED |
 | 3 | Short Proposal (#8) | 20 | Complete    | 2026-03-30 |
@@ -145,5 +146,5 @@ Plans:
 | 8 | Co-Curricular Reflection (#14) | 100 | Apr 5 | NOT STARTED |
 | 9 | Research Documentation (#15) | 1/1 | Complete   | 2026-03-30 |
 | 10 | Revision & Reflection (#16) | 1/1 | Complete    | 2026-03-30 |
-| 11 | Final Project — Website (#17) | 100 | Apr 19 | NOT STARTED |
+| 11 | Final Project — Website (#17) | 100 | Apr 19 | PLANNING COMPLETE |
 | **Total** | | **850** | | |
