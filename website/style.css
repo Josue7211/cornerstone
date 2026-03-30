@@ -104,11 +104,12 @@ canvas#scene {
   position: fixed;
   inset: 0;
   z-index: 10;
-  pointer-events: none;
+  pointer-events: auto;
+  cursor: pointer;
   opacity: 0;
   transition: opacity 0.6s;
 }
-.hud.visible { opacity: 1; }
+.hud.visible { opacity: 1; pointer-events: auto; }
 
 .hud-top {
   position: absolute;
