@@ -20,7 +20,7 @@ Strategy: Prioritize by points (highest value first), then by dependency chain. 
 - Identify 2 research buckets, experts, 1 FSW source + 1 Google source (Assignment #6 — Library #3)
 
 Plans:
-- [ ] 01-PLAN-A.md — Rewrite discussion post + update research buckets (Assignment #1, #6)
+- [x] 01-01-PLAN.md — Rewrite discussion post + update research buckets (Assignment #1, #6) — DONE (commits: fa1d1c9, aef8143)
 - [ ] 01-PLAN-B.md — Update interest web subtopics + export PNG (Assignment #2)
 - [ ] 01-PLAN-C.md — Search Credo Reference for 2 real sources + finalize citations (Assignment #3)
 
