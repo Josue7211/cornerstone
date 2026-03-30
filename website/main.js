@@ -4,37 +4,9 @@ import { RGBELoader } from 'three/addons/loaders/RGBELoader.js';
 import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
 import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
 import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
-// No OrbitControls — custom third-person camera
 
 // ═══════════════════════════════════════════════════
-// STATE
-// ═══════════════════════════════════════════════════
-const state = {
-  keys: {},
-  activePanel: null,
-  loaded: false,
-  phase: 'loading', // loading → cutscene → playing
-  portalProximity: { paper: false, pres: false, exp: false },
-  moveSpeed: 5,
-  rotSpeed: 3,
-  colliders: [],
-  mixer: null,
-  actions: {},
-  currentAction: null,
-  character: null,
-  characterAngle: 0,
-};
-
-const PORTALS = {
-  paper: { x: 0,   z: -10, color: 0x00f0ff, panel: 'panelPaper', label: 'labelPaper' },
-  pres:  { x: -8,  z: 6,   color: 0xff00aa, panel: 'panelPres',  label: 'labelPres' },
-  exp:   { x: 8,   z: 6,   color: 0x00ff88, panel: 'panelExp',   label: 'labelExp' }
-};
-const PORTAL_RADIUS = 2.5;
-const BOUNDARY = 16;
-
-// ═══════════════════════════════════════════════════
-// RENDERER
+// RENDERER + SCENE
 // ═══════════════════════════════════════════════════
 const canvas = document.getElementById('scene');
 const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
@@ -42,57 +14,32 @@ renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 renderer.setClearColor(0x020206);
 renderer.shadowMap.enabled = true;
-renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 renderer.outputColorSpace = THREE.SRGBColorSpace;
 renderer.toneMapping = THREE.ACESFilmicToneMapping;
 renderer.toneMappingExposure = 1.0;
 
-// ═══════════════════════════════════════════════════
-// SCENE + CAMERA
-// ═══════════════════════════════════════════════════
 const scene = new THREE.Scene();
-scene.fog = new THREE.FogExp2(0x020206, 0.02);
+scene.fog = new THREE.FogExp2(0x020206, 0.015);
 
 const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 200);
-camera.position.set(0, 3, 6);
+// Start pulled back, will animate into the screen
+camera.position.set(0, 3, 8);
+camera.lookAt(0, 2, 0);
 
-// Third-person camera — always behind the character
-const camState = {
-  distance: 6,
-  height: 4,
-  lookHeight: 1.8,
-  smoothing: 0.08
-};
-
-// ═══════════════════════════════════════════════════
-// POST-PROCESSING
-// ═══════════════════════════════════════════════════
+// Post-processing
 const composer = new EffectComposer(renderer);
 composer.addPass(new RenderPass(scene, camera));
 composer.addPass(new UnrealBloomPass(
-  new THREE.Vector2(window.innerWidth, window.innerHeight), 0.5, 0.4, 0.9
+  new THREE.Vector2(window.innerWidth, window.innerHeight), 0.4, 0.4, 0.9
 ));
 
-// ═══════════════════════════════════════════════════
-// LIGHTS
-// ═══════════════════════════════════════════════════
+// Lights
 scene.add(new THREE.AmbientLight(0x445566, 0.5));
 const dirLight = new THREE.DirectionalLight(0x8888ff, 0.4);
 dirLight.position.set(5, 15, 5);
-dirLight.castShadow = true;
-dirLight.shadow.mapSize.set(1024, 1024);
 scene.add(dirLight);
 
-// Portal lights
-Object.values(PORTALS).forEach(p => {
-  const light = new THREE.PointLight(p.color, 3, 18);
-  light.position.set(p.x, 2.5, p.z);
-  scene.add(light);
-});
-
-// ═══════════════════════════════════════════════════
 // HDRI
-// ═══════════════════════════════════════════════════
 new RGBELoader().load('./assets/hdri/night_sky.hdr', (tex) => {
   const pmrem = new THREE.PMREMGenerator(renderer);
   pmrem.compileEquirectangularShader();
@@ -102,102 +49,30 @@ new RGBELoader().load('./assets/hdri/night_sky.hdr', (tex) => {
 });
 
 // ═══════════════════════════════════════════════════
-// FLOOR + GRID
+// STATE
 // ═══════════════════════════════════════════════════
-const floor = new THREE.Mesh(
-  new THREE.PlaneGeometry(40, 40),
-  new THREE.MeshStandardMaterial({ color: 0x111122, roughness: 0.3, metalness: 0.7 })
-);
-floor.rotation.x = -Math.PI / 2;
-floor.receiveShadow = true;
-scene.add(floor);
-scene.add(new THREE.GridHelper(40, 40, 0x222244, 0x111133));
+const state = {
+  phase: 'loading', // loading → zooming → desktop
+  loaded: false,
+  zoomStart: 0,
+  zoomDuration: 3.5, // seconds to zoom into screen
+};
 
 // ═══════════════════════════════════════════════════
-// PORTAL STRUCTURES
-// ═══════════════════════════════════════════════════
-const portalMeshes = {};
-Object.entries(PORTALS).forEach(([key, p]) => {
-  const group = new THREE.Group();
-  group.position.set(p.x, 0, p.z);
-
-  const ring = new THREE.Mesh(
-    new THREE.TorusGeometry(1.5, 0.1, 16, 64),
-    new THREE.MeshStandardMaterial({ color: p.color, emissive: p.color, emissiveIntensity: 1.0 })
-  );
-  ring.rotation.x = -Math.PI / 2;
-  ring.position.y = 0.1;
-  group.add(ring);
-
-  const beam = new THREE.Mesh(
-    new THREE.CylinderGeometry(0.02, 0.02, 8, 8),
-    new THREE.MeshBasicMaterial({ color: p.color, transparent: true, opacity: 0.4 })
-  );
-  beam.position.y = 4;
-  group.add(beam);
-
-  const crystal = new THREE.Mesh(
-    new THREE.OctahedronGeometry(0.5, 0),
-    new THREE.MeshStandardMaterial({ color: p.color, emissive: p.color, emissiveIntensity: 1.5 })
-  );
-  crystal.position.y = 3;
-  group.add(crystal);
-
-  const disc = new THREE.Mesh(
-    new THREE.CircleGeometry(1.5, 32),
-    new THREE.MeshBasicMaterial({ color: p.color, transparent: true, opacity: 0.15, side: THREE.DoubleSide })
-  );
-  disc.rotation.x = -Math.PI / 2;
-  disc.position.y = 0.02;
-  group.add(disc);
-
-  scene.add(group);
-  portalMeshes[key] = { group, crystal, ring };
-});
-
-// ═══════════════════════════════════════════════════
-// PARTICLES
-// ═══════════════════════════════════════════════════
-const particleCount = 400;
-const pGeo = new THREE.BufferGeometry();
-const pArr = new Float32Array(particleCount * 3);
-for (let i = 0; i < particleCount; i++) {
-  pArr[i*3] = (Math.random()-0.5)*40;
-  pArr[i*3+1] = Math.random()*10;
-  pArr[i*3+2] = (Math.random()-0.5)*40;
-}
-pGeo.setAttribute('position', new THREE.BufferAttribute(pArr, 3));
-const particles = new THREE.Points(pGeo, new THREE.PointsMaterial({
-  color: 0x6666cc, size: 0.05, transparent: true, opacity: 0.5
-}));
-scene.add(particles);
-
-// ═══════════════════════════════════════════════════
-// LOAD ASSETS
+// LOAD ROOM
 // ═══════════════════════════════════════════════════
 const loader = new GLTFLoader();
 const loaderFill = document.getElementById('loaderFill');
 const loaderText = document.getElementById('loaderText');
 const loaderPct = document.getElementById('loaderPct');
 
-let roomLoaded = false;
-let charLoaded = false;
+// Camera targets — will be set after room loads based on where the monitor is
+let monitorPos = new THREE.Vector3(0, 2, -2); // default, updated after load
+let camStart = new THREE.Vector3(3, 3, 8);
+let camEnd = new THREE.Vector3(0, 2.2, 0.5); // close to the monitor
+let lookStart = new THREE.Vector3(0, 1.5, 0);
+let lookEnd = new THREE.Vector3(0, 2.2, -2);
 
-function checkAllLoaded() {
-  if (roomLoaded && charLoaded) {
-    loaderFill.style.width = '100%';
-    loaderPct.textContent = '100%';
-    loaderText.textContent = 'ENTERING THE GRID...';
-    setTimeout(() => {
-      document.getElementById('loader').classList.add('done');
-      document.getElementById('hud').classList.add('visible');
-      state.loaded = true;
-      startCutscene();
-    }, 600);
-  }
-}
-
-// ─── Room ───
 loader.load('./assets/models/futuristic-room/scene.gltf', (gltf) => {
   const model = gltf.scene;
   const box = new THREE.Box3().setFromObject(model);
@@ -209,177 +84,86 @@ loader.load('./assets/models/futuristic-room/scene.gltf', (gltf) => {
   const center = sBox.getCenter(new THREE.Vector3());
   model.position.set(-center.x, -sBox.min.y, -center.z);
   model.traverse(c => {
-    if (c.isMesh) { c.castShadow = true; c.receiveShadow = true; state.colliders.push(c); }
-  });
-  scene.add(model);
-  // Log furniture positions to find the chair
-  model.traverse(c => {
-    if (c.isMesh && c.name) {
-      const wp = new THREE.Vector3();
-      c.getWorldPosition(wp);
-      if (c.name.toLowerCase().match(/chair|seat|desk|computer|screen|monitor/)) {
-        console.log('FURNITURE:', c.name, 'pos:', wp.x.toFixed(1), wp.y.toFixed(1), wp.z.toFixed(1));
-      }
-    }
-  });
-  console.log('Room loaded, scale:', scale.toFixed(3));
-  roomLoaded = true;
-  checkAllLoaded();
-}, (p) => {
-  const pct = p.total > 0 ? Math.round(p.loaded/p.total*50) : Math.min(49, Math.round(p.loaded/580000000*50));
-  loaderFill.style.width = pct + '%';
-  loaderPct.textContent = pct + '%';
-  loaderText.textContent = 'LOADING ENVIRONMENT...';
-});
-
-// ─── Character ───
-loader.load('./assets/models/character.glb', (gltf) => {
-  const model = gltf.scene;
-  // Scale character to fit the room
-  model.scale.setScalar(1.5);
-  model.position.set(0, 0, 0);
-  model.traverse(c => {
     if (c.isMesh) { c.castShadow = true; c.receiveShadow = true; }
   });
   scene.add(model);
-  state.character = model;
 
-  // Set up animation mixer
-  state.mixer = new THREE.AnimationMixer(model);
-  gltf.animations.forEach(clip => {
-    const action = state.mixer.clipAction(clip);
-    state.actions[clip.name] = action;
-    console.log('Animation clip:', clip.name, 'duration:', clip.duration.toFixed(2));
+  // Try to find the monitor/screen in the scene
+  model.traverse(c => {
+    if (c.isMesh && c.name) {
+      const n = c.name.toLowerCase();
+      if (n.match(/screen|monitor|display|computer/)) {
+        const wp = new THREE.Vector3();
+        c.getWorldPosition(wp);
+        monitorPos.copy(wp);
+        // Set camera end near the monitor
+        camEnd.set(wp.x, wp.y + 0.3, wp.z + 1.5);
+        lookEnd.copy(wp);
+        console.log('Found monitor:', c.name, 'at', wp.x.toFixed(1), wp.y.toFixed(1), wp.z.toFixed(1));
+      }
+    }
   });
 
-  console.log('Character loaded, animations:', Object.keys(state.actions));
-  charLoaded = true;
-  loaderFill.style.width = '75%';
-  loaderPct.textContent = '75%';
-  loaderText.textContent = 'RIGGING CHARACTER...';
-  checkAllLoaded();
+  console.log('Room loaded, scale:', scale.toFixed(3));
+
+  // Set camera start position
+  camStart.set(camEnd.x + 3, camEnd.y + 2, camEnd.z + 7);
+  camera.position.copy(camStart);
+
+  loaderFill.style.width = '100%';
+  loaderPct.textContent = '100%';
+  loaderText.textContent = 'ENTERING THE GRID...';
+
+  setTimeout(() => {
+    document.getElementById('loader').classList.add('done');
+    state.loaded = true;
+    state.phase = 'zooming';
+    state.zoomStart = performance.now() / 1000;
+  }, 600);
+}, (p) => {
+  const pct = p.total > 0 ? Math.round(p.loaded / p.total * 100) : Math.min(99, Math.round(p.loaded / 580000000 * 100));
+  loaderFill.style.width = pct + '%';
+  loaderPct.textContent = pct + '%';
+  loaderText.textContent = pct < 50 ? 'LOADING ENVIRONMENT...' : 'COMPILING SHADERS...';
 });
 
 // ═══════════════════════════════════════════════════
-// ANIMATION HELPERS
+// DESKTOP UI
 // ═══════════════════════════════════════════════════
-function playAction(name, options) {
-  options = options || {};
-  const fadeTime = options.fade || 0.4;
-  const loop = options.loop !== undefined ? options.loop : true;
-  const timeScale = options.timeScale || 1;
-  const clampWhenFinished = options.clamp || false;
+const desktop = document.getElementById('desktop');
 
-  const action = state.actions[name];
-  if (!action) { console.warn('No animation:', name); return; }
-
-  if (state.currentAction === action) return;
-
-  action.reset();
-  action.setLoop(loop ? THREE.LoopRepeat : THREE.LoopOnce);
-  action.clampWhenFinished = clampWhenFinished;
-  action.timeScale = timeScale;
-  action.fadeIn(fadeTime);
-  action.play();
-
-  if (state.currentAction) {
-    state.currentAction.fadeOut(fadeTime);
-  }
-
-  state.currentAction = action;
-  return action;
+function showDesktop() {
+  state.phase = 'desktop';
+  desktop.classList.add('visible');
+  document.getElementById('hud').classList.remove('visible');
 }
 
-// ═══════════════════════════════════════════════════
-// CUTSCENE
-// ═══════════════════════════════════════════════════
-function startCutscene() {
-  state.phase = 'cutscene';
-  // camera controlled manually
+// Desktop icon clicks
+document.querySelectorAll('.desktop-icon').forEach(icon => {
+  icon.addEventListener('dblclick', () => {
+    const target = icon.dataset.open;
+    if (target) {
+      const panel = document.getElementById(target);
+      if (panel) {
+        panel.classList.add('open');
+        panel.style.pointerEvents = 'auto';
+        desktop.classList.remove('visible');
 
-  if (state.character) {
-    state.character.position.set(0, 0, 0);
-    state.character.rotation.y = 0;
-  }
-
-  // Camera looking at character
-  camera.position.set(2, 2.5, 4);
-  camera.lookAt(0, 1, 0);
-
-  // Start sitting
-  playAction('SitIdle', { loop: true });
-
-  // After 2 seconds, stand up (reverse SitDown = standing up)
-  setTimeout(() => {
-    const sitAction = state.actions['SitDown'];
-    if (sitAction) {
-      playAction('SitDown', { loop: false, clamp: true, timeScale: -1, fade: 0.4 });
-      sitAction.time = sitAction.getClip().duration;
-    }
-
-    // After stand up, go to idle and give control
-    setTimeout(() => {
-      playAction('Idle', { loop: true, fade: 0.5 });
-
-      setTimeout(() => {
-        state.phase = 'playing';
-        // Snap camera behind character
-        if (state.character) {
-          const c = state.character;
-          camera.position.set(
-            c.position.x - Math.sin(c.rotation.y) * camState.distance,
-            c.position.y + camState.height,
-            c.position.z - Math.cos(c.rotation.y) * camState.distance
-          );
+        // GSAP animations
+        if (typeof gsap !== 'undefined') {
+          const sections = panel.querySelectorAll('.paper-section, .pres-slide, .arch-demo, .pioneers-grid, .exp-stat, .paper-abstract, .paper-timeline, .slide-implications, .slide-connections, .slide-advocacy-points');
+          if (sections.length > 0) {
+            gsap.fromTo(sections, { opacity: 0, y: 30 }, { opacity: 1, y: 0, duration: 0.6, stagger: 0.1, delay: 0.3, ease: 'power2.out' });
+          }
+          const header = panel.querySelector('.panel-header, .pres-header');
+          if (header) gsap.fromTo(header, { opacity: 0, y: -20 }, { opacity: 1, y: 0, duration: 0.5, ease: 'power2.out' });
         }
 
-        const el = document.getElementById('hudControls');
-        el.textContent = '';
-        const s1 = document.createElement('span');
-        s1.textContent = 'WASD TO MOVE \u00B7 DRAG TO LOOK';
-        const s2 = document.createElement('span');
-        s2.textContent = 'WALK TO THE COMPUTER TO BEGIN';
-        el.appendChild(s1);
-        el.appendChild(s2);
-      }, 500);
-    }, 2000);
-  }, 2500);
-}
-
-// ═══════════════════════════════════════════════════
-// INPUT
-// ═══════════════════════════════════════════════════
-document.addEventListener('keydown', e => { state.keys[e.code] = true; });
-document.addEventListener('keyup', e => { state.keys[e.code] = false; });
-
-// ═══════════════════════════════════════════════════
-// PANEL MANAGEMENT
-// ═══════════════════════════════════════════════════
-function openPanel(key) {
-  const portal = PORTALS[key];
-  const panel = document.getElementById(portal.panel);
-  panel.classList.add('open');
-  panel.style.pointerEvents = 'auto';
-  state.activePanel = key;
-  document.getElementById('hud').classList.remove('visible');
-  // camera controlled manually
-
-  // Play sit animation if computer
-  if (key === 'paper') {
-    playAction('SitDown', { loop: false, clamp: true, fade: 0.4 });
-    setTimeout(() => playAction('SitIdle', { loop: true, fade: 0.3 }), 1500);
-  }
-
-  if (typeof gsap !== 'undefined') {
-    const sections = panel.querySelectorAll('.paper-section, .pres-slide, .arch-demo, .pioneers-grid, .exp-stat, .paper-abstract, .paper-timeline, .slide-implications, .slide-connections, .slide-advocacy-points');
-    if (sections.length > 0) {
-      gsap.fromTo(sections, { opacity: 0, y: 30 }, { opacity: 1, y: 0, duration: 0.6, stagger: 0.1, delay: 0.3, ease: 'power2.out' });
+        if (target === 'panelExp') animateCounters();
+      }
     }
-    const header = panel.querySelector('.panel-header, .pres-header');
-    if (header) gsap.fromTo(header, { opacity: 0, y: -20 }, { opacity: 1, y: 0, duration: 0.5, ease: 'power2.out' });
-  }
-  if (key === 'exp') animateCounters();
-}
+  });
+});
 
 function animateCounters() {
   if (typeof gsap === 'undefined') return;
@@ -396,35 +180,20 @@ function animateCounters() {
   });
 }
 
+// Close panel → back to desktop
 window.closePanel = function() {
-  if (!state.activePanel) return;
-  const portal = PORTALS[state.activePanel];
-  document.getElementById(portal.panel).classList.remove('open');
-  document.getElementById(portal.panel).style.pointerEvents = 'none';
-  state.activePanel = null;
-  document.getElementById('hud').classList.add('visible');
-  // camera controlled manually
-
-  // Stand back up
-  playAction('Idle', { loop: true, fade: 0.5 });
-
-  // Push back from portal
-  if (state.character) {
-    const p = portal;
-    const dx = state.character.position.x - p.x;
-    const dz = state.character.position.z - p.z;
-    const len = Math.sqrt(dx*dx + dz*dz) || 1;
-    state.character.position.x += (dx/len) * 3;
-    state.character.position.z += (dz/len) * 3;
-  }
-  Object.keys(state.portalProximity).forEach(k => { state.portalProximity[k] = false; });
+  document.querySelectorAll('.panel.open').forEach(p => {
+    p.classList.remove('open');
+    p.style.pointerEvents = 'none';
+  });
+  desktop.classList.add('visible');
 };
 
 document.getElementById('closePanelBtn').addEventListener('click', window.closePanel);
 document.getElementById('closePanelPres').addEventListener('click', window.closePanel);
 document.getElementById('closePanelExp').addEventListener('click', window.closePanel);
 document.addEventListener('keydown', e => {
-  if (e.key === 'Escape' && state.activePanel) window.closePanel();
+  if (e.key === 'Escape') window.closePanel();
 });
 
 // Pioneer + arch demo handlers
@@ -476,141 +245,29 @@ window.addEventListener('resize', () => {
 });
 
 // ═══════════════════════════════════════════════════
-// GAME LOOP
+// ANIMATION LOOP
 // ═══════════════════════════════════════════════════
 const clock = new THREE.Clock();
 
 function animate() {
   requestAnimationFrame(animate);
-  const delta = clock.getDelta();
-  const elapsed = clock.getElapsedTime();
+  const now = performance.now() / 1000;
 
-  // Update animation mixer
-  if (state.mixer) state.mixer.update(delta);
+  // Zoom into screen
+  if (state.phase === 'zooming') {
+    const elapsed = now - state.zoomStart;
+    const t = Math.min(1, elapsed / state.zoomDuration);
+    // Smooth easing (ease-in-out cubic)
+    const ease = t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
 
-  // (camera updated in movement section)
-
-  if (!state.loaded) { composer.render(); return; }
-  if (state.activePanel) { composer.render(); return; }
-
-  // ─── Third-person movement ───
-  if (state.phase === 'playing' && state.character) {
-    let moving = false;
-    const char = state.character;
-    const speed = state.moveSpeed * delta;
-
-    // Character-relative movement (W = forward where character faces)
-    const camForward = new THREE.Vector3(Math.sin(char.rotation.y), 0, Math.cos(char.rotation.y)).normalize();
-    const camRight = new THREE.Vector3().crossVectors(camForward, new THREE.Vector3(0, 1, 0)).normalize();
-
-    const moveDir = new THREE.Vector3();
-
-    if (state.keys['KeyW'] || state.keys['ArrowUp']) { moveDir.add(camForward); moving = true; }
-    if (state.keys['KeyS'] || state.keys['ArrowDown']) { moveDir.sub(camForward); moving = true; }
-    if (state.keys['KeyA'] || state.keys['ArrowLeft']) { moveDir.sub(camRight); moving = true; }
-    if (state.keys['KeyD'] || state.keys['ArrowRight']) { moveDir.add(camRight); moving = true; }
-
-    if (moving && moveDir.length() > 0) {
-      moveDir.normalize();
-
-      // Rotate character to face movement direction
-      const targetAngle = Math.atan2(moveDir.x, moveDir.z);
-      // Smooth rotation
-      let angleDiff = targetAngle - char.rotation.y;
-      while (angleDiff > Math.PI) angleDiff -= Math.PI * 2;
-      while (angleDiff < -Math.PI) angleDiff += Math.PI * 2;
-      char.rotation.y += angleDiff * Math.min(1, delta * 10);
-
-      // Move
-      const prevPos = char.position.clone();
-      char.position.x += moveDir.x * speed;
-      char.position.z += moveDir.z * speed;
-
-      // Collision check
-      if (state.colliders.length > 0) {
-        const ray = new THREE.Raycaster(
-          new THREE.Vector3(prevPos.x, prevPos.y + 1, prevPos.z),
-          moveDir, 0, 1.0
-        );
-        const hits = ray.intersectObjects(state.colliders, false);
-        if (hits.length > 0) {
-          char.position.copy(prevPos);
-        }
-      }
-
-      // Boundary
-      char.position.x = Math.max(-BOUNDARY, Math.min(BOUNDARY, char.position.x));
-      char.position.z = Math.max(-BOUNDARY, Math.min(BOUNDARY, char.position.z));
-
-      // Play walk animation
-      if (state.currentAction !== state.actions['Walking']) {
-        playAction('Walking', { loop: true, fade: 0.3 });
-      }
-    } else if (state.phase === 'playing') {
-      // Not moving — idle
-      if (state.currentAction === state.actions['Walking'] ||
-          state.currentAction === state.actions['WalkBack'] ||
-          state.currentAction === state.actions['StrafeLeft'] ||
-          state.currentAction === state.actions['StrafeRight']) {
-        playAction('Idle', { loop: true, fade: 0.3 });
-      }
-    }
-
-    // Third-person camera — always behind the character
-    const lookTarget = new THREE.Vector3(char.position.x, char.position.y + camState.lookHeight, char.position.z);
-
-    // Camera position: behind the character based on their facing direction
-    const behindX = char.position.x - Math.sin(char.rotation.y) * camState.distance;
-    const behindZ = char.position.z - Math.cos(char.rotation.y) * camState.distance;
-    const behindY = char.position.y + camState.height;
-
-    const desiredPos = new THREE.Vector3(behindX, behindY, behindZ);
-    camera.position.lerp(desiredPos, camState.smoothing);
+    camera.position.lerpVectors(camStart, camEnd, ease);
+    const lookTarget = new THREE.Vector3().lerpVectors(lookStart, lookEnd, ease);
     camera.lookAt(lookTarget);
-  }
 
-  // ─── Minimap ───
-  if (state.character) {
-    const mmDot = document.getElementById('minimapDot');
-    if (mmDot) {
-      mmDot.style.left = (50 + (state.character.position.x / BOUNDARY) * 40) + '%';
-      mmDot.style.top = (50 + (state.character.position.z / BOUNDARY) * 40) + '%';
+    if (t >= 1) {
+      showDesktop();
     }
   }
-
-  // ─── Portal proximity ───
-  Object.entries(PORTALS).forEach(([key, p]) => {
-    const charPos = state.character ? state.character.position : camera.position;
-    const dist = Math.sqrt(Math.pow(charPos.x - p.x, 2) + Math.pow(charPos.z - p.z, 2));
-    const label = document.getElementById(p.label);
-    const mesh = portalMeshes[key];
-
-    mesh.crystal.rotation.y = elapsed * 1.5;
-    mesh.crystal.position.y = 3 + Math.sin(elapsed * 2 + key.length) * 0.3;
-    const pulse = 1 + Math.sin(elapsed * 3) * 0.05;
-    mesh.ring.scale.set(pulse, pulse, pulse);
-
-    if (dist < 5) {
-      const vec = new THREE.Vector3(p.x, 3.5, p.z);
-      vec.project(camera);
-      if (vec.z < 1) {
-        label.style.left = ((vec.x*0.5+0.5)*window.innerWidth) + 'px';
-        label.style.top = ((-vec.y*0.5+0.5)*window.innerHeight) + 'px';
-        label.classList.add('visible');
-      } else { label.classList.remove('visible'); }
-    } else { label.classList.remove('visible'); }
-
-    if (state.phase === 'playing' && dist < PORTAL_RADIUS && !state.portalProximity[key]) {
-      state.portalProximity[key] = true;
-      openPanel(key);
-    }
-    if (dist >= PORTAL_RADIUS + 1.5) { state.portalProximity[key] = false; }
-  });
-
-  // ─── Particles ───
-  const pos = particles.geometry.attributes.position.array;
-  for (let i = 0; i < particleCount; i++) { pos[i*3+1] += 0.004; if (pos[i*3+1] > 10) pos[i*3+1] = 0; }
-  particles.geometry.attributes.position.needsUpdate = true;
 
   composer.render();
 }

@@ -499,6 +499,91 @@ canvas#scene {
 }
 .reflection-item p { font-size: 0.85rem; margin: 0; }
 
+/* ═══ DESKTOP UI ═══ */
+.desktop {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.8s ease;
+}
+.desktop.visible { opacity: 1; visibility: visible; }
+
+.desktop-wallpaper {
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, #0a0a1a 0%, #0d1117 40%, #161b22 100%);
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+
+.desktop-icons {
+  flex: 1;
+  display: flex;
+  flex-wrap: wrap;
+  align-content: flex-start;
+  gap: 2rem;
+  padding: 3rem;
+}
+
+.desktop-icon {
+  width: 100px;
+  text-align: center;
+  cursor: pointer;
+  padding: 1rem 0.5rem;
+  border-radius: 10px;
+  transition: background 0.2s, transform 0.15s;
+  user-select: none;
+}
+.desktop-icon:hover { background: rgba(255,255,255,0.06); transform: scale(1.05); }
+.desktop-icon:active { transform: scale(0.95); }
+
+.icon-img {
+  font-size: 3rem;
+  display: block;
+  margin-bottom: 0.5rem;
+  filter: drop-shadow(0 0 8px rgba(0,240,255,0.3));
+}
+
+.desktop-icon span {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  color: var(--text);
+  line-height: 1.3;
+  display: block;
+  text-shadow: 0 1px 3px rgba(0,0,0,0.8);
+}
+
+.desktop-taskbar {
+  height: 40px;
+  background: rgba(10, 10, 20, 0.95);
+  border-top: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 1.5rem;
+  backdrop-filter: blur(10px);
+}
+
+.taskbar-title {
+  font-family: var(--font-display);
+  font-size: 0.6rem;
+  color: var(--cyan);
+  letter-spacing: 0.2em;
+}
+.taskbar-user {
+  font-family: var(--font-mono);
+  font-size: 0.6rem;
+  color: var(--text-dim);
+}
+.taskbar-time {
+  font-family: var(--font-mono);
+  font-size: 0.6rem;
+  color: var(--text-dim);
+}
+
 /* Experience */
 .exp-desc { margin-bottom: 1.5rem !important; }
 
