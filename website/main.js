@@ -267,10 +267,19 @@ gltfLoader.load(
   './assets/models/cyberpunk-scene/scene.gltf',
   (gltf) => {
     const model = gltf.scene;
-    // Scale and position the scene to fit the lobby floor
-    model.scale.set(0.05, 0.05, 0.05);
-    model.position.set(0, 0, 0);
+    // Auto-scale: measure the model, then fit it to ~30 units across the lobby
+    const box = new THREE.Box3().setFromObject(model);
+    const size = box.getSize(new THREE.Vector3());
+    const maxDim = Math.max(size.x, size.y, size.z);
+    const targetSize = 30; // lobby is ~30 units
+    const scaleFactor = targetSize / maxDim;
+    model.scale.setScalar(scaleFactor);
+    // Re-center after scaling
+    const scaledBox = new THREE.Box3().setFromObject(model);
+    const center = scaledBox.getCenter(new THREE.Vector3());
+    model.position.set(-center.x, -scaledBox.min.y, -center.z);
     scene.add(model);
+    console.log('GLTF loaded — scale:', scaleFactor.toFixed(4), 'size:', size);
 
     // Fade out loader after scene is ready
     setTimeout(() => {
