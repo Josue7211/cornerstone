@@ -2,129 +2,72 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: Ready to plan
-last_updated: "2026-03-30T03:41:36.702Z"
+status: Executing
+last_updated: "2026-03-30T04:30:00.000Z"
 progress:
   total_phases: 11
-  completed_phases: 0
+  completed_phases: 7
   total_plans: 3
-  completed_plans: 1
+  completed_plans: 3
 ---
 
 # Project State — IDS2891 Cornerstone
 
 ## Current Phase
-
-Phase 1 — Library Assignments (discuss-phase in progress, CONTEXT.md not yet written)
+Phase 9 — Research Documentation (next to execute)
 
 ## Last Action
+2026-03-30: Completed Phases 1-7. Phase 8 blocked (co-curricular events not yet attended).
 
-2026-03-30: Executed plan 01-01 — rewrote discussion post (Assignment #1) with real personal details and updated research buckets (Assignment #6) to democratization/local AI angle. Commits: fa1d1c9, aef8143.
+## Session Summary — 2026-03-29/30
 
-## Session Context — RESUME FROM HERE
+### Phases Completed
+- **Phase 1** — Library assignments: discussion post rewritten with real personal info, interest web updated to 6 subtopics + PNG exported, 3 real Credo Reference sources found and cited, research buckets updated to democratization angle
+- **Phase 2** — Crafting Research Questions: replaced fabricated Henderson source with real Glassner Credo citation
+- **Phase 3** — Short Proposal: same Henderson→Glassner fix
+- **Phase 4** — Brainstorm Discussion: draft was good as-is
+- **Phase 5** — Check-ins 1, 2, 3: Henderson source replaced in check-ins 1 and 3. Check-in 3 humanized via grubby.ai by user. Fixed: removed linear algebra/physics course claims (user hasn't taken those), added local AI model experience, replaced "99% not technical" phrasing, swapped fabricated Daintith/Marcovitz sources with real Credo ones
+- **Phase 6** — Presentation Worksheet: draft was good as-is
+- **Phase 7** — Research Presentation: built scroll-driven GSAP website at website/ (WIP, NOT finalized). Also created Google Slides (less important now). Created Google Docs for all 10 assignments with APA formatting.
 
-### Phase 1 Plan Progress
+### Phase 8 — BLOCKED
+Co-Curricular Reflection requires 2 FSW events. User hasn't attended yet, will this week. Skip for now, fill in later.
 
-- [x] 01-01-PLAN.md — Rewrite discussion post + update research buckets (Assignment #1, #6) — DONE
-- [ ] 01-02-PLAN.md — Update interest web subtopics + export PNG (Assignment #2)
-- [ ] 01-03-PLAN.md — Search Credo Reference for 2 real sources + finalize citations (Assignment #3)
+### Remaining Phases
+- **Phase 9** — Research Documentation (750+ words, 10+ sources) — NOT STARTED
+- **Phase 10** — Revision & Reflection (500+ words + revised bibliography) — NOT STARTED
+- **Phase 11** — Final Project (interactive website) — WIP website exists, needs major redesign
 
-### Discuss-Phase Status (Phase 1)
+## Decisions Made This Session
+- Tyler the Creator replaces Jensen Huang at dinner party (discussion post)
+- Interest web has 6 subtopics (originals + Local AI + AI Affordability, dropped Token Optimization and CPU vs GPU vs TPU)
+- Research focus: Local AI + Affordability (democratization angle)
+- APA 7th edition for everything
+- Skip GSD verifier for this project (homework, not software)
+- Website will use GSAP + ScrollTrigger but needs Apple/Prezi-style interactive redesign
+- Google Stitch mentioned for website planning (future)
+- All assignments need grubby.ai humanization (user does manually)
+- Notable figures added: Hinton, Jensen Huang, Lisa Su, Gordon Moore, Fei-Fei Li, Sam Altman, Karpathy, Dario Amodei, Jim Keller
 
-CONTEXT.md written. All decisions captured. Phase 1 plan 01 complete.
-
-### Decisions Captured
-
-1. **Citation style:** APA 7th edition (locked for all assignments)
-2. **Interest web subtopics (UPDATED):**
-   - GPU Evolution (Graphics → AI)
-   - Local/On-Device AI (running AI at home, consumer hardware)
-   - Token Optimization (efficiency, running models on less hardware)
-   - AI Affordability (how AI hardware is becoming more accessible)
-   - Future of AI Computing (where hardware and AI are heading)
-   - Research focus: Local AI + Affordability (democratization angle)
-3. **Source accuracy:** User wants REAL Credo Reference sources. 1 verified:
-   - "graphics processing unit; GPU" from *3D A-to-Z: An Encyclopedic Dictionary*, McFarland & Company, 2012. URL: https://search.credoreference.com/articles/Qm9va0FydGljbGU6MzAyMzkwNw==
-   - Need 2 more from Credo (search "parallel processing" and "artificial intelligence")
-   - OpenClaw extension hijacks headless browser — user needs to search Credo themselves OR we try again with OpenClaw disabled
-4. **Personal details for discussion post (REAL, from user):**
-   - Movies: Sound of Metal, Moonrise Kingdom, Marty Supreme, Blade Runner 2049, Surf's Up
-   - Shows: Naruto, How I Met Your Mother, Better Call Saul
-   - Music: Rock, indie — Backseat Lovers, Alice in Chains, Mac Miller (fav rapper)
-   - School subjects: Anything with tech
-   - Foods: Burgers, quesadillas, steak
-   - Sports: Barcelona, Brazil, Spain (soccer, doesn't watch much)
-   - Careers: Computer engineering + personal trainer
-   - Physical object: His computer — works on all projects on it
-   - Free weekend: Hang with girlfriend or work on a project
-   - Historical time/place: 80s Miami
-   - Dinner guests: Mac Miller, Jensen Huang, Wes Anderson
-   - Values: Hands-on learning, building from the ground up
-
-### Full Assignment List (17 total — UPDATED from original 13)
-
-| # | Assignment | Due | Points | Status |
-|---|-----------|-----|--------|--------|
-| 1 | Discussion Post — Introduce Yourself | Jan 15/18 | ~20 | Draft exists, needs rewrite with REAL personal info |
-| 2 | Library #1 — Interest Web | Jan 18 | 10 | Excalidraw file exists (text only, needs PNG export). Subtopics need updating. |
-| 3 | Library #2 — Credo Reference (3 sources) | Jan 25 | 10 | Draft exists with plausible sources. 1 verified from Credo, need 2 more. |
-| 4 | Lightning Talks Discussion | ~Feb 2 | ~20 | DONE — submitted Feb 2 |
-| 5 | Crafting Research Questions (250w + 3 RQs + 5 sources) | Feb 15 | 100 | Draft exists |
-| 6 | Library #3 — Research Buckets & Experts | Feb 15 | 10 | Draft exists |
-| 7 | Brainstorm Discussion + 2 peer responses | Feb 19/22 | 20 | Draft exists |
-| 8 | Short Proposal (500+ words) | Feb 22 | 20 | Draft exists |
-| 9 | Check-in 1 | Mar 1 | 40 | Draft exists |
-| 10 | Check-in 2 | Mar 8 | 20 | Draft exists |
-| 11 | Check-in 3 (comprehensive, 10+ sources) | Mar 15 | 60 | Draft exists |
-| 12 | Presentation Worksheet | Mar 22 | 20 | Draft exists |
-| 13 | Research Presentation (10-12 min) | Sunday TBD | 100 | Plan exists, needs website + paper |
-| 14 | Co-Curricular Reflection (500+ words, 2 events) | Apr 5 | 100 | NOT STARTED — needs user input on events attended |
-| 15 | Research Documentation (750+ words + 10 sources) | Apr 12 | 100 | NOT STARTED |
-| 16 | Revision & Reflection (500+ words + revised bibliography) | Apr 19 | 100 | NOT STARTED |
-| 17 | Final Project (website + research artifact) | Apr 19 | 100 | NOT STARTED — plan: vibe-coded interactive website |
-
-### Final Presentation Vision
-
-- Interactive multimodal website (vibe-coded) with animated architecture schematics
-- Small research paper accompanying the website
-- 99% of class is non-technical — website makes complex concepts accessible
-- Meta-narrative: AI was used to build the website that explains AI hardware
-- AutoResearchClaw (github.com/aiming-lab/AutoResearchClaw) as inspiration for paper process
-
-### What Needs Doing Next
-
-1. Write CONTEXT.md for Phase 1 (decisions above)
-2. Rebuild ROADMAP.md with all 17 assignments (was only 13)
-3. Rewrite discussion post with real personal info
-4. Get remaining 2 Credo sources (user searches, or retry browser without OpenClaw)
-5. Update interest web subtopics
-6. Update all draft assignments with corrected subtopics/scope
+## Google Workspace Assets
+- **Slides:** https://docs.google.com/presentation/d/1YwJVecv6iZ0h8wrZGRMQikzzl9UupF_GOZhhe4w8eZk/edit
+- **Discussion Post:** https://docs.google.com/document/d/1VlUoatwi2Wu2fjCLWLo66acZ7dkAWndRcChItlI16sA/edit
+- **Crafting RQs:** https://docs.google.com/document/d/18cSQxirZB-60yWEYw2tWCzoOPAlIa7vnV9twdj3Bs08/edit
+- **Credo Sources:** https://docs.google.com/document/d/1parht5jw-xOFE65Xk_AcuitJa2Q7lVb36wa4y_mJnNY/edit
+- **Research Buckets:** https://docs.google.com/document/d/1EpIK27M3A6xeHcQ1aG0hKID-_i_yNOdBsdvu9nm8MGA/edit
+- **Brainstorm:** https://docs.google.com/document/d/1XAE2GMwNiwIqAxRpu4i5BDYtm4vdrjTt0vIjWEEXgJo/edit
+- **Short Proposal:** https://docs.google.com/document/d/1vxt83935ktDBQlnORdDsLR2WyXqxSGwIRdw-tkmm8Y4/edit
+- **Check-in 1:** https://docs.google.com/document/d/1jyG38u72AC_70jEugy4zHTereIBYLe0Ddc9KIMJs6NI/edit
+- **Check-in 2:** https://docs.google.com/document/d/1aF0kxvS_9TpVoDiRcccEI09dD7t45QUK2x_IpSdOvpE/edit
+- **Check-in 3:** https://docs.google.com/document/d/1DCBwHRJqjD9h4gYJsjCWIYNvYknTEObwJr4UaBQqx94/edit
+- **Presentation Worksheet:** https://docs.google.com/document/d/1IJbB7EwLOPyqwK8nYE5VB18t3o9CdVtkSvLxv1Yltjw/edit
 
 ## Open Questions
-
-- When exactly is the Research Presentation due? (says "Sunday" but which Sunday?)
-- Co-curricular events: what events did user attend this semester? (needed for assignment 14)
+- When exactly is the Research Presentation due? (user said "today" on 2026-03-29)
+- Co-curricular events: user will attend 2 this week
 - Does professor accept late work? Any penalty?
 
-## Files Created
-
-All in ~/Documents/homework/cornerstone/:
-
-- assignment-1-discussion-post.md (needs rewrite)
-- assignment-1-interest-web.excalidraw (needs subtopic update + PNG export)
-- assignment-2-interest-web-note.md
-- assignment-3-library-2-credo-sources.md (needs real sources)
-- assignment-5-crafting-rqs.md
-- assignment-6-library-3-buckets.md
-- assignment-7-brainstorm-discussion.md
-- assignment-8-short-proposal.md
-- assignment-9-checkin-1.md
-- assignment-10-checkin-2.md
-- assignment-11-checkin-3.md
-- assignment-12-presentation-worksheet.md
-- assignment-13-final-presentation-plan.md
-
-## Bitwarden
-
-- FSW login: japarcedo / (in BW "fsw.edu" entry) / no TOTP in BW (uses external authenticator app)
-- Credo Reference access: via OpenAthens proxy (https://go.openathens.net/redirector/fsw.edu?url=http://search.credoreference.com)
+## Files
+All assignment drafts in ~/Documents/homework/cornerstone/
+Website at ~/Documents/homework/cornerstone/website/
+GSD planning at ~/Documents/homework/cornerstone/.planning/
