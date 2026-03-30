@@ -20,7 +20,7 @@ On a free weekend I'd either be hanging out with my girlfriend or deep in some p
 
 If I could visit any time and place in history, I'd pick 80s Miami without hesitation — the culture, the music, the architecture, all of it.
 
-For a dinner party, I'd invite Mac Miller, Jensen Huang (the CEO behind NVIDIA and the GPU revolution), and Wes Anderson. That would be a genuinely interesting table.
+For a dinner party, I'd invite Mac Miller, Tyler the Creator, and Wes Anderson. Three completely different creative minds — the conversation would go everywhere.
 
 My research topic this semester is AI Hardware Architecture — specifically how the rise of local, on-device AI is making powerful computing more accessible to everyday people. It connects directly to where I want to take my engineering career.
 
