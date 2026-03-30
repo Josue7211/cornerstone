@@ -1,10 +1,17 @@
 {
+  "mode": "yolo",
+  "granularity": "coarse",
+  "parallelization": true,
+  "commit_docs": true,
+  "model_profile": "inherit",
   "project_type": "homework",
   "workflow": {
-    "research_agents": false,
+    "research": false,
+    "plan_check": false,
+    "verifier": false,
+    "nyquist_validation": false,
+    "discuss_mode": "discuss",
     "browser_testing": false,
-    "atomic_commits": true,
-    "verification": false
-  },
-  "model_profile": "balanced"
+    "atomic_commits": true
+  }
 }
