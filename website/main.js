@@ -127,16 +127,27 @@ loader.load('./assets/models/futuristic-room/scene.gltf', (gltf) => {
   console.log('Camera: chair→desk, start:', camStart.x.toFixed(1), camStart.y.toFixed(1), camStart.z.toFixed(1));
   camera.position.copy(camStart);
 
-  // DEBUG: arrow keys to nudge camera end position, prints coords to console
+  // DEBUG: WASD + QE to position camera, prints coords to console
+  // W/S = forward/back (toward/away from where you're looking)
+  // A/D = left/right
+  // Q/E = up/down
+  // R = rotate look left, T = rotate look right
   window.addEventListener('keydown', (e) => {
     if (state.phase !== 'desktop') return;
     const step = 0.3;
-    if (e.key === 'ArrowUp') { camEnd.z -= step; lookEnd.z -= step; }
-    if (e.key === 'ArrowDown') { camEnd.z += step; lookEnd.z += step; }
-    if (e.key === 'ArrowLeft') { camEnd.x -= step; lookEnd.x -= step; }
-    if (e.key === 'ArrowRight') { camEnd.x += step; lookEnd.x += step; }
-    if (e.key === 'PageUp') { camEnd.y += step; }
-    if (e.key === 'PageDown') { camEnd.y -= step; }
+    const dir = new THREE.Vector3();
+    camera.getWorldDirection(dir);
+    const right = new THREE.Vector3().crossVectors(dir, new THREE.Vector3(0,1,0)).normalize();
+
+    if (e.key === 'w') { camEnd.add(dir.clone().multiplyScalar(step)); }
+    if (e.key === 's') { camEnd.add(dir.clone().multiplyScalar(-step)); }
+    if (e.key === 'a') { camEnd.add(right.clone().multiplyScalar(-step)); }
+    if (e.key === 'd') { camEnd.add(right.clone().multiplyScalar(step)); }
+    if (e.key === 'q') { camEnd.y += step; }
+    if (e.key === 'e') { camEnd.y -= step; }
+    if (e.key === 'r') { lookEnd.add(right.clone().multiplyScalar(-step)); }
+    if (e.key === 't') { lookEnd.add(right.clone().multiplyScalar(step)); }
+
     camera.position.copy(camEnd);
     camera.lookAt(lookEnd);
     console.log('camEnd:', camEnd.x.toFixed(2), camEnd.y.toFixed(2), camEnd.z.toFixed(2),
