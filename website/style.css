@@ -569,3 +569,87 @@ canvas#scene {
   text-align: center;
 }
 .exp-meta p { font-size: 0.85rem !important; font-style: italic; }
+
+/* ═══ PAPER PANEL CONTENT — CINEMATIC SECTIONS ═══ */
+.panel-header { padding: 6rem 3rem 3rem; text-align: center; position: relative; overflow: hidden; }
+.panel-header--paper::before { content: ''; position: absolute; inset: 0; background: radial-gradient(ellipse at center top, rgba(0,240,255,0.12), transparent 60%); pointer-events: none; }
+.panel-header--pres::before { content: ''; position: absolute; inset: 0; background: radial-gradient(ellipse at center top, rgba(255,0,170,0.12), transparent 60%); pointer-events: none; }
+.panel-header--exp::before { content: ''; position: absolute; inset: 0; background: radial-gradient(ellipse at center top, rgba(0,255,136,0.12), transparent 60%); pointer-events: none; }
+.panel-eyebrow { font-family: var(--font-mono); font-size: 0.65rem; color: var(--text-dim); letter-spacing: 0.2em; text-transform: uppercase; margin-bottom: 1rem; }
+.panel-header h1 { font-family: var(--font-display); font-size: clamp(2rem, 5vw, 4rem); font-weight: 900; color: var(--text); margin-bottom: 1rem; line-height: 1.1; }
+.panel-subtitle { font-size: 1.1rem; color: var(--text-dim); max-width: 600px; margin: 0 auto; line-height: 1.6; }
+.panel-author { font-family: var(--font-mono); font-size: 0.7rem; color: var(--text-muted); margin-top: 1rem; letter-spacing: 0.1em; }
+
+.paper-abstract { background: var(--card-bg); border: 1px solid var(--border); border-left: 3px solid var(--cyan); padding: 2rem; margin-bottom: 3rem; border-radius: 0 8px 8px 0; }
+.paper-abstract h2 { font-family: var(--font-display); font-size: 0.8rem; color: var(--cyan); letter-spacing: 0.2em; margin-bottom: 1rem; border-bottom: none; padding-bottom: 0; }
+.paper-abstract p { line-height: 1.8; color: var(--text-dim); margin-bottom: 0; }
+
+.paper-section { display: grid; grid-template-columns: 60px 1fr; gap: 2rem; margin-bottom: 3.5rem; padding-bottom: 3.5rem; border-bottom: 1px solid var(--border); }
+.paper-section:last-of-type { border-bottom: none; }
+.paper-section-num { font-family: var(--font-display); font-size: 2rem; font-weight: 900; color: var(--cyan); opacity: 0.3; line-height: 1; padding-top: 0.5rem; }
+.paper-section-content h2 { font-family: var(--font-display); font-size: 1.3rem; font-weight: 700; color: var(--text); margin-bottom: 1rem; border-bottom: none; padding-bottom: 0; }
+.paper-section-content p { line-height: 1.9; color: var(--text-dim); margin-bottom: 1rem; }
+.paper-section-content code { font-family: var(--font-mono); font-size: 0.85em; background: var(--card-bg); border: 1px solid var(--border); padding: 0.1em 0.4em; border-radius: 3px; color: var(--cyan); }
+
+.paper-timeline-title { font-family: var(--font-display); font-size: 1rem; color: var(--text-dim); letter-spacing: 0.2em; margin-bottom: 1.5rem; margin-top: 0; border-bottom: none !important; padding-bottom: 0 !important; }
+.paper-timeline { margin-bottom: 3.5rem; display: flex; flex-direction: column; gap: 0; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
+.timeline-item { display: grid; grid-template-columns: 60px 100px 1fr; gap: 1.5rem; padding: 1rem 1.5rem; border-bottom: 1px solid var(--border); align-items: center; }
+.timeline-item:last-child { border-bottom: none; }
+.tl-highlight { background: rgba(0,240,255,0.05); }
+.tl-year { font-family: var(--font-mono); font-size: 0.75rem; color: var(--text-muted); }
+.tl-name { font-family: var(--font-display); font-size: 0.75rem; color: var(--cyan); font-weight: 700; }
+.tl-highlight .tl-name { text-shadow: 0 0 10px var(--cyan-glow); }
+.tl-desc { font-size: 0.85rem; color: var(--text-dim); }
+
+.paper-thesis { text-align: center; font-family: var(--font-display); font-size: clamp(1.2rem, 3vw, 2rem); font-weight: 700; color: var(--cyan); border: 1px solid rgba(0,240,255,0.3); padding: 2.5rem; margin: 2rem 0; border-radius: 8px; background: rgba(0,240,255,0.05); line-height: 1.4; font-style: normal; }
+
+.paper-sources { margin-top: 4rem; padding-top: 2rem; border-top: 1px solid var(--border); }
+.paper-sources h2 { font-family: var(--font-display); font-size: 0.8rem; color: var(--text-muted); letter-spacing: 0.2em; margin-bottom: 1rem; border-bottom: none; padding-bottom: 0; }
+
+/* ═══ PRESENTATION PANEL CONTENT ═══ */
+.pres-container { min-height: 100%; }
+.pres-header { padding: 6rem 3rem 4rem; text-align: center; position: relative; overflow: hidden; }
+.pres-header::before { content: ''; position: absolute; inset: 0; background: radial-gradient(ellipse at center top, rgba(255,0,170,0.15), transparent 60%); pointer-events: none; }
+.pres-header h1 { font-family: var(--font-display); font-size: clamp(2rem, 5vw, 3.5rem); font-weight: 900; color: var(--text); margin: 1rem 0; }
+
+.pres-slide-track { padding: 0 3rem 6rem; max-width: 900px; margin: 0 auto; display: flex; flex-direction: column; gap: 0; }
+.pres-slide-track .pres-slide { padding: 4rem 0; border-bottom: 1px solid var(--border); position: relative; background: none; border-radius: 0; display: block; }
+.pres-slide-track .pres-slide:last-child { border-bottom: none; }
+.slide-num { font-family: var(--font-mono); font-size: 0.65rem; color: var(--text-muted); letter-spacing: 0.15em; margin-bottom: 0.5rem; }
+.slide-tag { font-family: var(--font-display); font-size: 0.6rem; color: var(--magenta); letter-spacing: 0.3em; text-transform: uppercase; margin-bottom: 1.5rem; }
+.pres-slide-track .pres-slide h2 { font-family: var(--font-display); font-size: clamp(1.5rem, 3vw, 2.5rem); font-weight: 700; color: var(--text); margin-bottom: 1.5rem; border-bottom: none; padding-bottom: 0; }
+.slide-body { line-height: 1.9; color: var(--text-dim); margin-bottom: 1.2rem; font-size: 1rem; }
+
+.slide-stat-inline { display: flex; align-items: center; gap: 1.5rem; margin-top: 2rem; padding: 1.5rem; background: var(--card-bg); border: 1px solid var(--border); border-radius: 8px; }
+.inline-num { font-family: var(--font-display); font-size: 3rem; font-weight: 900; color: var(--cyan); line-height: 1; white-space: nowrap; }
+.slide-stat-inline span:last-child { color: var(--text-dim); line-height: 1.6; }
+
+.slide-disciplines { display: flex; flex-wrap: wrap; gap: 0.75rem; margin: 1.5rem 0; }
+.discipline-tag { font-family: var(--font-mono); font-size: 0.65rem; color: var(--magenta); border: 1px solid rgba(255,0,170,0.3); padding: 0.4rem 0.8rem; border-radius: 4px; letter-spacing: 0.1em; }
+
+.slide-connections { display: flex; flex-direction: column; gap: 1.5rem; margin: 1.5rem 0; }
+.connection-item { display: grid; grid-template-columns: 140px 1fr; gap: 1.5rem; align-items: start; }
+.conn-field { font-family: var(--font-display); font-size: 0.6rem; color: var(--magenta); font-weight: 700; letter-spacing: 0.15em; padding-top: 0.2rem; }
+.conn-desc { font-size: 0.9rem; color: var(--text-dim); line-height: 1.7; }
+
+.slide-implications { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin: 1.5rem 0; }
+.impl-item { padding: 1.5rem; border-radius: 8px; border: 1px solid var(--border); }
+.impl-pos { border-top: 2px solid var(--green); }
+.impl-warn { border-top: 2px solid var(--yellow); }
+.impl-label { font-family: var(--font-display); font-size: 0.65rem; font-weight: 700; letter-spacing: 0.2em; display: block; margin-bottom: 0.75rem; }
+.impl-pos .impl-label { color: var(--green); }
+.impl-warn .impl-label { color: var(--yellow); }
+.impl-item p { font-size: 0.85rem; color: var(--text-dim); line-height: 1.7; margin: 0; }
+
+.slide-advocacy-points { display: flex; flex-direction: column; gap: 1.5rem; margin: 2rem 0; }
+.advocacy-point { display: grid; grid-template-columns: 40px 1fr; gap: 1.5rem; align-items: start; }
+.adv-num { font-family: var(--font-display); font-size: 1.5rem; font-weight: 900; color: var(--magenta); opacity: 0.5; }
+.advocacy-point p { font-size: 0.9rem; color: var(--text-dim); line-height: 1.7; margin: 0; }
+
+.pres-slide--final { text-align: center; }
+.slide-thesis { font-family: var(--font-display); font-size: clamp(1.5rem, 4vw, 2.5rem); font-weight: 700; color: var(--magenta); border: 1px solid rgba(255,0,170,0.3); padding: 3rem; margin: 2rem 0; border-radius: 8px; background: rgba(255,0,170,0.05); line-height: 1.4; font-style: normal; text-shadow: 0 0 40px rgba(255,0,170,0.4); }
+.slide-meta { margin: 2rem 0; color: var(--text-dim); line-height: 1.8; font-style: italic; }
+.slide-sources { font-family: var(--font-mono); font-size: 0.65rem; color: var(--text-muted); line-height: 1.9; margin-top: 2rem; padding-top: 2rem; border-top: 1px solid var(--border); }
+
+/* ═══ EXPERIENCE PANEL ADDITIONS ═══ */
+.section-title { font-family: var(--font-display); font-size: 1.1rem; font-weight: 700; color: var(--text); letter-spacing: 0.1em; margin: 4rem 0 1rem; border-bottom: none !important; padding-bottom: 0 !important; }
