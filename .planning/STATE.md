@@ -1,22 +1,40 @@
+---
+gsd_state_version: 1.0
+milestone: v1.0
+milestone_name: milestone
+status: unknown
+last_updated: "2026-03-30T00:39:52.154Z"
+progress:
+  total_phases: 11
+  completed_phases: 0
+  total_plans: 3
+  completed_plans: 1
+---
+
 # Project State — IDS2891 Cornerstone
 
 ## Current Phase
+
 Phase 1 — Library Assignments (discuss-phase in progress, CONTEXT.md not yet written)
 
 ## Last Action
+
 2026-03-30: Executed plan 01-01 — rewrote discussion post (Assignment #1) with real personal details and updated research buckets (Assignment #6) to democratization/local AI angle. Commits: fa1d1c9, aef8143.
 
 ## Session Context — RESUME FROM HERE
 
 ### Phase 1 Plan Progress
+
 - [x] 01-01-PLAN.md — Rewrite discussion post + update research buckets (Assignment #1, #6) — DONE
 - [ ] 01-02-PLAN.md — Update interest web subtopics + export PNG (Assignment #2)
 - [ ] 01-03-PLAN.md — Search Credo Reference for 2 real sources + finalize citations (Assignment #3)
 
 ### Discuss-Phase Status (Phase 1)
+
 CONTEXT.md written. All decisions captured. Phase 1 plan 01 complete.
 
 ### Decisions Captured
+
 1. **Citation style:** APA 7th edition (locked for all assignments)
 2. **Interest web subtopics (UPDATED):**
    - GPU Evolution (Graphics → AI)
@@ -44,6 +62,7 @@ CONTEXT.md written. All decisions captured. Phase 1 plan 01 complete.
    - Values: Hands-on learning, building from the ground up
 
 ### Full Assignment List (17 total — UPDATED from original 13)
+
 | # | Assignment | Due | Points | Status |
 |---|-----------|-----|--------|--------|
 | 1 | Discussion Post — Introduce Yourself | Jan 15/18 | ~20 | Draft exists, needs rewrite with REAL personal info |
@@ -65,6 +84,7 @@ CONTEXT.md written. All decisions captured. Phase 1 plan 01 complete.
 | 17 | Final Project (website + research artifact) | Apr 19 | 100 | NOT STARTED — plan: vibe-coded interactive website |
 
 ### Final Presentation Vision
+
 - Interactive multimodal website (vibe-coded) with animated architecture schematics
 - Small research paper accompanying the website
 - 99% of class is non-technical — website makes complex concepts accessible
@@ -72,6 +92,7 @@ CONTEXT.md written. All decisions captured. Phase 1 plan 01 complete.
 - AutoResearchClaw (github.com/aiming-lab/AutoResearchClaw) as inspiration for paper process
 
 ### What Needs Doing Next
+
 1. Write CONTEXT.md for Phase 1 (decisions above)
 2. Rebuild ROADMAP.md with all 17 assignments (was only 13)
 3. Rewrite discussion post with real personal info
@@ -80,12 +101,15 @@ CONTEXT.md written. All decisions captured. Phase 1 plan 01 complete.
 6. Update all draft assignments with corrected subtopics/scope
 
 ## Open Questions
+
 - When exactly is the Research Presentation due? (says "Sunday" but which Sunday?)
 - Co-curricular events: what events did user attend this semester? (needed for assignment 14)
 - Does professor accept late work? Any penalty?
 
 ## Files Created
+
 All in ~/Documents/homework/cornerstone/:
+
 - assignment-1-discussion-post.md (needs rewrite)
 - assignment-1-interest-web.excalidraw (needs subtopic update + PNG export)
 - assignment-2-interest-web-note.md
@@ -101,5 +125,6 @@ All in ~/Documents/homework/cornerstone/:
 - assignment-13-final-presentation-plan.md
 
 ## Bitwarden
+
 - FSW login: japarcedo / (in BW "fsw.edu" entry) / no TOTP in BW (uses external authenticator app)
 - Credo Reference access: via OpenAthens proxy (https://go.openathens.net/redirector/fsw.edu?url=http://search.credoreference.com)
