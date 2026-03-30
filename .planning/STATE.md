@@ -2,13 +2,13 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: planning
-last_updated: "2026-03-30T06:43:27.017Z"
+status: executing
+last_updated: "2026-03-30T16:08:27.222Z"
 progress:
   total_phases: 11
   completed_phases: 2
-  total_plans: 5
-  completed_plans: 3
+  total_plans: 8
+  completed_plans: 4
 ---
 
 # Project State — IDS2891 Cornerstone
@@ -19,7 +19,15 @@ Phase 11 — Final Project (interactive website)
 
 ## Last Action
 
-2026-03-30: Completed Phase 10 Plan 01 — wrote assignment-16-revision-reflection.md (1,710 words: ~1,100-word reflection narrative with 3 elements + 18-source APA bibliography). Commit 4a65c2b. Ready for grubby.ai humanization.
+2026-03-30: Completed Phase 11 Plan 01 — rebuilt website/ with Three.js r160 ESM importmap, GLTFLoader (cyberpunk-scene 51MB), RGBELoader HDRI, EffectComposer (bloom + chromatic aberration), WASD 0.06 speed, 160px minimap. Commits 8bd038b + a5cf71b. Stopped at checkpoint:human-verify (Task 3 — browser verification of 3D lobby).
+
+## Phase 11 Decisions (2026-03-30)
+
+- Three.js r160 ESM importmap — only CDN approach for GLTFLoader + EffectComposer without a bundler
+- Speed 0.06 (user feedback: 0.12 too fast), minimap 160px (user feedback: 100px too small)
+- GLTF scale 0.05 — initial value to fit cyberpunk-scene into 30-unit lobby floor
+- HDRI as scene.environment only (not background) — preserves dark void fog aesthetic
+- Pioneer portraits use real website/portraits/*.jpg photos instead of CSS initials avatars
 
 ## Session Summary — 2026-03-29/30
 
@@ -86,7 +94,7 @@ Co-Curricular Reflection requires 2 FSW events. User hasn't attended yet, will t
 
 ## Research Paper (Separate — Not a Class Assignment)
 
-- **Status:** Ready to plan
+- **Status:** Executing Phase 11
 - **Google Doc:** https://docs.google.com/document/d/1s3qM1qqWGbZKR1AQn1PhHX7fdGiKoPmv4-gpq7BMzc8/edit
 - **Stats:** 13,455 words, 35 APA sources, 2 tables, 10 sections
 - **Thesis:** Cloud-first AI is a temporary phase; open-source + consumer hardware make it obsolete
