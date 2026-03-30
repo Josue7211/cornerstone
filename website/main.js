@@ -88,26 +88,35 @@ loader.load('./assets/models/futuristic-room/scene.gltf', (gltf) => {
   });
   scene.add(model);
 
-  // Try to find the monitor/screen in the scene
+  // Find monitor, office chair, and desk to position camera
+  let foundMonitor = false;
   model.traverse(c => {
-    if (c.isMesh && c.name) {
-      const n = c.name.toLowerCase();
-      if (n.match(/screen|monitor|display|computer/)) {
-        const wp = new THREE.Vector3();
-        c.getWorldPosition(wp);
-        monitorPos.copy(wp);
-        // Set camera end near the monitor
-        camEnd.set(wp.x, wp.y + 0.3, wp.z + 1.5);
-        lookEnd.copy(wp);
-        console.log('Found monitor:', c.name, 'at', wp.x.toFixed(1), wp.y.toFixed(1), wp.z.toFixed(1));
-      }
+    if (!c.name) return;
+    const n = c.name.toLowerCase();
+    const wp = new THREE.Vector3();
+    c.getWorldPosition(wp);
+
+    if (n.includes('monitor') && !foundMonitor) {
+      monitorPos.copy(wp);
+      foundMonitor = true;
+      console.log('Monitor:', c.name, wp.x.toFixed(1), wp.y.toFixed(1), wp.z.toFixed(1));
+    }
+    if (n.includes('officechair') || n.includes('officetable')) {
+      console.log('Furniture:', c.name, wp.x.toFixed(1), wp.y.toFixed(1), wp.z.toFixed(1));
     }
   });
 
+  if (foundMonitor) {
+    // Camera ends close to the monitor, looking at it
+    camEnd.set(monitorPos.x, monitorPos.y + 0.2, monitorPos.z + 2.0);
+    lookEnd.copy(monitorPos);
+  }
+
   console.log('Room loaded, scale:', scale.toFixed(3));
 
-  // Set camera start position
-  camStart.set(camEnd.x + 3, camEnd.y + 2, camEnd.z + 7);
+  // Camera starts pulled back from the end position
+  camStart.set(camEnd.x + 2, camEnd.y + 3, camEnd.z + 6);
+  lookStart.set(lookEnd.x, lookEnd.y - 1, lookEnd.z + 2);
   camera.position.copy(camStart);
 
   loaderFill.style.width = '100%';
