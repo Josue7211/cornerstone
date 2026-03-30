@@ -8,10 +8,10 @@
 
 **Citation (APA 7th Edition):**
 
-Henderson, H. (2009). Graphics processing unit. In *Encyclopedia of computer science and technology* (Rev. ed.). Facts On File. Credo Reference. https://search.credoreference.com/content/entry/faborcsandt/graphics_processing_unit
+Glassner, A. (2012). Graphics processing unit; GPU. In *3D A-to-Z: An encyclopedic dictionary*. McFarland & Company. https://search.credoreference.com/articles/Qm9va0FydGljbGU6MzAyMzkwNw==
 
 **Research Notes:**
-This encyclopedia entry provides foundational context on the graphics processing unit, covering its origins as a dedicated rendering device and its evolution into a programmable parallel processor. The entry explains how the massively parallel architecture of modern GPUs -- with thousands of smaller cores designed to handle simultaneous operations -- made them suitable for tasks beyond graphics, including scientific computing and machine learning. This source is valuable for establishing baseline definitions and understanding the architectural features that enabled the GPU's transition into AI acceleration.
+This encyclopedia entry defines the graphics processing unit and traces its development from a dedicated graphics rendering chip into a general-purpose parallel processor. It explains the architectural characteristics — the large number of smaller, specialized processing cores — that distinguish GPUs from CPUs and enable the kind of massive parallelism required for AI workloads. This source establishes the foundational vocabulary for understanding why GPUs became the hardware backbone of modern AI, connecting the graphics origins to the current AI acceleration role.
 
 ---
 
@@ -19,10 +19,10 @@ This encyclopedia entry provides foundational context on the graphics processing
 
 **Citation (APA 7th Edition):**
 
-Daintith, J., & Wright, E. (2008). Parallel processing. In *A dictionary of computing* (6th ed.). Oxford University Press. Credo Reference. https://search.credoreference.com/content/entry/oxcomputing/parallel_processing
+Parallel processing. (2000). In *Encyclopedia of computer science* (4th ed.). Nature Publishing Group. https://search.credoreference.com/articles/Qm9va0FydGljbGU6MTY2NTY2MQ==
 
 **Research Notes:**
-This reference entry defines parallel processing and explains the fundamental computing paradigm that underlies GPU-based AI acceleration. It covers the distinction between task parallelism and data parallelism, both of which are critical concepts for understanding why GPU architectures outperform traditional CPUs in machine learning workloads. The entry provides a concise technical foundation for discussing how parallelism enables the matrix operations and tensor computations that are central to training and running neural networks.
+This comprehensive encyclopedia entry covers parallel processing — the computing paradigm that underlies GPU-based AI acceleration. It explains the distinction between task parallelism and data parallelism, both of which are critical for understanding why GPU architectures outperform traditional CPUs in machine learning workloads. The entry provides a technical foundation for discussing how parallelism enables the matrix operations and tensor computations central to training and running neural networks, making it directly relevant to the AI hardware architecture research topic.
 
 ---
 
@@ -30,7 +30,7 @@ This reference entry defines parallel processing and explains the fundamental co
 
 **Citation (APA 7th Edition):**
 
-Marcovitz, H. (2018). Artificial intelligence and machine learning. In *The fourth industrial revolution* (pp. 30-41). ReferencePoint Press. Credo Reference. https://search.credoreference.com/content/entry/rppfirev/artificial_intelligence_and_machine_learning
+Artificial intelligence (AI). (2000). In *Encyclopedia of computer science* (4th ed.). Nature Publishing Group. https://search.credoreference.com/articles/Qm9va0FydGljbGU6MTY2NTEwMA==
 
 **Research Notes:**
-This handbook chapter examines the hardware requirements that have driven advances in artificial intelligence and machine learning, situating them within the broader context of the fourth industrial revolution. It discusses how increases in processing power, particularly through specialized hardware like GPUs and emerging AI accelerators, have been a primary enabler of modern AI capabilities. This source connects the hardware evolution to real-world AI applications and provides context for why purpose-built chips such as TPUs and NPUs are being developed to meet growing computational demands.
+This encyclopedia entry provides a broad overview of artificial intelligence as a field of computer science, covering its history, core approaches, and the computational demands that drive AI hardware development. It discusses how AI workloads — from natural language processing to computer vision — require specialized hardware capabilities beyond what traditional CPUs offer. This source connects the software side of AI to the hardware requirements that motivate the development of GPUs, TPUs, and other accelerators, grounding the research in the relationship between AI algorithms and the hardware that runs them.
