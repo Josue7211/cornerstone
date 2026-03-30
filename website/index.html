@@ -3,532 +3,272 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>From Pixels to Intelligence — AI Hardware Architecture</title>
+  <title>From Pixels to Intelligence — Explore</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Space+Mono:wght@400;700&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Chakra+Petch:wght@300;400;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-  <!-- ═══ PROGRESS BAR ═══ -->
-  <div class="progress-bar" id="progressBar"></div>
-
-  <!-- ═══ NAV ═══ -->
-  <nav class="nav" id="nav">
-    <span class="nav-logo">GPU → AI</span>
-    <div class="nav-links">
-      <a href="#hero">Start</a>
-      <a href="#timeline">Timeline</a>
-      <a href="#chips">Chips</a>
-      <a href="#figures">Pioneers</a>
-      <a href="#future">Future</a>
+  <!-- ═══ LOADING SCREEN ═══ -->
+  <div class="loader" id="loader">
+    <div class="loader-inner">
+      <div class="loader-bar"><div class="loader-fill" id="loaderFill"></div></div>
+      <p class="loader-text">INITIALIZING NEURAL PATHWAYS...</p>
     </div>
-  </nav>
+  </div>
 
-  <!-- ═══ HERO ═══ -->
-  <section class="hero" id="hero">
-    <div class="hero-grid"></div>
-    <div class="hero-glow"></div>
-    <div class="hero-content">
-      <div class="hero-tag">
-        <span class="tag-dot"></span>
-        IDS2891 Cornerstone — Spring 2026
-      </div>
-      <h1 class="hero-title">
-        <span class="title-line">From Pixels</span>
-        <span class="title-line accent">to Intelligence</span>
-      </h1>
-      <p class="hero-sub">How Gaming GPUs Became the Engine of the AI Revolution</p>
-      <p class="hero-author">Josue Aparcedo Gonzalez</p>
-      <div class="scroll-cta">
-        <div class="scroll-line"></div>
-        <span>Scroll to explore</span>
-      </div>
+  <!-- ═══ HUD OVERLAY ═══ -->
+  <div class="hud" id="hud">
+    <div class="hud-top">
+      <span class="hud-title">FROM PIXELS TO INTELLIGENCE</span>
+      <span class="hud-author">Josue Aparcedo Gonzalez · IDS2891 · Spring 2026</span>
     </div>
-  </section>
-
-  <!-- ═══ HOOK ═══ -->
-  <section class="section section--hook" id="hook">
-    <div class="container">
-      <div class="hook-statement" data-reveal>
-        <p class="eyebrow">The hidden engine</p>
-        <h2 class="big-text">Every AI tool you use — ChatGPT, Claude, Gemini, Siri — runs on hardware that was originally designed to <span class="accent">play video games.</span></h2>
-      </div>
-      <div class="stats-row">
-        <div class="stat" data-reveal>
-          <span class="stat-num" data-count="86">0</span><span class="stat-unit">%</span>
-          <span class="stat-label">of AI GPUs made by NVIDIA</span>
-        </div>
-        <div class="stat" data-reveal>
-          <span class="stat-num" data-count="47">0</span><span class="stat-unit">B</span>
-          <span class="stat-label">NVIDIA data center revenue FY2025</span>
-        </div>
-        <div class="stat" data-reveal>
-          <span class="stat-num" data-count="164">0</span><span class="stat-unit">B</span>
-          <span class="stat-label">projected AI chip market by 2029</span>
-        </div>
-      </div>
-      <p class="source-cite" data-reveal>Data Center Knowledge, 2025 · UST, 2024</p>
+    <div class="hud-controls" id="hudControls">
+      <span>WASD / Arrow keys to move</span>
+      <span>Walk into a portal to explore</span>
     </div>
-  </section>
-
-  <!-- ═══ CPU vs GPU ═══ -->
-  <section class="section section--arch" id="architecture">
-    <div class="container">
-      <p class="eyebrow" data-reveal>Architecture comparison</p>
-      <h2 class="section-title" data-reveal>Why GPUs Beat CPUs at AI</h2>
-      <p class="section-desc" data-reveal>A CPU uses a few powerful cores for complex tasks. A GPU uses thousands of tiny cores for simple, parallel math. Neural networks need the same calculation done millions of times — exactly what GPUs were built for.</p>
-
-      <div class="arch-compare">
-        <div class="arch-card" data-reveal>
-          <h3 class="arch-label">CPU</h3>
-          <p class="arch-subtitle">Few powerful cores</p>
-          <div class="arch-viz cpu-viz">
-            <div class="core core--big"></div>
-            <div class="core core--big"></div>
-            <div class="core core--big"></div>
-            <div class="core core--big"></div>
-            <div class="core core--big"></div>
-            <div class="core core--big"></div>
-            <div class="core core--big"></div>
-            <div class="core core--big"></div>
-          </div>
-          <div class="arch-specs">
-            <span>4–64 cores</span>
-            <span>65–250W</span>
-            <span>Sequential</span>
-          </div>
-        </div>
-
-        <div class="arch-vs" data-reveal>vs</div>
-
-        <div class="arch-card arch-card--gpu" data-reveal>
-          <h3 class="arch-label">GPU</h3>
-          <p class="arch-subtitle">Thousands of tiny cores</p>
-          <div class="arch-viz gpu-viz" id="gpuViz">
-            <!-- JS fills 256 tiny cores -->
-          </div>
-          <div class="arch-specs">
-            <span>1,000–18,000+ cores</span>
-            <span>200–700W</span>
-            <span>Massively parallel</span>
-          </div>
-        </div>
-      </div>
-      <p class="source-cite" data-reveal>Glassner, 2012 · IBM, 2024 · Rathore, 2024</p>
+    <div class="hud-minimap" id="minimap">
+      <div class="minimap-dot" id="minimapDot"></div>
+      <div class="minimap-portal minimap-portal--paper"></div>
+      <div class="minimap-portal minimap-portal--pres"></div>
+      <div class="minimap-portal minimap-portal--exp"></div>
     </div>
-  </section>
+  </div>
 
-  <!-- ═══ THE TURNING POINT: CUDA ═══ -->
-  <section class="section section--cuda" id="cuda">
-    <div class="container container--narrow">
-      <p class="eyebrow" data-reveal>2007 — The turning point</p>
-      <h2 class="section-title" data-reveal>CUDA Changed Everything</h2>
-      <blockquote class="pull-quote" data-reveal>
-        "CUDA was not a product feature. It was a platform moat."
-      </blockquote>
-      <p class="body-text" data-reveal>When NVIDIA released CUDA in 2007, it made GPU hardware programmable for the first time. Jensen Huang invested hundreds of millions in a software platform with no immediate revenue. The bet was strategic: if NVIDIA owned the software layer, every developer who adopted CUDA would be locked into NVIDIA hardware forever.</p>
-      <p class="body-text" data-reveal>Five years later, AlexNet proved him right. Two $500 gaming GPUs (GTX 580s) trained a neural network that crushed the competition by 11 percentage points — a result that pivoted the entire AI research community to GPU computing overnight.</p>
-      <p class="source-cite" data-reveal>CRV Science, 2024 · Krizhevsky et al., 2012</p>
-    </div>
-  </section>
+  <!-- ═══ PORTAL LABELS (3D world overlay) ═══ -->
+  <div class="portal-label portal-label--paper" id="labelPaper">
+    <span class="portal-icon">📄</span>
+    <span>RESEARCH PAPER</span>
+  </div>
+  <div class="portal-label portal-label--pres" id="labelPres">
+    <span class="portal-icon">🎬</span>
+    <span>PRESENTATION</span>
+  </div>
+  <div class="portal-label portal-label--exp" id="labelExp">
+    <span class="portal-icon">🔬</span>
+    <span>EXPERIENCE</span>
+  </div>
 
-  <!-- ═══ GPU TIMELINE ═══ -->
-  <section class="section section--timeline" id="timeline">
-    <div class="container">
-      <p class="eyebrow" data-reveal>2010 – 2024</p>
-      <h2 class="section-title" data-reveal>The Architecture Arms Race</h2>
-      <p class="section-desc" data-reveal>Each NVIDIA generation became more deliberately optimized for AI. What started as an accident became a trillion-dollar strategy.</p>
+  <!-- ═══ CONTENT PANELS ═══ -->
 
-      <div class="timeline">
-        <div class="timeline-track"></div>
-
-        <div class="timeline-item" data-reveal>
-          <div class="timeline-year">2010</div>
-          <div class="timeline-content">
-            <h3>Fermi</h3>
-            <p>ECC memory and double-precision made GPUs viable for scientific computing — the first step beyond gaming.</p>
-          </div>
-        </div>
-
-        <div class="timeline-item" data-reveal>
-          <div class="timeline-year">2012</div>
-          <div class="timeline-content">
-            <h3>Kepler</h3>
-            <p>Dynamic parallelism — GPU programs could launch GPU programs. AlexNet ran on this generation.</p>
-            <span class="timeline-tag">AlexNet moment</span>
-          </div>
-        </div>
-
-        <div class="timeline-item" data-reveal>
-          <div class="timeline-year">2016</div>
-          <div class="timeline-content">
-            <h3>Pascal</h3>
-            <p>NVLink interconnect enabled multi-GPU training — essential as models grew beyond single-card memory.</p>
-          </div>
-        </div>
-
-        <div class="timeline-item timeline-item--major" data-reveal>
-          <div class="timeline-year">2017</div>
-          <div class="timeline-content">
-            <h3>Volta</h3>
-            <p>Introduced <strong>Tensor Cores</strong> — dedicated matrix multiplication hardware. GPUs stopped being "graphics chips repurposed for AI" and became "AI chips that also do graphics."</p>
-            <span class="timeline-tag">Inflection point</span>
-          </div>
-        </div>
-
-        <div class="timeline-item" data-reveal>
-          <div class="timeline-year">2020</div>
-          <div class="timeline-content">
-            <h3>Ampere</h3>
-            <p>Sparsity-aware Tensor Cores doubled throughput by skipping zero-valued computations in pruned networks.</p>
-          </div>
-        </div>
-
-        <div class="timeline-item" data-reveal>
-          <div class="timeline-year">2022</div>
-          <div class="timeline-content">
-            <h3>Hopper</h3>
-            <p>The Transformer Engine — hardware built specifically for the attention mechanism powering GPT, Claude, and every modern LLM.</p>
-          </div>
-        </div>
-
-        <div class="timeline-item" data-reveal>
-          <div class="timeline-year">2024</div>
-          <div class="timeline-content">
-            <h3>Blackwell</h3>
-            <p>NVLink 5 at 1.8 TB/s bandwidth. Second-gen Transformer Engines for trillion-parameter models. The data center GPU.</p>
-          </div>
-        </div>
+  <!-- RESEARCH PAPER PANEL -->
+  <div class="panel" id="panelPaper">
+    <button class="panel-close" onclick="closePanel()">✕ BACK TO LOBBY</button>
+    <div class="panel-scroll">
+      <div class="panel-header panel-header--paper">
+        <p class="panel-eyebrow">Research Paper · 13,455 words · 35 APA Sources</p>
+        <h1>From Pixels to Intelligence</h1>
+        <p class="panel-subtitle">How Open-Source AI and Consumer Hardware Are Making Cloud Computing Obsolete</p>
       </div>
-      <p class="source-cite" data-reveal>Bitdeer, 2025 · Rathore, 2024 · Data Center Knowledge, 2025</p>
-    </div>
-  </section>
+      <div class="panel-body">
+        <h2>Abstract</h2>
+        <p>This paper argues that the cloud-first era of artificial intelligence is a temporary phase in computing history, not its conclusion. Four converging trends — silicon miniaturization, model compression, token optimization, and open-source model availability — have made it possible for individuals to run AI systems on consumer hardware that rival cloud services costing thousands of dollars monthly.</p>
+        <p>Beyond the technical argument, this paper examines the psychological dimensions of cloud dependence, the behavioral economics of the "delegation premium," the geopolitics of U.S.–China chip export controls, and the cybersecurity implications revealed by Anthropic's leaked Claude Mythos model.</p>
 
-  <!-- ═══ SPECIALIZED CHIPS ═══ -->
-  <section class="section section--chips" id="chips">
-    <div class="container">
-      <p class="eyebrow" data-reveal>Beyond the GPU</p>
-      <h2 class="section-title" data-reveal>The Challengers: Purpose-Built AI Silicon</h2>
-
-      <div class="chip-grid">
-        <div class="chip-card" data-reveal>
-          <div class="chip-icon">TPU</div>
-          <h3>Google's Tensor Processing Unit</h3>
-          <p>Uses systolic arrays instead of general-purpose cores. Data flows through processing elements in waves — no memory bottleneck. 15–30x better performance per watt than GPUs on inference.</p>
-          <div class="chip-stat">
-            <span class="chip-stat-num">4.6</span>
-            <span class="chip-stat-label">petaflops per chip (v7 Ironwood)</span>
+        <h2>Key Arguments</h2>
+        <div class="paper-cards">
+          <div class="paper-card">
+            <span class="paper-card-num">01</span>
+            <h3>The Accidental Revolution</h3>
+            <p>The GPU was never meant for AI. NVIDIA's GeForce 256 (1999) was built for video games. Its parallel architecture accidentally aligned with neural network math. CUDA (2007) unlocked it. AlexNet (2012) proved it.</p>
           </div>
-          <span class="chip-catch">Cloud only — you can't buy one.</span>
+          <div class="paper-card">
+            <span class="paper-card-num">02</span>
+            <h3>Purpose-Built Silicon</h3>
+            <p>Google's TPU uses systolic arrays — 15-30x better per-watt than GPUs. NPUs ship in every new phone and laptop. Apple's unified memory M-series eliminated the CPU/GPU memory bottleneck entirely.</p>
+          </div>
+          <div class="paper-card">
+            <span class="paper-card-num">03</span>
+            <h3>Software Eats Hardware</h3>
+            <p>Quantization shrinks 140GB models to 35GB. Flash Attention gets 2-4x speedup through math restructuring. Open-source models (Llama, Mistral, Qwen) close the gap with proprietary ones in months, not years.</p>
+          </div>
+          <div class="paper-card">
+            <span class="paper-card-num">04</span>
+            <h3>Psychology of Cloud Dependence</h3>
+            <p>People trust cloud AI like they trust banks — even when the mattress is safer. The "delegation premium": paying more to avoid responsibility. The legitimacy illusion: free = inferior, even when it isn't.</p>
+          </div>
+          <div class="paper-card">
+            <span class="paper-card-num">05</span>
+            <h3>The Thesis</h3>
+            <p>AI is not a service to be rented. It is a tool to be owned. The hardware exists. The software is catching up. By 2031, the default AI interaction will be local, private, and free of API fees.</p>
+          </div>
         </div>
 
-        <div class="chip-card" data-reveal>
-          <div class="chip-icon">NPU</div>
-          <h3>Neural Processing Units</h3>
-          <p>Embedded in every new iPhone, every Copilot+ PC, every Snapdragon phone. When Apple, Microsoft, and Qualcomm all embed AI hardware in consumer devices — it's not a trend. It's a verdict.</p>
-          <div class="chip-stat">
-            <span class="chip-stat-num">80</span>
-            <span class="chip-stat-label">TOPS — Snapdragon X2 NPU</span>
-          </div>
-          <span class="chip-catch">Already in your pocket.</span>
-        </div>
-
-        <div class="chip-card" data-reveal>
-          <div class="chip-icon">M-series</div>
-          <h3>Apple Silicon</h3>
-          <p>CPU + GPU + Neural Engine on one die with unified memory. No copying data between processors. A MacBook with 24GB unified memory runs AI models that choke on traditional laptops with 4GB VRAM.</p>
-          <div class="chip-stat">
-            <span class="chip-stat-num">15.8</span>
-            <span class="chip-stat-label">TOPS — Neural Engine</span>
-          </div>
-          <span class="chip-catch">Privacy by design.</span>
-        </div>
-      </div>
-
-      <!-- Comparison Table -->
-      <div class="compare-table-wrap" data-reveal>
-        <table class="compare-table">
-          <thead>
-            <tr>
-              <th></th>
-              <th>CPU</th>
-              <th>GPU</th>
-              <th>TPU</th>
-              <th>NPU</th>
-            </tr>
-          </thead>
+        <h2>GPU Architecture Evolution</h2>
+        <table class="paper-table">
+          <thead><tr><th>Generation</th><th>Year</th><th>Key AI Innovation</th></tr></thead>
           <tbody>
-            <tr>
-              <td>Cores</td>
-              <td>4–64</td>
-              <td>1,000–18,000+</td>
-              <td>256×256 array</td>
-              <td>100s of MAC units</td>
-            </tr>
-            <tr>
-              <td>Strength</td>
-              <td>Complex tasks</td>
-              <td>Parallel math</td>
-              <td>Matrix efficiency</td>
-              <td>Energy-efficient</td>
-            </tr>
-            <tr>
-              <td>Power</td>
-              <td>65–250W</td>
-              <td>200–700W</td>
-              <td>100–400W</td>
-              <td>5–15W</td>
-            </tr>
-            <tr>
-              <td>Access</td>
-              <td>Every computer</td>
-              <td>$300+ consumer</td>
-              <td class="cloud-only">Cloud only</td>
-              <td>Your phone</td>
-            </tr>
+            <tr><td>Fermi</td><td>2010</td><td>ECC memory — GPUs viable for science</td></tr>
+            <tr><td>Kepler</td><td>2012</td><td>Dynamic parallelism — AlexNet moment</td></tr>
+            <tr><td>Pascal</td><td>2016</td><td>NVLink — multi-GPU training</td></tr>
+            <tr class="highlight"><td>Volta</td><td>2017</td><td>Tensor Cores — dedicated AI hardware</td></tr>
+            <tr><td>Ampere</td><td>2020</td><td>Sparsity-aware — doubled pruned throughput</td></tr>
+            <tr><td>Hopper</td><td>2022</td><td>Transformer Engine — built for LLMs</td></tr>
+            <tr><td>Blackwell</td><td>2024</td><td>1.8 TB/s NVLink 5 — trillion parameters</td></tr>
           </tbody>
         </table>
-      </div>
-      <p class="source-cite" data-reveal>Jouppi et al., 2017 · IBM, 2024 · Google Developers, 2024</p>
-    </div>
-  </section>
 
-  <!-- ═══ SOFTWARE REVOLUTION ═══ -->
-  <section class="section section--software" id="software">
-    <div class="container container--narrow">
-      <p class="eyebrow" data-reveal>The real revolution</p>
-      <h2 class="section-title" data-reveal>Software Is Eating Hardware</h2>
-      <p class="section-desc" data-reveal>The most important AI advances of the past two years haven't been in hardware. They've been in software that makes existing chips dramatically more capable.</p>
-
-      <div class="software-cards">
-        <div class="sw-card" data-reveal>
-          <span class="sw-num">10×</span>
-          <h3>Model Compression</h3>
-          <p>Quantization shrinks a 140GB model to 35GB. A 70B-parameter model fits on a consumer GPU. The hardware didn't change — the math got smarter.</p>
-        </div>
-        <div class="sw-card" data-reveal>
-          <span class="sw-num">2–4×</span>
-          <h3>Token Optimization</h3>
-          <p>PagedAttention cuts memory waste by 50%. Flash Attention restructures computations to keep data in fast on-chip SRAM. Speculative decoding doubles generation speed.</p>
-        </div>
-        <div class="sw-card" data-reveal>
-          <span class="sw-num">∞</span>
-          <h3>Open-Source Models</h3>
-          <p>Meta's Llama, Mistral, Qwen, DeepSeek — free, downloadable, competitive with proprietary models. The quality gap has narrowed from years to months.</p>
-        </div>
-      </div>
-      <p class="source-cite" data-reveal>Meta AI, 2024 · Sanmartín & Prohaska, 2023</p>
-    </div>
-  </section>
-
-  <!-- ═══ PSYCHOLOGY ═══ -->
-  <section class="section section--psych" id="psychology">
-    <div class="container container--narrow">
-      <p class="eyebrow" data-reveal>The human barrier</p>
-      <h2 class="section-title" data-reveal>The Psychology of Cloud Dependence</h2>
-
-      <div class="psych-split">
-        <div class="psych-card psych-card--bank" data-reveal>
-          <div class="psych-emoji">🏦</div>
-          <h3>The Bank</h3>
-          <p>Cloud AI offers brand recognition, professional interfaces, and someone to blame when things go wrong. You're paying for the comfort of delegation — not better results.</p>
-          <span class="psych-label">Subscription</span>
-        </div>
-        <div class="psych-card psych-card--mattress" data-reveal>
-          <div class="psych-emoji">🛏️</div>
-          <h3>The Mattress</h3>
-          <p>Local AI is less convenient and demands more responsibility. But your data never leaves your machine. The bank can be robbed. The mattress can't.</p>
-          <span class="psych-label">Ownership</span>
-        </div>
-      </div>
-
-      <blockquote class="pull-quote" data-reveal>
-        "Cloud AI feels like a subscription.<br>Local AI feels like a workshop."
-      </blockquote>
-
-      <div class="psych-barriers">
-        <div class="barrier" data-reveal>
-          <h4>The Delegation Premium</h4>
-          <p>People pay more for outcomes they could achieve themselves — because delegating reduces the anxiety of being personally responsible for failures.</p>
-        </div>
-        <div class="barrier" data-reveal>
-          <h4>The Legitimacy Illusion</h4>
-          <p>Millions pay $20/month for ChatGPT when free alternatives match its performance on most tasks. "Free" feels inferior — even when it isn't.</p>
-        </div>
-        <div class="barrier" data-reveal>
-          <h4>The FOMO Treadmill</h4>
-          <p>GPT-4 → GPT-4 Turbo → GPT-4o → o1 → o3. Each version creates the impression you'll fall behind without the latest subscription. The performance gap between versions is often marginal.</p>
+        <h2>Sources (Selected)</h2>
+        <div class="sources-compact">
+          <p>Bitdeer (2025) · CRV Science (2024) · Data Center Knowledge (2025) · Glassner (2012) · IBM (2024) · Jouppi et al. (2017) · Krizhevsky et al. (2012) · Meta AI (2024) · Rathore (2024) · Sanmartín & Prohaska (2023) · UST (2024)</p>
+          <p class="sources-note">Full 35-source bibliography available in the complete research paper.</p>
         </div>
       </div>
     </div>
-  </section>
+  </div>
 
-  <!-- ═══ NOTABLE FIGURES ═══ -->
-  <section class="section section--figures" id="figures">
-    <div class="container">
-      <p class="eyebrow" data-reveal>The architects</p>
-      <h2 class="section-title" data-reveal>Pioneers of AI Hardware</h2>
-      <p class="section-desc" data-reveal>The people whose decisions, inventions, and bets shaped the hardware powering artificial intelligence.</p>
-
-      <div class="figures-grid">
-        <div class="figure-card" data-reveal>
-          <div class="figure-img" style="--hue: 83">
-            <span>JH</span>
-          </div>
-          <h3>Jensen Huang</h3>
-          <p class="figure-role">CEO, NVIDIA</p>
-          <p class="figure-desc">Bet hundreds of millions on CUDA when GPUs were just for gaming. Created the platform moat that made NVIDIA the engine of AI.</p>
+  <!-- PRESENTATION PANEL -->
+  <div class="panel" id="panelPres">
+    <button class="panel-close" onclick="closePanel()">✕ BACK TO LOBBY</button>
+    <div class="panel-scroll">
+      <div class="panel-header panel-header--pres">
+        <p class="panel-eyebrow">Research Presentation · 10-12 Minutes</p>
+        <h1>The Hardware Revolution</h1>
+        <p class="panel-subtitle">From Gaming GPUs to the Engine of Artificial Intelligence</p>
+      </div>
+      <div class="panel-body">
+        <div class="pres-embed">
+          <iframe src="https://docs.google.com/presentation/d/e/2PACX-1vT_placeholder/embed?start=false&loop=false&delayms=3000" frameborder="0" width="100%" height="500" allowfullscreen="true" mozallowfullscreen="true" webkitallowfullscreen="true"></iframe>
+          <p class="pres-fallback">If the embed doesn't load: <a href="https://docs.google.com/presentation/d/1YwJVecv6iZ0h8wrZGRMQikzzl9UupF_GOZhhe4w8eZk/edit" target="_blank">Open in Google Slides →</a></p>
         </div>
 
-        <div class="figure-card" data-reveal>
-          <div class="figure-img" style="--hue: 200">
-            <span>GH</span>
+        <h2>Presentation Outline</h2>
+        <div class="pres-outline">
+          <div class="pres-slide">
+            <span class="pres-num">01</span>
+            <div>
+              <h3>The Hook</h3>
+              <p>Every AI tool you use runs on hardware designed for video games. This is the story of how that happened.</p>
+            </div>
           </div>
-          <h3>Geoffrey Hinton</h3>
-          <p class="figure-role">Nobel Laureate · Deep Learning Pioneer</p>
-          <p class="figure-desc">Spent decades advocating for neural networks when the field abandoned them. His student's AlexNet proved GPUs could think. Won the Nobel Prize for foundational ML work.</p>
-        </div>
-
-        <div class="figure-card" data-reveal>
-          <div class="figure-img" style="--hue: 45">
-            <span>GM</span>
+          <div class="pres-slide">
+            <span class="pres-num">02</span>
+            <div>
+              <h3>GPU Origins → CUDA → AlexNet</h3>
+              <p>The accidental revolution: GeForce 256 (1999) → CUDA (2007) → AlexNet proves GPUs can think (2012).</p>
+            </div>
           </div>
-          <h3>Gordon Moore</h3>
-          <p class="figure-role">Co-founder, Intel</p>
-          <p class="figure-desc">His 1965 observation — transistor density doubles every two years — drove 50 years of exponential progress. When Moore's Law stalled, specialized AI chips became necessary.</p>
-        </div>
-
-        <div class="figure-card" data-reveal>
-          <div class="figure-img" style="--hue: 340">
-            <span>LS</span>
+          <div class="pres-slide">
+            <span class="pres-num">03</span>
+            <div>
+              <h3>Architecture Arms Race</h3>
+              <p>Seven NVIDIA generations from Fermi to Blackwell. Volta's Tensor Cores — the inflection point.</p>
+            </div>
           </div>
-          <h3>Lisa Su</h3>
-          <p class="figure-role">CEO, AMD</p>
-          <p class="figure-desc">Transformed AMD from near-bankruptcy into NVIDIA's only serious GPU competitor. AMD's MI300X challenges NVIDIA's data center dominance.</p>
-        </div>
-
-        <div class="figure-card" data-reveal>
-          <div class="figure-img" style="--hue: 280">
-            <span>FL</span>
+          <div class="pres-slide">
+            <span class="pres-num">04</span>
+            <div>
+              <h3>The Challengers</h3>
+              <p>Google TPU (systolic arrays), NPUs (in every phone), Apple Silicon (unified memory).</p>
+            </div>
           </div>
-          <h3>Fei-Fei Li</h3>
-          <p class="figure-role">Stanford · ImageNet Creator</p>
-          <p class="figure-desc">Built ImageNet — 14 million labeled images that proved AI needs not just hardware and algorithms, but painstakingly curated data. AlexNet won on her benchmark.</p>
-        </div>
-
-        <div class="figure-card" data-reveal>
-          <div class="figure-img" style="--hue: 160">
-            <span>AK</span>
+          <div class="pres-slide">
+            <span class="pres-num">05</span>
+            <div>
+              <h3>Software Revolution & Open Source</h3>
+              <p>Quantization, Flash Attention, Llama, Ollama — the software making consumer hardware enough.</p>
+            </div>
           </div>
-          <h3>Andrej Karpathy</h3>
-          <p class="figure-role">Former Head of AI, Tesla</p>
-          <p class="figure-desc">One of the most influential voices in AI democratization. His open-source contributions and public teaching accelerated the shift from cloud to local AI.</p>
-        </div>
-
-        <div class="figure-card" data-reveal>
-          <div class="figure-img" style="--hue: 20">
-            <span>DA</span>
+          <div class="pres-slide">
+            <span class="pres-num">06</span>
+            <div>
+              <h3>The Future: AI Is a Tool to Be Owned</h3>
+              <p>Cloud AI was a stopover. Local AI is the destination. The thesis and its implications.</p>
+            </div>
           </div>
-          <h3>Dario Amodei</h3>
-          <p class="figure-role">CEO, Anthropic</p>
-          <p class="figure-desc">Publicly acknowledged the tension: safety arguments for closed models conflict with the reality that open models are rapidly closing the capability gap.</p>
-        </div>
-
-        <div class="figure-card" data-reveal>
-          <div class="figure-img" style="--hue: 120">
-            <span>JK</span>
-          </div>
-          <h3>Jim Keller</h3>
-          <p class="figure-role">Chip Architect</p>
-          <p class="figure-desc">Designed transformative chips at AMD (Zen), Apple (A-series), Tesla (FSD chip), and Intel. One of the most prolific silicon architects in history.</p>
-        </div>
-
-        <div class="figure-card" data-reveal>
-          <div class="figure-img" style="--hue: 60">
-            <span>SA</span>
-          </div>
-          <h3>Sam Altman</h3>
-          <p class="figure-role">CEO, OpenAI</p>
-          <p class="figure-desc">Argues that AI risks justify keeping it centralized. The counter-argument: centralized control creates its own dangers — single points of failure, opaque decision-making, concentrated power.</p>
         </div>
       </div>
     </div>
-  </section>
+  </div>
 
-  <!-- ═══ LOCAL AI / FUTURE ═══ -->
-  <section class="section section--future" id="future">
-    <div class="container container--narrow">
-      <p class="eyebrow" data-reveal>The thesis</p>
-      <h2 class="section-title" data-reveal>AI Is Not a Service to Be Rented</h2>
+  <!-- EXPERIENCE PANEL -->
+  <div class="panel" id="panelExp">
+    <button class="panel-close" onclick="closePanel()">✕ BACK TO LOBBY</button>
+    <div class="panel-scroll">
+      <div class="panel-header panel-header--exp">
+        <p class="panel-eyebrow">Interactive Experience</p>
+        <h1>Inside the Machine</h1>
+        <p class="panel-subtitle">Explore how AI hardware actually works</p>
+      </div>
+      <div class="panel-body">
 
-      <div class="future-evidence" data-reveal>
-        <div class="evidence-item">
-          <span class="evidence-icon">💻</span>
-          <p>This paper was researched, drafted, and fact-checked with AI models running on an <strong>$800 consumer GPU</strong> — an NVIDIA RTX 4070 Ti SUPER in a desktop I built myself.</p>
+        <!-- CPU vs GPU Interactive -->
+        <h2>CPU vs GPU: See the Difference</h2>
+        <p class="exp-desc">A CPU has a few powerful cores. A GPU has thousands of tiny ones. Click "Run" to see how they process the same workload.</p>
+        <div class="arch-demo">
+          <div class="arch-side">
+            <h3>CPU <span class="arch-badge">8 cores</span></h3>
+            <div class="arch-grid cpu-grid" id="cpuGrid"></div>
+            <div class="arch-timer">Time: <span id="cpuTime">—</span></div>
+          </div>
+          <div class="arch-side">
+            <h3>GPU <span class="arch-badge arch-badge--green">256 cores</span></h3>
+            <div class="arch-grid gpu-grid" id="gpuGrid"></div>
+            <div class="arch-timer">Time: <span id="gpuTime">—</span></div>
+          </div>
         </div>
-        <div class="evidence-item">
-          <span class="evidence-icon">🔒</span>
-          <p>My data never left my machine. No API fees. No rate limits. No terms of service. Through <strong>Ollama</strong>, I run quantized Llama models at conversational speeds.</p>
+        <button class="run-btn" id="runBtn" onclick="runArchDemo()">▶ RUN PARALLEL PROCESSING DEMO</button>
+
+        <!-- Pioneers -->
+        <h2>The Architects</h2>
+        <div class="pioneers-grid">
+          <div class="pioneer" data-info="Bet hundreds of millions on CUDA. Created the platform moat that made NVIDIA the engine of AI. $47B data center revenue FY2025.">
+            <div class="pioneer-avatar" style="--h:83">JH</div>
+            <span>Jensen Huang</span>
+            <small>CEO, NVIDIA</small>
+          </div>
+          <div class="pioneer" data-info="Decades advocating neural networks when everyone abandoned them. His student's AlexNet proved GPUs could think. Nobel Prize in Physics.">
+            <div class="pioneer-avatar" style="--h:200">GH</div>
+            <span>Geoffrey Hinton</span>
+            <small>Nobel Laureate</small>
+          </div>
+          <div class="pioneer" data-info="His 1965 observation — transistor density doubles every 2 years — drove 50 years of exponential progress. When it stalled, specialized AI chips became necessary.">
+            <div class="pioneer-avatar" style="--h:45">GM</div>
+            <span>Gordon Moore</span>
+            <small>Co-founder, Intel</small>
+          </div>
+          <div class="pioneer" data-info="Built ImageNet — 14 million labeled images. Proved AI needs not just hardware and algorithms, but curated data. AlexNet won on her benchmark.">
+            <div class="pioneer-avatar" style="--h:280">FL</div>
+            <span>Fei-Fei Li</span>
+            <small>Stanford · ImageNet</small>
+          </div>
+          <div class="pioneer" data-info="Transformed AMD from near-bankruptcy into NVIDIA's only serious GPU competitor. AMD's MI300X challenges data center dominance.">
+            <div class="pioneer-avatar" style="--h:340">LS</div>
+            <span>Lisa Su</span>
+            <small>CEO, AMD</small>
+          </div>
+          <div class="pioneer" data-info="One of the most influential voices in AI democratization. Open-source contributions and public teaching accelerated local AI adoption.">
+            <div class="pioneer-avatar" style="--h:160">AK</div>
+            <span>Andrej Karpathy</span>
+            <small>AI Educator</small>
+          </div>
         </div>
-        <div class="evidence-item">
-          <span class="evidence-icon">🌐</span>
-          <p>By 2031, fully capable AI assistants will operate entirely on-device — no internet required. The <strong>2.6 billion people</strong> without reliable internet could finally access AI.</p>
+        <div class="pioneer-info" id="pioneerInfo">Click a pioneer to learn more</div>
+
+        <!-- Stats -->
+        <h2>By the Numbers</h2>
+        <div class="exp-stats">
+          <div class="exp-stat"><span class="exp-stat-num">86%</span><span>NVIDIA AI GPU market share</span></div>
+          <div class="exp-stat"><span class="exp-stat-num">$164B</span><span>Projected AI chip market 2029</span></div>
+          <div class="exp-stat"><span class="exp-stat-num">2.6B</span><span>People without reliable internet (cloud AI excluded)</span></div>
+          <div class="exp-stat"><span class="exp-stat-num">$800</span><span>Consumer GPU running AI locally (RTX 4070 Ti SUPER)</span></div>
+        </div>
+        <p class="sources-note">Sources: Data Center Knowledge (2025) · UST (2024) · Jouppi et al. (2017) · IBM (2024) · CRV Science (2024)</p>
+
+        <!-- Meta -->
+        <div class="exp-meta">
+          <p>This website was built with AI running on consumer hardware — the same thesis it presents. The tools used to create this experience are themselves products of the democratization described within it.</p>
         </div>
       </div>
-
-      <div class="thesis-block" data-reveal>
-        <p class="thesis-text">The cloud-first era of AI was not a destination. It was a stopover — a necessary phase that existed because consumer hardware couldn't keep up. That constraint is dissolving.</p>
-        <p class="thesis-final">AI is a tool to be owned.</p>
-      </div>
-
-      <blockquote class="pull-quote pull-quote--final" data-reveal>
-        "The generation that grows up building homelabs, running open-source models, and treating AI as infrastructure they control — will be the generation that determines what this technology becomes."
-      </blockquote>
     </div>
-  </section>
+  </div>
 
-  <!-- ═══ META NARRATIVE ═══ -->
-  <section class="section section--meta" id="meta">
-    <div class="container container--narrow">
-      <div class="meta-box" data-reveal>
-        <p class="meta-label">About this website</p>
-        <p>This interactive presentation was built with the assistance of AI running on consumer hardware — the same thesis it presents. The tools used to create this website are themselves products of the AI hardware democratization described within it.</p>
-        <p class="meta-stack">Built with HTML, CSS, JavaScript, GSAP ScrollTrigger</p>
-      </div>
-    </div>
-  </section>
+  <!-- ═══ THREE.JS CANVAS ═══ -->
+  <canvas id="scene"></canvas>
 
-  <!-- ═══ SOURCES ═══ -->
-  <section class="section section--sources" id="sources">
-    <div class="container container--narrow">
-      <h2 class="section-title" data-reveal>Sources</h2>
-      <div class="sources-list" data-reveal>
-        <p>Bitdeer. (2025). NVIDIA GPU evolution and the road ahead.</p>
-        <p>CRV Science. (2024). Why Nvidia dominates AI: A history of CUDA and parallel computing.</p>
-        <p>Data Center Knowledge. (2025). The hottest data center chip developments in 2025.</p>
-        <p>Glassner, A. (2012). Graphics processing unit; GPU. In <em>3D A-to-Z</em>. McFarland & Company.</p>
-        <p>Google Developers. (2024). Unlocking peak performance on Qualcomm NPU with LiteRT.</p>
-        <p>IBM. (2024). NPU vs GPU: What's the difference?</p>
-        <p>Jouppi, N. P., et al. (2017). In-datacenter performance analysis of a tensor processing unit. <em>Proc. 44th ISCA</em>, 1–12.</p>
-        <p>Krizhevsky, A., Sutskever, I., & Hinton, G. E. (2012). ImageNet classification with deep convolutional neural networks. <em>NeurIPS 25</em>, 1097–1105.</p>
-        <p>Meta AI. (2024). Introducing Llama 3.1: Our most capable models to date.</p>
-        <p>Rathore, A. (2024). How Nvidia built the ultimate AI engine. <em>Embedded.com</em>.</p>
-        <p>Sanmartín, D., & Prohaska, V. (2023). Exploring TPUs for AI applications. <em>arXiv:2309.08918</em>.</p>
-        <p>UST. (2024). AI chips power growth while transforming the semiconductor industry.</p>
-      </div>
-      <p class="source-note" data-reveal>Full 35-source bibliography available in the accompanying research paper.</p>
-    </div>
-  </section>
-
-  <!-- ═══ FOOTER ═══ -->
-  <footer class="footer">
-    <p>Josue Aparcedo Gonzalez · IDS2891 Cornerstone · Florida SouthWestern State College · Spring 2026</p>
-  </footer>
-
+  <script src="https://unpkg.com/three@0.160.0/build/three.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
   <script src="main.js"></script>
 </body>
 </html>
