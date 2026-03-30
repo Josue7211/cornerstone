@@ -133,7 +133,7 @@ Plans:
 | — | Lightning Talks Discussion (#4) | ~20 | Feb 2 | ✅ DONE |
 | 1 | Discussion Post (#1) + Library #1 (#2) + Credo Sources (#3) + Library #3 (#6) | 50 | Jan–Feb | IN PROGRESS |
 | 2 | Crafting Research Questions (#5) | 100 | Feb 15 | NOT STARTED |
-| 3 | Short Proposal (#8) | 20 | Feb 22 | NOT STARTED |
+| 3 | Short Proposal (#8) | 20 | Complete    | 2026-03-30 |
 | 4 | Brainstorm Discussion (#7) | 20 | Feb 19/22 | NOT STARTED |
 | 5 | Check-ins 1, 2, 3 (#9, #10, #11) | 120 | Mar 1–15 | NOT STARTED |
 | 6 | Presentation Worksheet (#12) | 20 | Mar 22 | NOT STARTED |
