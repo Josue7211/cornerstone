@@ -1,13 +1,39 @@
-// ═══════════════════════════════════════════
-// FROM PIXELS TO INTELLIGENCE
-// Cyberpunk Lobby — Three.js + GSAP
-// ═══════════════════════════════════════════
+import * as THREE from 'three';
+import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+import { RGBELoader } from 'three/addons/loaders/RGBELoader.js';
+import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
+import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
+import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
+import { ShaderPass } from 'three/addons/postprocessing/ShaderPass.js';
+
+// ─── Chromatic Aberration Shader ───
+const ChromaticAberrationShader = {
+  uniforms: {
+    tDiffuse: { value: null },
+    offset: { value: new THREE.Vector2(0.002, 0.002) }
+  },
+  vertexShader: `
+    varying vec2 vUv;
+    void main() { vUv = uv; gl_Position = projectionMatrix * modelViewMatrix * vec4(position,1.0); }
+  `,
+  fragmentShader: `
+    uniform sampler2D tDiffuse;
+    uniform vec2 offset;
+    varying vec2 vUv;
+    void main() {
+      vec4 cr = texture2D(tDiffuse, vUv + offset);
+      vec4 cg = texture2D(tDiffuse, vUv);
+      vec4 cb = texture2D(tDiffuse, vUv - offset);
+      gl_FragColor = vec4(cr.r, cg.g, cb.b, cg.a);
+    }
+  `
+};
 
 // ─── State ───
 const state = {
   keys: {},
   playerPos: { x: 0, z: 0 },
-  speed: 0.12,
+  speed: 0.06, // User feedback: 0.12 was too fast
   activePanel: null,
   loaded: false,
   portalProximity: { paper: false, pres: false, exp: false }
@@ -19,24 +45,44 @@ const PORTALS = {
   pres:   { x: -7,  z: 5,   color: 0xff00aa, panel: 'panelPres',  label: 'labelPres' },
   exp:    { x: 7,   z: 5,   color: 0x00ff88, panel: 'panelExp',   label: 'labelExp' }
 };
-
 const PORTAL_RADIUS = 2.2;
 const BOUNDARY = 12;
 
-// ─── Three.js Setup ───
+// ─── Renderer ───
 const canvas = document.getElementById('scene');
-const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: false });
+const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
 renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 renderer.setClearColor(0x030308);
 renderer.shadowMap.enabled = true;
+renderer.outputColorSpace = THREE.SRGBColorSpace;
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 0.8;
 
+// ─── Scene + Camera ───
 const scene = new THREE.Scene();
 scene.fog = new THREE.FogExp2(0x030308, 0.018);
 
 const camera = new THREE.PerspectiveCamera(55, window.innerWidth / window.innerHeight, 0.1, 100);
 camera.position.set(0, 8, 8);
 camera.lookAt(0, 0, 0);
+
+// ─── EffectComposer: Bloom + Chromatic Aberration ───
+const composer = new EffectComposer(renderer);
+const renderPass = new RenderPass(scene, camera);
+composer.addPass(renderPass);
+
+const bloomPass = new UnrealBloomPass(
+  new THREE.Vector2(window.innerWidth, window.innerHeight),
+  0.8,   // strength
+  0.4,   // radius
+  0.85   // threshold
+);
+composer.addPass(bloomPass);
+
+const chromaPass = new ShaderPass(ChromaticAberrationShader);
+chromaPass.renderToScreen = true;
+composer.addPass(chromaPass);
 
 // ─── Lights ───
 const ambientLight = new THREE.AmbientLight(0x222244, 0.8);
@@ -51,6 +97,20 @@ Object.values(PORTALS).forEach(p => {
   const light = new THREE.PointLight(p.color, 2.5, 18);
   light.position.set(p.x, 3, p.z);
   scene.add(light);
+});
+
+// ─── HDRI Environment Map ───
+const hdrLoader = new RGBELoader();
+hdrLoader.load('./assets/hdri/night_sky.hdr', (texture) => {
+  const pmrem = new THREE.PMREMGenerator(renderer);
+  pmrem.compileEquirectangularShader();
+  const envMap = pmrem.fromEquirectangular(texture).texture;
+  scene.environment = envMap;
+  // Don't set scene.background — keep dark void look, HDRI only for reflections
+  texture.dispose();
+  pmrem.dispose();
+}, undefined, (err) => {
+  console.warn('HDR load failed, using ambient light fallback', err);
 });
 
 // ─── Ground ───
@@ -197,28 +257,57 @@ scene.add(particles);
 document.addEventListener('keydown', e => { state.keys[e.key.toLowerCase()] = true; });
 document.addEventListener('keyup', e => { state.keys[e.key.toLowerCase()] = false; });
 
-// ─── Loading ───
-let loadProgress = 0;
+// ─── GLTF Scene Loading with Real Progress Bar ───
+const gltfLoader = new GLTFLoader();
 const loaderFill = document.getElementById('loaderFill');
-const loadInterval = setInterval(() => {
-  loadProgress += Math.random() * 15 + 5;
-  if (loadProgress >= 100) {
-    loadProgress = 100;
-    clearInterval(loadInterval);
+const loaderText = document.getElementById('loaderText');
+const loaderPct = document.getElementById('loaderPct');
+
+gltfLoader.load(
+  './assets/models/cyberpunk-scene/scene.gltf',
+  (gltf) => {
+    const model = gltf.scene;
+    // Scale and position the scene to fit the lobby floor
+    model.scale.set(0.05, 0.05, 0.05);
+    model.position.set(0, 0, 0);
+    scene.add(model);
+
+    // Fade out loader after scene is ready
     setTimeout(() => {
       document.getElementById('loader').classList.add('done');
       document.getElementById('hud').classList.add('visible');
       state.loaded = true;
     }, 400);
+  },
+  (progress) => {
+    if (progress.total > 0) {
+      const pct = Math.round((progress.loaded / progress.total) * 100);
+      loaderFill.style.width = pct + '%';
+      loaderPct.textContent = pct + '%';
+      if (pct < 30) loaderText.textContent = 'LOADING CYBERPUNK ENVIRONMENT...';
+      else if (pct < 60) loaderText.textContent = 'COMPILING SHADER PROGRAMS...';
+      else if (pct < 90) loaderText.textContent = 'INITIALIZING NEURAL PATHWAYS...';
+      else loaderText.textContent = 'ENTERING THE GRID...';
+    }
+  },
+  (error) => {
+    console.error('GLTF load failed:', error);
+    loaderText.textContent = 'LOAD ERROR — CHECK CONSOLE';
+    // Still let user in — show the lobby with primitives
+    setTimeout(() => {
+      document.getElementById('loader').classList.add('done');
+      document.getElementById('hud').classList.add('visible');
+      state.loaded = true;
+    }, 1000);
   }
-  loaderFill.style.width = loadProgress + '%';
-}, 120);
+);
 
-// ─── Panel management ───
+// ─── Panel management (pointer-events fix: pitfall #5) ───
 function openPanel(key) {
   const portal = PORTALS[key];
   const panel = document.getElementById(portal.panel);
   panel.classList.add('open');
+  panel.style.pointerEvents = 'auto';
   state.activePanel = key;
   document.getElementById('hud').classList.remove('visible');
 }
@@ -226,7 +315,9 @@ function openPanel(key) {
 window.closePanel = function() {
   if (!state.activePanel) return;
   const portal = PORTALS[state.activePanel];
-  document.getElementById(portal.panel).classList.remove('open');
+  const panel = document.getElementById(portal.panel);
+  panel.classList.remove('open');
+  panel.style.pointerEvents = 'none';
   state.activePanel = null;
   // Move player back from portal so they don't re-trigger
   state.playerPos.x *= 0.7;
@@ -236,6 +327,11 @@ window.closePanel = function() {
   document.getElementById('hud').classList.add('visible');
 };
 
+// Wire close buttons (use IDs, not onclick — we're in a module)
+document.getElementById('closePanelBtn').addEventListener('click', window.closePanel);
+document.getElementById('closePanelPres').addEventListener('click', window.closePanel);
+document.getElementById('closePanelExp').addEventListener('click', window.closePanel);
+
 // ESC to close
 document.addEventListener('keydown', e => {
   if (e.key === 'Escape' && state.activePanel) window.closePanel();
@@ -244,25 +340,25 @@ document.addEventListener('keydown', e => {
 // ─── Pioneer click handler ───
 document.querySelectorAll('.pioneer').forEach(el => {
   el.addEventListener('click', () => {
-    document.getElementById('pioneerInfo').textContent = el.dataset.info;
-    document.getElementById('pioneerInfo').style.borderColor = 'var(--cyan)';
+    const info = document.getElementById('pioneerInfo');
+    info.textContent = el.dataset.info;
+    info.style.borderColor = 'var(--cyan)';
   });
 });
 
 // ─── Architecture demo ───
-window.runArchDemo = function() {
+document.getElementById('runBtn').addEventListener('click', function runArchDemo() {
   const cpuGrid = document.getElementById('cpuGrid');
   const gpuGrid = document.getElementById('gpuGrid');
   const cpuTime = document.getElementById('cpuTime');
   const gpuTime = document.getElementById('gpuTime');
 
-  // Reset — remove all children safely
+  // Reset
   while (cpuGrid.firstChild) cpuGrid.removeChild(cpuGrid.firstChild);
   while (gpuGrid.firstChild) gpuGrid.removeChild(gpuGrid.firstChild);
   cpuTime.textContent = '\u2014';
   gpuTime.textContent = '\u2014';
 
-  // Build grids using DOM methods
   const totalTasks = 64;
   for (let i = 0; i < 8; i++) {
     const cell = document.createElement('div');
@@ -284,7 +380,6 @@ window.runArchDemo = function() {
   let cpuDone = 0;
   const cpuStart = performance.now();
 
-  // CPU: processes 8 at a time, sequentially
   const cpuInterval = setInterval(() => {
     const batch = Math.min(8, totalTasks - cpuDone);
     cpuCells.forEach(c => c.classList.remove('active-cpu'));
@@ -300,25 +395,26 @@ window.runArchDemo = function() {
     }
   }, 400);
 
-  // GPU: all 64 tasks light up nearly instantly
+  // GPU: all tasks light up nearly instantly
   setTimeout(() => {
     const gpuStart = performance.now();
     for (let i = 0; i < Math.min(totalTasks, 256); i++) {
       setTimeout(() => {
-        gpuCells[i].classList.add('active-gpu');
+        if (gpuCells[i]) gpuCells[i].classList.add('active-gpu');
         if (i === totalTasks - 1) {
           gpuTime.textContent = ((performance.now() - gpuStart) / 1000).toFixed(2) + 's \u2713';
         }
       }, i * 3);
     }
   }, 100);
-};
+});
 
 // ─── Resize ───
 window.addEventListener('resize', () => {
   camera.aspect = window.innerWidth / window.innerHeight;
   camera.updateProjectionMatrix();
   renderer.setSize(window.innerWidth, window.innerHeight);
+  composer.setSize(window.innerWidth, window.innerHeight);
 });
 
 // ─── Animation Loop ───
@@ -329,7 +425,7 @@ function animate() {
   const elapsed = clock.getElapsedTime();
 
   if (!state.loaded || state.activePanel) {
-    renderer.render(scene, camera);
+    composer.render();
     return;
   }
 
@@ -419,7 +515,7 @@ function animate() {
   }
   particles.geometry.attributes.position.needsUpdate = true;
 
-  renderer.render(scene, camera);
+  composer.render();
 }
 
 animate();
