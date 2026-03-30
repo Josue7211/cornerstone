@@ -76,6 +76,34 @@ website/assets/models/
 
 228 total GLTF models. Gitignored (291MB).
 
+### Portraits (REAL photos, not placeholders)
+```
+website/portraits/
+├── jensen.jpg (23K) — Jensen Huang, NVIDIA CEO
+├── hinton.jpg (15K) — Geoffrey Hinton, Nobel Laureate
+├── moore.jpg (172K) — Gordon Moore, Intel co-founder
+├── lisasu.jpg (20K) — Lisa Su, AMD CEO
+├── feifei.jpg (25K) — Fei-Fei Li, Stanford/ImageNet
+├── karpathy.jpg (101K) — Andrej Karpathy, AI educator
+├── altman.jpg (25K) — Sam Altman, OpenAI CEO
+├── amodei.jpg (22K) — Dario Amodei, Anthropic CEO
+└── keller.jpg (26K) — Jim Keller, chip architect
+```
+Downloaded from Wikipedia (CC BY-SA). 444KB total.
+
+### HDRI Environment Maps
+```
+website/assets/hdri/
+├── night_sky.hdr (1.4MB) — Poly Haven CC0
+└── dark_night.hdr (1.6MB) — Poly Haven CC0, moonless night
+```
+
+### Player Character Options
+- `quaternius-essentials/glTF/Enemy_EyeDrone.gltf` — floating drone (recommended — fits cyberpunk)
+- `quaternius-scifi/.../Aliens/Alien_Cyclop.gltf` — alternative
+
+### Everything is downloaded. Nothing else needed to start building.
+
 ## Tech Stack
 - **Three.js** (v0.160+) with GLTFLoader for 3D models
 - **GSAP** + ScrollTrigger for animated content sections
