@@ -11,12 +11,18 @@ Strategy: Prioritize by points (highest value first), then by dependency chain. 
 ### Phase 1: Library Assignments (#1, #2, #3) + Interest Web Submit
 **Goal:** Complete the three low-point library assignments and rewrite the introduction discussion post.
 **Points:** 50 total (~20 discussion + 10 + 10 + 10)
-**Status:** IN PROGRESS (context written, planning next)
+**Status:** IN PROGRESS (planning complete, ready to execute)
+**Plans:** 3 plans
 **Deliverables:**
 - Rewrite discussion post (Assignment #1) with real personal details
 - Export interest web as PNG with updated subtopics, submit to Canvas (Assignment #2)
 - Search Credo Reference → 3 real APA citations (Assignment #3)
 - Identify 2 research buckets, experts, 1 FSW source + 1 Google source (Assignment #6 — Library #3)
+
+Plans:
+- [ ] 01-PLAN-A.md — Rewrite discussion post + update research buckets (Assignment #1, #6)
+- [ ] 01-PLAN-B.md — Update interest web subtopics + export PNG (Assignment #2)
+- [ ] 01-PLAN-C.md — Search Credo Reference for 2 real sources + finalize citations (Assignment #3)
 
 ### Phase 2: Crafting Research Questions
 **Goal:** Write 250-word background synthesis + 1-3 research questions + 5 cited sources.
