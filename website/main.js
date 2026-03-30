@@ -4,31 +4,38 @@ import { RGBELoader } from 'three/addons/loaders/RGBELoader.js';
 import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
 import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
 import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
-import { PointerLockControls } from 'three/addons/controls/PointerLockControls.js';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 
-// ─── State ───
+// ═══════════════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════════════
 const state = {
   keys: {},
   activePanel: null,
   loaded: false,
+  phase: 'loading', // loading → cutscene → playing
   portalProximity: { paper: false, pres: false, exp: false },
-  moveSpeed: 6,
-  direction: new THREE.Vector3(),
-  colliders: [],       // meshes to collide with
-  playerHeight: 2.8,   // eye height — will be recalculated after model loads
-  groundY: 0           // floor level
+  moveSpeed: 5,
+  rotSpeed: 3,
+  colliders: [],
+  mixer: null,
+  actions: {},
+  currentAction: null,
+  character: null,
+  characterAngle: 0,
 };
 
-// ─── Portal positions ───
 const PORTALS = {
-  paper: { x: 0,   z: -12, color: 0x00f0ff, panel: 'panelPaper', label: 'labelPaper' },
-  pres:  { x: -10, z: 8,   color: 0xff00aa, panel: 'panelPres',  label: 'labelPres' },
-  exp:   { x: 10,  z: 8,   color: 0x00ff88, panel: 'panelExp',   label: 'labelExp' }
+  paper: { x: 0,   z: -10, color: 0x00f0ff, panel: 'panelPaper', label: 'labelPaper' },
+  pres:  { x: -8,  z: 6,   color: 0xff00aa, panel: 'panelPres',  label: 'labelPres' },
+  exp:   { x: 8,   z: 6,   color: 0x00ff88, panel: 'panelExp',   label: 'labelExp' }
 };
 const PORTAL_RADIUS = 2.5;
-const BOUNDARY = 18;
+const BOUNDARY = 16;
 
-// ─── Renderer ───
+// ═══════════════════════════════════════════════════
+// RENDERER
+// ═══════════════════════════════════════════════════
 const canvas = document.getElementById('scene');
 const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
 renderer.setSize(window.innerWidth, window.innerHeight);
@@ -40,86 +47,77 @@ renderer.outputColorSpace = THREE.SRGBColorSpace;
 renderer.toneMapping = THREE.ACESFilmicToneMapping;
 renderer.toneMappingExposure = 1.0;
 
-// ─── Scene + Camera ───
+// ═══════════════════════════════════════════════════
+// SCENE + CAMERA
+// ═══════════════════════════════════════════════════
 const scene = new THREE.Scene();
-scene.fog = new THREE.FogExp2(0x020206, 0.025);
+scene.fog = new THREE.FogExp2(0x020206, 0.02);
 
-const camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 0.1, 200);
-camera.position.set(0, 1.7, 0);
+const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 200);
+camera.position.set(0, 3, 6);
 
-// ─── PointerLock FPS Controls ───
-const controls = new PointerLockControls(camera, document.body);
+// Third-person orbit camera (disabled during cutscene)
+const orbitControls = new OrbitControls(camera, renderer.domElement);
+orbitControls.enableDamping = true;
+orbitControls.dampingFactor = 0.1;
+orbitControls.maxPolarAngle = Math.PI * 0.85;
+orbitControls.minPolarAngle = Math.PI * 0.1;
+orbitControls.minDistance = 2;
+orbitControls.maxDistance = 10;
+orbitControls.enabled = false; // disabled until cutscene ends
 
-document.getElementById('hud').addEventListener('click', () => {
-  if (state.loaded && !state.activePanel) controls.lock();
-});
-
-controls.addEventListener('lock', () => {
-  const el = document.getElementById('hudControls');
-  el.textContent = '';
-  const s1 = document.createElement('span');
-  s1.textContent = 'WASD TO MOVE \u00B7 MOUSE TO LOOK';
-  const s2 = document.createElement('span');
-  s2.textContent = 'WALK INTO A GLOWING PORTAL';
-  el.appendChild(s1);
-  el.appendChild(s2);
-});
-controls.addEventListener('unlock', () => {
-  if (!state.activePanel) {
-    const el = document.getElementById('hudControls');
-    el.textContent = '';
-    const s = document.createElement('span');
-    s.textContent = 'CLICK TO START';
-    el.appendChild(s);
-  }
-});
-
-// ─── EffectComposer: Bloom only ───
+// ═══════════════════════════════════════════════════
+// POST-PROCESSING
+// ═══════════════════════════════════════════════════
 const composer = new EffectComposer(renderer);
 composer.addPass(new RenderPass(scene, camera));
-const bloomPass = new UnrealBloomPass(
-  new THREE.Vector2(window.innerWidth, window.innerHeight),
-  0.6, 0.4, 0.9
-);
-composer.addPass(bloomPass);
+composer.addPass(new UnrealBloomPass(
+  new THREE.Vector2(window.innerWidth, window.innerHeight), 0.5, 0.4, 0.9
+));
 
-// ─── Lights ───
-scene.add(new THREE.AmbientLight(0x334466, 0.4));
-const mainLight = new THREE.DirectionalLight(0x8888ff, 0.3);
-mainLight.position.set(10, 20, 10);
-mainLight.castShadow = true;
-scene.add(mainLight);
+// ═══════════════════════════════════════════════════
+// LIGHTS
+// ═══════════════════════════════════════════════════
+scene.add(new THREE.AmbientLight(0x445566, 0.5));
+const dirLight = new THREE.DirectionalLight(0x8888ff, 0.4);
+dirLight.position.set(5, 15, 5);
+dirLight.castShadow = true;
+dirLight.shadow.mapSize.set(1024, 1024);
+scene.add(dirLight);
 
+// Portal lights
 Object.values(PORTALS).forEach(p => {
-  const light = new THREE.PointLight(p.color, 3, 20);
-  light.position.set(p.x, 3, p.z);
+  const light = new THREE.PointLight(p.color, 3, 18);
+  light.position.set(p.x, 2.5, p.z);
   scene.add(light);
 });
 
-// ─── HDRI ───
+// ═══════════════════════════════════════════════════
+// HDRI
+// ═══════════════════════════════════════════════════
 new RGBELoader().load('./assets/hdri/night_sky.hdr', (tex) => {
   const pmrem = new THREE.PMREMGenerator(renderer);
   pmrem.compileEquirectangularShader();
-  const envMap = pmrem.fromEquirectangular(tex).texture;
-  scene.environment = envMap;
+  scene.environment = pmrem.fromEquirectangular(tex).texture;
   tex.dispose();
   pmrem.dispose();
 });
 
-// ─── Floor ───
+// ═══════════════════════════════════════════════════
+// FLOOR + GRID
+// ═══════════════════════════════════════════════════
 const floor = new THREE.Mesh(
-  new THREE.PlaneGeometry(50, 50),
+  new THREE.PlaneGeometry(40, 40),
   new THREE.MeshStandardMaterial({ color: 0x111122, roughness: 0.3, metalness: 0.7 })
 );
 floor.rotation.x = -Math.PI / 2;
 floor.receiveShadow = true;
 scene.add(floor);
+scene.add(new THREE.GridHelper(40, 40, 0x222244, 0x111133));
 
-const grid = new THREE.GridHelper(50, 50, 0x222244, 0x111133);
-grid.position.y = 0.01;
-scene.add(grid);
-
-// ─── Portal structures ───
+// ═══════════════════════════════════════════════════
+// PORTAL STRUCTURES
+// ═══════════════════════════════════════════════════
 const portalMeshes = {};
 Object.entries(PORTALS).forEach(([key, p]) => {
   const group = new THREE.Group();
@@ -132,14 +130,6 @@ Object.entries(PORTALS).forEach(([key, p]) => {
   ring.rotation.x = -Math.PI / 2;
   ring.position.y = 0.1;
   group.add(ring);
-
-  const ring2 = new THREE.Mesh(
-    new THREE.TorusGeometry(1.0, 0.05, 8, 32),
-    new THREE.MeshStandardMaterial({ color: p.color, emissive: p.color, emissiveIntensity: 0.5 })
-  );
-  ring2.rotation.x = -Math.PI / 2;
-  ring2.position.y = 0.05;
-  group.add(ring2);
 
   const beam = new THREE.Mesh(
     new THREE.CylinderGeometry(0.02, 0.02, 8, 8),
@@ -167,58 +157,36 @@ Object.entries(PORTALS).forEach(([key, p]) => {
   portalMeshes[key] = { group, crystal, ring };
 });
 
-// ─── Particles ───
-const particleCount = 500;
+// ═══════════════════════════════════════════════════
+// PARTICLES
+// ═══════════════════════════════════════════════════
+const particleCount = 400;
 const pGeo = new THREE.BufferGeometry();
-const pPos = new Float32Array(particleCount * 3);
+const pArr = new Float32Array(particleCount * 3);
 for (let i = 0; i < particleCount; i++) {
-  pPos[i * 3] = (Math.random() - 0.5) * 50;
-  pPos[i * 3 + 1] = Math.random() * 12;
-  pPos[i * 3 + 2] = (Math.random() - 0.5) * 50;
+  pArr[i*3] = (Math.random()-0.5)*40;
+  pArr[i*3+1] = Math.random()*10;
+  pArr[i*3+2] = (Math.random()-0.5)*40;
 }
-pGeo.setAttribute('position', new THREE.BufferAttribute(pPos, 3));
+pGeo.setAttribute('position', new THREE.BufferAttribute(pArr, 3));
 const particles = new THREE.Points(pGeo, new THREE.PointsMaterial({
   color: 0x6666cc, size: 0.05, transparent: true, opacity: 0.5
 }));
 scene.add(particles);
 
-// ─── Load GLTF modular pieces ───
-const gltfLoader = new GLTFLoader();
+// ═══════════════════════════════════════════════════
+// LOAD ASSETS
+// ═══════════════════════════════════════════════════
+const loader = new GLTFLoader();
 const loaderFill = document.getElementById('loaderFill');
 const loaderText = document.getElementById('loaderText');
 const loaderPct = document.getElementById('loaderPct');
 
-// ─── Load Futuristic Room GLTF ───
-gltfLoader.load(
-  './assets/models/futuristic-room/scene.gltf',
-  (gltf) => {
-    const model = gltf.scene;
-    // Auto-fit to lobby size
-    const box = new THREE.Box3().setFromObject(model);
-    const size = box.getSize(new THREE.Vector3());
-    const maxDim = Math.max(size.x, size.y, size.z);
-    const scaleFactor = 30 / maxDim;
-    model.scale.setScalar(scaleFactor);
-    // Re-center and place on floor
-    const sBox = new THREE.Box3().setFromObject(model);
-    const center = sBox.getCenter(new THREE.Vector3());
-    model.position.set(-center.x, -sBox.min.y, -center.z);
-    model.traverse(child => {
-      if (child.isMesh) {
-        child.castShadow = true;
-        child.receiveShadow = true;
-        state.colliders.push(child);
-      }
-    });
-    scene.add(model);
+let roomLoaded = false;
+let charLoaded = false;
 
-    // Calculate player height as ~1/4 of room height (standing inside)
-    const roomHeight = sBox.max.y - sBox.min.y;
-    state.playerHeight = roomHeight * 0.15; // eye level
-    state.groundY = 0;
-    camera.position.set(0, state.playerHeight, 0);
-    console.log('GLTF loaded — scale:', scaleFactor.toFixed(4), 'roomH:', roomHeight.toFixed(1), 'eyeH:', state.playerHeight.toFixed(1));
-
+function checkAllLoaded() {
+  if (roomLoaded && charLoaded) {
     loaderFill.style.width = '100%';
     loaderPct.textContent = '100%';
     loaderText.textContent = 'ENTERING THE GRID...';
@@ -226,47 +194,172 @@ gltfLoader.load(
       document.getElementById('loader').classList.add('done');
       document.getElementById('hud').classList.add('visible');
       state.loaded = true;
-    }, 500);
-  },
-  (progress) => {
-    if (progress.total > 0) {
-      const pct = Math.round((progress.loaded / progress.total) * 100);
-      loaderFill.style.width = pct + '%';
-      loaderPct.textContent = pct + '%';
-    } else {
-      // Estimate based on 561MB
-      const pct = Math.min(99, Math.round(progress.loaded / 580000000 * 100));
-      loaderFill.style.width = pct + '%';
-      loaderPct.textContent = pct + '%';
-    }
-    if (progress.loaded < 100000000) loaderText.textContent = 'LOADING FUTURISTIC ENVIRONMENT...';
-    else if (progress.loaded < 300000000) loaderText.textContent = 'COMPILING SHADER PROGRAMS...';
-    else loaderText.textContent = 'INITIALIZING NEURAL PATHWAYS...';
-  },
-  (error) => {
-    console.error('GLTF load failed:', error);
-    loaderText.textContent = 'LOAD ERROR — CHECK CONSOLE';
-    setTimeout(() => {
-      document.getElementById('loader').classList.add('done');
-      document.getElementById('hud').classList.add('visible');
-      state.loaded = true;
-    }, 1000);
+      startCutscene();
+    }, 600);
   }
-);
+}
 
-// ─── Input ───
+// ─── Room ───
+loader.load('./assets/models/futuristic-room/scene.gltf', (gltf) => {
+  const model = gltf.scene;
+  const box = new THREE.Box3().setFromObject(model);
+  const size = box.getSize(new THREE.Vector3());
+  const maxDim = Math.max(size.x, size.y, size.z);
+  const scale = 25 / maxDim;
+  model.scale.setScalar(scale);
+  const sBox = new THREE.Box3().setFromObject(model);
+  const center = sBox.getCenter(new THREE.Vector3());
+  model.position.set(-center.x, -sBox.min.y, -center.z);
+  model.traverse(c => {
+    if (c.isMesh) { c.castShadow = true; c.receiveShadow = true; state.colliders.push(c); }
+  });
+  scene.add(model);
+  console.log('Room loaded, scale:', scale.toFixed(3));
+  roomLoaded = true;
+  checkAllLoaded();
+}, (p) => {
+  const pct = p.total > 0 ? Math.round(p.loaded/p.total*50) : Math.min(49, Math.round(p.loaded/580000000*50));
+  loaderFill.style.width = pct + '%';
+  loaderPct.textContent = pct + '%';
+  loaderText.textContent = 'LOADING ENVIRONMENT...';
+});
+
+// ─── Character ───
+loader.load('./assets/models/character.glb', (gltf) => {
+  const model = gltf.scene;
+  model.scale.setScalar(1.0);
+  model.position.set(0, 0, 0);
+  model.traverse(c => {
+    if (c.isMesh) { c.castShadow = true; c.receiveShadow = true; }
+  });
+  scene.add(model);
+  state.character = model;
+
+  // Set up animation mixer
+  state.mixer = new THREE.AnimationMixer(model);
+  gltf.animations.forEach(clip => {
+    const action = state.mixer.clipAction(clip);
+    state.actions[clip.name] = action;
+    console.log('Animation clip:', clip.name, 'duration:', clip.duration.toFixed(2));
+  });
+
+  console.log('Character loaded, animations:', Object.keys(state.actions));
+  charLoaded = true;
+  loaderFill.style.width = '75%';
+  loaderPct.textContent = '75%';
+  loaderText.textContent = 'RIGGING CHARACTER...';
+  checkAllLoaded();
+});
+
+// ═══════════════════════════════════════════════════
+// ANIMATION HELPERS
+// ═══════════════════════════════════════════════════
+function playAction(name, options) {
+  options = options || {};
+  const fadeTime = options.fade || 0.4;
+  const loop = options.loop !== undefined ? options.loop : true;
+  const timeScale = options.timeScale || 1;
+  const clampWhenFinished = options.clamp || false;
+
+  const action = state.actions[name];
+  if (!action) { console.warn('No animation:', name); return; }
+
+  if (state.currentAction === action) return;
+
+  action.reset();
+  action.setLoop(loop ? THREE.LoopRepeat : THREE.LoopOnce);
+  action.clampWhenFinished = clampWhenFinished;
+  action.timeScale = timeScale;
+  action.fadeIn(fadeTime);
+  action.play();
+
+  if (state.currentAction) {
+    state.currentAction.fadeOut(fadeTime);
+  }
+
+  state.currentAction = action;
+  return action;
+}
+
+// ═══════════════════════════════════════════════════
+// CUTSCENE
+// ═══════════════════════════════════════════════════
+function startCutscene() {
+  state.phase = 'cutscene';
+  orbitControls.enabled = false;
+
+  // Position character lying down
+  if (state.character) {
+    state.character.position.set(0, 0, 0);
+    state.character.rotation.y = 0;
+  }
+
+  // Camera looking at character from above
+  camera.position.set(2, 3, 4);
+  camera.lookAt(0, 0.5, 0);
+
+  // Play sleeping animation
+  playAction('SleepIdle', { loop: true });
+
+  // After 2 seconds, wake up
+  setTimeout(() => {
+    playAction('Waking', { loop: false, clamp: true, fade: 0.6 });
+
+    // After waking finishes, play LyingDown reversed (getting up) then idle
+    setTimeout(() => {
+      const lyingAction = state.actions['LyingDown'];
+      if (lyingAction) {
+        playAction('LyingDown', { loop: false, clamp: true, timeScale: -1, fade: 0.5 });
+        // LyingDown reversed starts at end, plays backward to standing
+        lyingAction.time = lyingAction.getClip().duration;
+      }
+
+      setTimeout(() => {
+        playAction('Idle', { loop: true, fade: 0.6 });
+
+        // Give player control
+        setTimeout(() => {
+          state.phase = 'playing';
+          orbitControls.enabled = true;
+          // Position camera behind character
+          camera.position.set(0, 3, 6);
+          orbitControls.target.set(0, 1, 0);
+          orbitControls.update();
+
+          const el = document.getElementById('hudControls');
+          el.textContent = '';
+          const s = document.createElement('span');
+          s.textContent = 'WASD TO MOVE \u00B7 MOUSE TO ORBIT';
+          el.appendChild(s);
+        }, 500);
+      }, 2500);
+    }, 2000);
+  }, 2500);
+}
+
+// ═══════════════════════════════════════════════════
+// INPUT
+// ═══════════════════════════════════════════════════
 document.addEventListener('keydown', e => { state.keys[e.code] = true; });
 document.addEventListener('keyup', e => { state.keys[e.code] = false; });
 
-// ─── Panel management ───
+// ═══════════════════════════════════════════════════
+// PANEL MANAGEMENT
+// ═══════════════════════════════════════════════════
 function openPanel(key) {
-  controls.unlock();
   const portal = PORTALS[key];
   const panel = document.getElementById(portal.panel);
   panel.classList.add('open');
   panel.style.pointerEvents = 'auto';
   state.activePanel = key;
   document.getElementById('hud').classList.remove('visible');
+  orbitControls.enabled = false;
+
+  // Play sit animation if computer
+  if (key === 'paper') {
+    playAction('SitDown', { loop: false, clamp: true, fade: 0.4 });
+    setTimeout(() => playAction('SitIdle', { loop: true, fade: 0.3 }), 1500);
+  }
 
   if (typeof gsap !== 'undefined') {
     const sections = panel.querySelectorAll('.paper-section, .pres-slide, .arch-demo, .pioneers-grid, .exp-stat, .paper-abstract, .paper-timeline, .slide-implications, .slide-connections, .slide-advocacy-points');
@@ -301,13 +394,20 @@ window.closePanel = function() {
   document.getElementById(portal.panel).style.pointerEvents = 'none';
   state.activePanel = null;
   document.getElementById('hud').classList.add('visible');
+  orbitControls.enabled = true;
+
+  // Stand back up
+  playAction('Idle', { loop: true, fade: 0.5 });
+
   // Push back from portal
-  const p = portal;
-  const dx = camera.position.x - p.x;
-  const dz = camera.position.z - p.z;
-  const len = Math.sqrt(dx * dx + dz * dz) || 1;
-  camera.position.x += (dx / len) * 3;
-  camera.position.z += (dz / len) * 3;
+  if (state.character) {
+    const p = portal;
+    const dx = state.character.position.x - p.x;
+    const dz = state.character.position.z - p.z;
+    const len = Math.sqrt(dx*dx + dz*dz) || 1;
+    state.character.position.x += (dx/len) * 3;
+    state.character.position.z += (dz/len) * 3;
+  }
   Object.keys(state.portalProximity).forEach(k => { state.portalProximity[k] = false; });
 };
 
@@ -318,7 +418,7 @@ document.addEventListener('keydown', e => {
   if (e.key === 'Escape' && state.activePanel) window.closePanel();
 });
 
-// Pioneer click
+// Pioneer + arch demo handlers
 document.querySelectorAll('.pioneer').forEach(el => {
   el.addEventListener('click', () => {
     const info = document.getElementById('pioneerInfo');
@@ -328,7 +428,6 @@ document.querySelectorAll('.pioneer').forEach(el => {
   });
 });
 
-// Arch demo
 document.getElementById('runBtn').addEventListener('click', function() {
   const cpuGrid = document.getElementById('cpuGrid');
   const gpuGrid = document.getElementById('gpuGrid');
@@ -337,28 +436,29 @@ document.getElementById('runBtn').addEventListener('click', function() {
   while (cpuGrid.firstChild) cpuGrid.removeChild(cpuGrid.firstChild);
   while (gpuGrid.firstChild) gpuGrid.removeChild(gpuGrid.firstChild);
   cpuTime.textContent = '\u2014'; gpuTime.textContent = '\u2014';
-  const totalTasks = 64;
   for (let i = 0; i < 8; i++) { const c = document.createElement('div'); c.className = 'arch-cell'; c.style.cssText = 'width:32px;height:32px'; cpuGrid.appendChild(c); }
   for (let i = 0; i < 256; i++) { const c = document.createElement('div'); c.className = 'arch-cell'; c.style.cssText = 'width:14px;height:14px'; gpuGrid.appendChild(c); }
   const cpuCells = cpuGrid.querySelectorAll('.arch-cell');
   const gpuCells = gpuGrid.querySelectorAll('.arch-cell');
   let cpuDone = 0; const cpuStart = performance.now();
   const cpuInterval = setInterval(() => {
-    const batch = Math.min(8, totalTasks - cpuDone);
+    const batch = Math.min(8, 64 - cpuDone);
     cpuCells.forEach(c => c.classList.remove('active-cpu'));
     for (let i = 0; i < batch; i++) { if (cpuCells[i]) cpuCells[i].classList.add('active-cpu'); }
-    cpuDone += batch; cpuTime.textContent = ((performance.now() - cpuStart) / 1000).toFixed(2) + 's';
-    if (cpuDone >= totalTasks) { clearInterval(cpuInterval); cpuCells.forEach(c => c.classList.remove('active-cpu')); cpuTime.textContent += ' \u2713'; }
+    cpuDone += batch; cpuTime.textContent = ((performance.now()-cpuStart)/1000).toFixed(2)+'s';
+    if (cpuDone >= 64) { clearInterval(cpuInterval); cpuCells.forEach(c => c.classList.remove('active-cpu')); cpuTime.textContent += ' \u2713'; }
   }, 400);
   setTimeout(() => {
     const gpuStart = performance.now();
-    for (let i = 0; i < Math.min(totalTasks, 256); i++) {
-      setTimeout(() => { if (gpuCells[i]) gpuCells[i].classList.add('active-gpu'); if (i === totalTasks - 1) gpuTime.textContent = ((performance.now() - gpuStart) / 1000).toFixed(2) + 's \u2713'; }, i * 3);
+    for (let i = 0; i < 64; i++) {
+      setTimeout(() => { if (gpuCells[i]) gpuCells[i].classList.add('active-gpu'); if (i === 63) gpuTime.textContent = ((performance.now()-gpuStart)/1000).toFixed(2)+'s \u2713'; }, i*3);
     }
   }, 100);
 });
 
-// ─── Resize ───
+// ═══════════════════════════════════════════════════
+// RESIZE
+// ═══════════════════════════════════════════════════
 window.addEventListener('resize', () => {
   camera.aspect = window.innerWidth / window.innerHeight;
   camera.updateProjectionMatrix();
@@ -366,7 +466,9 @@ window.addEventListener('resize', () => {
   composer.setSize(window.innerWidth, window.innerHeight);
 });
 
-// ─── Animation Loop ───
+// ═══════════════════════════════════════════════════
+// GAME LOOP
+// ═══════════════════════════════════════════════════
 const clock = new THREE.Clock();
 
 function animate() {
@@ -374,65 +476,104 @@ function animate() {
   const delta = clock.getDelta();
   const elapsed = clock.getElapsedTime();
 
-  if (!state.loaded || state.activePanel) { composer.render(); return; }
+  // Update animation mixer
+  if (state.mixer) state.mixer.update(delta);
 
-  // FPS movement with collision
-  if (controls.isLocked) {
+  // Update orbit controls
+  if (orbitControls.enabled) orbitControls.update();
+
+  if (!state.loaded) { composer.render(); return; }
+  if (state.activePanel) { composer.render(); return; }
+
+  // ─── Third-person movement ───
+  if (state.phase === 'playing' && state.character) {
+    let moving = false;
+    const char = state.character;
     const speed = state.moveSpeed * delta;
-    state.direction.set(0, 0, 0);
-    if (state.keys['KeyW'] || state.keys['ArrowUp']) state.direction.z = -1;
-    if (state.keys['KeyS'] || state.keys['ArrowDown']) state.direction.z = 1;
-    if (state.keys['KeyA'] || state.keys['ArrowLeft']) state.direction.x = -1;
-    if (state.keys['KeyD'] || state.keys['ArrowRight']) state.direction.x = 1;
 
-    if (state.direction.length() > 0) {
-      state.direction.normalize();
-      const prevPos = camera.position.clone();
+    // Get camera's forward direction (flattened to XZ plane)
+    const camForward = new THREE.Vector3();
+    camera.getWorldDirection(camForward);
+    camForward.y = 0;
+    camForward.normalize();
+    const camRight = new THREE.Vector3().crossVectors(camForward, new THREE.Vector3(0, 1, 0)).normalize();
 
-      controls.moveRight(state.direction.x * speed);
-      controls.moveForward(-state.direction.z * speed);
+    const moveDir = new THREE.Vector3();
 
-      // Wall collision — cast rays in move direction from chest height
+    if (state.keys['KeyW'] || state.keys['ArrowUp']) { moveDir.add(camForward); moving = true; }
+    if (state.keys['KeyS'] || state.keys['ArrowDown']) { moveDir.sub(camForward); moving = true; }
+    if (state.keys['KeyA'] || state.keys['ArrowLeft']) { moveDir.sub(camRight); moving = true; }
+    if (state.keys['KeyD'] || state.keys['ArrowRight']) { moveDir.add(camRight); moving = true; }
+
+    if (moving && moveDir.length() > 0) {
+      moveDir.normalize();
+
+      // Rotate character to face movement direction
+      const targetAngle = Math.atan2(moveDir.x, moveDir.z);
+      // Smooth rotation
+      let angleDiff = targetAngle - char.rotation.y;
+      while (angleDiff > Math.PI) angleDiff -= Math.PI * 2;
+      while (angleDiff < -Math.PI) angleDiff += Math.PI * 2;
+      char.rotation.y += angleDiff * Math.min(1, delta * 10);
+
+      // Move
+      const prevPos = char.position.clone();
+      char.position.x += moveDir.x * speed;
+      char.position.z += moveDir.z * speed;
+
+      // Collision check
       if (state.colliders.length > 0) {
-        const moveDir = new THREE.Vector3().subVectors(camera.position, prevPos).normalize();
-        const ray = new THREE.Raycaster(prevPos, moveDir, 0, 0.8);
+        const ray = new THREE.Raycaster(
+          new THREE.Vector3(prevPos.x, prevPos.y + 1, prevPos.z),
+          moveDir, 0, 1.0
+        );
         const hits = ray.intersectObjects(state.colliders, false);
         if (hits.length > 0) {
-          // Blocked — revert
-          camera.position.copy(prevPos);
+          char.position.copy(prevPos);
         }
       }
-    }
 
-    // Floor raycast — snap to ground
-    if (state.colliders.length > 0) {
-      const downRay = new THREE.Raycaster(
-        new THREE.Vector3(camera.position.x, camera.position.y + 2, camera.position.z),
-        new THREE.Vector3(0, -1, 0), 0, 20
-      );
-      const floorHits = downRay.intersectObjects(state.colliders, false);
-      if (floorHits.length > 0) {
-        camera.position.y = floorHits[0].point.y + state.playerHeight;
+      // Boundary
+      char.position.x = Math.max(-BOUNDARY, Math.min(BOUNDARY, char.position.x));
+      char.position.z = Math.max(-BOUNDARY, Math.min(BOUNDARY, char.position.z));
+
+      // Play walk animation
+      if (state.currentAction !== state.actions['Walking']) {
+        playAction('Walking', { loop: true, fade: 0.3 });
+      }
+    } else if (state.phase === 'playing') {
+      // Not moving — idle
+      if (state.currentAction === state.actions['Walking'] ||
+          state.currentAction === state.actions['WalkBack'] ||
+          state.currentAction === state.actions['StrafeLeft'] ||
+          state.currentAction === state.actions['StrafeRight']) {
+        playAction('Idle', { loop: true, fade: 0.3 });
       }
     }
 
-    // Boundary clamp as fallback
-    camera.position.x = Math.max(-BOUNDARY, Math.min(BOUNDARY, camera.position.x));
-    camera.position.z = Math.max(-BOUNDARY, Math.min(BOUNDARY, camera.position.z));
+    // Camera follows character
+    orbitControls.target.lerp(
+      new THREE.Vector3(char.position.x, char.position.y + 1.2, char.position.z),
+      0.1
+    );
   }
 
-  // Minimap
-  const mmDot = document.getElementById('minimapDot');
-  if (mmDot) {
-    mmDot.style.left = (50 + (camera.position.x / BOUNDARY) * 40) + '%';
-    mmDot.style.top = (50 + (camera.position.z / BOUNDARY) * 40) + '%';
+  // ─── Minimap ───
+  if (state.character) {
+    const mmDot = document.getElementById('minimapDot');
+    if (mmDot) {
+      mmDot.style.left = (50 + (state.character.position.x / BOUNDARY) * 40) + '%';
+      mmDot.style.top = (50 + (state.character.position.z / BOUNDARY) * 40) + '%';
+    }
   }
 
-  // Portal proximity
+  // ─── Portal proximity ───
   Object.entries(PORTALS).forEach(([key, p]) => {
-    const dist = Math.sqrt(Math.pow(camera.position.x - p.x, 2) + Math.pow(camera.position.z - p.z, 2));
+    const charPos = state.character ? state.character.position : camera.position;
+    const dist = Math.sqrt(Math.pow(charPos.x - p.x, 2) + Math.pow(charPos.z - p.z, 2));
     const label = document.getElementById(p.label);
     const mesh = portalMeshes[key];
+
     mesh.crystal.rotation.y = elapsed * 1.5;
     mesh.crystal.position.y = 3 + Math.sin(elapsed * 2 + key.length) * 0.3;
     const pulse = 1 + Math.sin(elapsed * 3) * 0.05;
@@ -442,19 +583,22 @@ function animate() {
       const vec = new THREE.Vector3(p.x, 3.5, p.z);
       vec.project(camera);
       if (vec.z < 1) {
-        label.style.left = ((vec.x * 0.5 + 0.5) * window.innerWidth) + 'px';
-        label.style.top = ((-vec.y * 0.5 + 0.5) * window.innerHeight) + 'px';
+        label.style.left = ((vec.x*0.5+0.5)*window.innerWidth) + 'px';
+        label.style.top = ((-vec.y*0.5+0.5)*window.innerHeight) + 'px';
         label.classList.add('visible');
       } else { label.classList.remove('visible'); }
     } else { label.classList.remove('visible'); }
 
-    if (dist < PORTAL_RADIUS && !state.portalProximity[key]) { state.portalProximity[key] = true; openPanel(key); }
+    if (state.phase === 'playing' && dist < PORTAL_RADIUS && !state.portalProximity[key]) {
+      state.portalProximity[key] = true;
+      openPanel(key);
+    }
     if (dist >= PORTAL_RADIUS + 1.5) { state.portalProximity[key] = false; }
   });
 
-  // Particles
+  // ─── Particles ───
   const pos = particles.geometry.attributes.position.array;
-  for (let i = 0; i < particleCount; i++) { pos[i * 3 + 1] += 0.005; if (pos[i * 3 + 1] > 12) pos[i * 3 + 1] = 0; }
+  for (let i = 0; i < particleCount; i++) { pos[i*3+1] += 0.004; if (pos[i*3+1] > 10) pos[i*3+1] = 0; }
   particles.geometry.attributes.position.needsUpdate = true;
 
   composer.render();
