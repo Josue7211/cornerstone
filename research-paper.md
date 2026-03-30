@@ -28,7 +28,7 @@ The cloud-first era of artificial intelligence — where intelligence lives on c
 
 This paper traces how we arrived at this inflection point. It begins with the accidental discovery that gaming hardware could accelerate neural networks, follows the deliberate development of specialized AI chips, and then examines the software revolution that is making those chips dramatically more capable without changing the silicon itself. But the paper does not stop at the technical narrative. The shift from cloud to local AI has implications for personal privacy, corporate espionage, geopolitical power, military ethics, economic policy, and the psychology of how humans relate to technology. Understanding AI hardware is no longer a concern for engineers alone — it is becoming a form of civic literacy as consequential as understanding how the internet works.
 
-The paper concludes with a prediction: by 2031, the default way most people interact with AI will be through models running locally on their own devices. The centralized AI infrastructure of 2025 will be remembered the way we remember mainframe computing — a necessary stage that was always going to give way to something more personal.
+By 2031, the default way most people interact with AI will be through models running locally on their own devices. The centralized AI infrastructure of 2025 will be remembered the way we remember mainframe computing — a necessary stage that was always going to give way to something more personal.
 
 ## The Accidental Revolution: How Gaming Hardware Became the Engine of AI
 
@@ -143,7 +143,7 @@ Quantization is the most impactful. It reduces the numerical precision of each p
 
 Knowledge distillation takes a different approach: a large "teacher" model generates outputs on a training dataset, and a smaller "student" model is trained to replicate the teacher's behavior rather than learning from the raw data directly. The student cannot match the teacher's full capability, but it can capture the majority of the teacher's performance at a fraction of the size. Pruning removes the least important connections in a neural network entirely — optimization research has shown that many networks contain substantial redundancy, with connections that can be removed with minimal impact on output quality.
 
-These techniques compound. A model that is first pruned to remove redundant connections, then distilled into a smaller architecture, then quantized to 4-bit precision can be 10-20x smaller than its original form while retaining the majority of its capability. The practical result is that models that demanded a server rack twelve months ago now run on a desktop PC.
+These techniques compound. A model that is first pruned to remove redundant connections, then distilled into a smaller architecture, then quantized to 4-bit precision can be dramatically smaller than its original form — often by an order of magnitude or more — while retaining the majority of its capability. The practical result is that models that demanded a server rack twelve months ago now run on a desktop PC.
 
 ### Token Optimization: Doing 4x More on the Same Chip
 
@@ -388,6 +388,8 @@ That model is breaking. Not because of a single breakthrough, but because of a c
 The cloud era of AI was not a destination. It was a stopover — a necessary phase that existed because consumer hardware could not yet handle the computational demands of modern AI. That constraint is dissolving. Within five years, the default way most people interact with AI will be through models running locally on their own devices, private by default, free of API fees, independent of internet connectivity, and owned entirely by the person using them.
 
 The centralized AI infrastructure of 2025 will be remembered the way we remember mainframe computing — a necessary and impressive stage of technological development that gave way to something more personal, more accessible, and ultimately more powerful precisely because it belongs to everyone.
+
+Cloud AI feels like a subscription. Local AI feels like a workshop. The difference is not just economic or technical — it is a statement about what kind of relationship humanity chooses to have with the most powerful tool it has ever created: one of dependence, or one of ownership.
 
 AI is not a service to be rented. It is a tool to be owned. The hardware to make that possible already exists. The software is catching up. The only question is how long it takes for the rest of the world to notice.
 
