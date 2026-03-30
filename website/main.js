@@ -185,96 +185,61 @@ const loaderFill = document.getElementById('loaderFill');
 const loaderText = document.getElementById('loaderText');
 const loaderPct = document.getElementById('loaderPct');
 
-const SCIFI_BASE = './assets/models/quaternius-scifi/Modular SciFi MegaKit[Standard]/glTF';
+// ─── Load Futuristic Room GLTF ───
+gltfLoader.load(
+  './assets/models/futuristic-room/scene.gltf',
+  (gltf) => {
+    const model = gltf.scene;
+    // Auto-fit to lobby size
+    const box = new THREE.Box3().setFromObject(model);
+    const size = box.getSize(new THREE.Vector3());
+    const maxDim = Math.max(size.x, size.y, size.z);
+    const scaleFactor = 30 / maxDim;
+    model.scale.setScalar(scaleFactor);
+    // Re-center and place on floor
+    const sBox = new THREE.Box3().setFromObject(model);
+    const center = sBox.getCenter(new THREE.Vector3());
+    model.position.set(-center.x, -sBox.min.y, -center.z);
+    model.traverse(child => {
+      if (child.isMesh) { child.castShadow = true; child.receiveShadow = true; }
+    });
+    scene.add(model);
+    console.log('GLTF loaded — scale:', scaleFactor.toFixed(4), 'size:', size);
 
-let loadedCount = 0;
-const totalToLoad = 25;
-
-function updateLoadBar() {
-  loadedCount++;
-  const pct = Math.min(99, Math.round((loadedCount / totalToLoad) * 100));
-  loaderFill.style.width = pct + '%';
-  loaderPct.textContent = pct + '%';
-  if (pct < 40) loaderText.textContent = 'LOADING SCI-FI MODULES...';
-  else if (pct < 70) loaderText.textContent = 'ASSEMBLING CORRIDOR...';
-  else loaderText.textContent = 'INITIALIZING NEURAL PATHWAYS...';
-}
-
-function placeModel(url, pos, rot, scale) {
-  rot = rot || 0;
-  scale = scale || 1;
-  return new Promise((resolve) => {
-    gltfLoader.load(url, (gltf) => {
-      const m = gltf.scene;
-      m.position.set(pos.x, pos.y || 0, pos.z);
-      m.rotation.y = rot;
-      m.scale.setScalar(scale);
-      m.traverse(child => {
-        if (child.isMesh) { child.castShadow = true; child.receiveShadow = true; }
-      });
-      scene.add(m);
-      updateLoadBar();
-      resolve(m);
-    }, undefined, () => { updateLoadBar(); resolve(null); });
-  });
-}
-
-async function buildHub() {
-  const S = 2.0;
-  const promises = [];
-
-  // Walls around perimeter
-  for (let x = -12; x <= 12; x += 4) {
-    promises.push(placeModel(SCIFI_BASE + '/Walls/BottomMetal_Straight.gltf', { x, y: 0, z: -16 }, 0, S));
-  }
-  for (let z = -16; z <= 12; z += 4) {
-    promises.push(placeModel(SCIFI_BASE + '/Walls/BottomMetal_Straight.gltf', { x: -14, y: 0, z }, Math.PI / 2, S));
-    promises.push(placeModel(SCIFI_BASE + '/Walls/BottomMetal_Straight.gltf', { x: 14, y: 0, z }, -Math.PI / 2, S));
-  }
-  for (let x = -12; x <= 12; x += 4) {
-    if (Math.abs(x) > 2) {
-      promises.push(placeModel(SCIFI_BASE + '/Walls/BottomMetal_Straight.gltf', { x, y: 0, z: 12 }, Math.PI, S));
+    loaderFill.style.width = '100%';
+    loaderPct.textContent = '100%';
+    loaderText.textContent = 'ENTERING THE GRID...';
+    setTimeout(() => {
+      document.getElementById('loader').classList.add('done');
+      document.getElementById('hud').classList.add('visible');
+      state.loaded = true;
+    }, 500);
+  },
+  (progress) => {
+    if (progress.total > 0) {
+      const pct = Math.round((progress.loaded / progress.total) * 100);
+      loaderFill.style.width = pct + '%';
+      loaderPct.textContent = pct + '%';
+    } else {
+      // Estimate based on 561MB
+      const pct = Math.min(99, Math.round(progress.loaded / 580000000 * 100));
+      loaderFill.style.width = pct + '%';
+      loaderPct.textContent = pct + '%';
     }
+    if (progress.loaded < 100000000) loaderText.textContent = 'LOADING FUTURISTIC ENVIRONMENT...';
+    else if (progress.loaded < 300000000) loaderText.textContent = 'COMPILING SHADER PROGRAMS...';
+    else loaderText.textContent = 'INITIALIZING NEURAL PATHWAYS...';
+  },
+  (error) => {
+    console.error('GLTF load failed:', error);
+    loaderText.textContent = 'LOAD ERROR — CHECK CONSOLE';
+    setTimeout(() => {
+      document.getElementById('loader').classList.add('done');
+      document.getElementById('hud').classList.add('visible');
+      state.loaded = true;
+    }, 1000);
   }
-
-  // Door frames at portals
-  promises.push(placeModel(SCIFI_BASE + '/Platforms/Door_Frame_SquareTall.gltf', { x: 0, y: 0, z: -14 }, 0, S));
-  promises.push(placeModel(SCIFI_BASE + '/Platforms/Door_Frame_SquareTall.gltf', { x: -12, y: 0, z: 8 }, Math.PI / 2, S));
-  promises.push(placeModel(SCIFI_BASE + '/Platforms/Door_Frame_SquareTall.gltf', { x: 12, y: 0, z: 8 }, -Math.PI / 2, S));
-
-  // Props
-  const props = [
-    ['Props/Prop_Computer.gltf', { x: -8, z: -10 }, 0.5],
-    ['Props/Prop_Computer.gltf', { x: 6, z: -8 }, -0.3],
-    ['Props/Prop_Barrel_Large.gltf', { x: -5, z: 3 }, 0],
-    ['Props/Prop_Barrel_Large.gltf', { x: 8, z: -3 }, 1.2],
-    ['Props/Prop_Crate3.gltf', { x: -3, z: 6 }, 0.7],
-    ['Props/Prop_Crate3.gltf', { x: 5, z: -5 }, 2.1],
-    ['Props/Prop_Chest.gltf', { x: -10, z: -4 }, 0],
-    ['Props/Prop_AccessPoint.gltf', { x: 0, z: 4 }, 0],
-  ];
-  for (const [url, pos, rot] of props) {
-    promises.push(placeModel(SCIFI_BASE + '/' + url, pos, rot, S));
-  }
-
-  // Columns
-  for (const c of [{ x: -6, z: -6 }, { x: 6, z: -6 }, { x: -6, z: 4 }, { x: 6, z: 4 }]) {
-    promises.push(placeModel(SCIFI_BASE + '/Columns/Column_Metal_A.gltf', c, 0, S));
-  }
-
-  await Promise.all(promises);
-
-  loaderFill.style.width = '100%';
-  loaderPct.textContent = '100%';
-  loaderText.textContent = 'ENTERING THE GRID...';
-  setTimeout(() => {
-    document.getElementById('loader').classList.add('done');
-    document.getElementById('hud').classList.add('visible');
-    state.loaded = true;
-  }, 500);
-}
-
-buildHub();
+);
 
 // ─── Input ───
 document.addEventListener('keydown', e => { state.keys[e.code] = true; });
