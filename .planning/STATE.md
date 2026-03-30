@@ -3,12 +3,12 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-last_updated: "2026-03-30T16:41:35.163Z"
+last_updated: "2026-03-30T21:29:09.237Z"
 progress:
   total_phases: 11
   completed_phases: 2
-  total_plans: 8
-  completed_plans: 6
+  total_plans: 10
+  completed_plans: 7
 ---
 
 # Project State — IDS2891 Cornerstone
@@ -19,7 +19,16 @@ Phase 11 — Final Project (interactive website)
 
 ## Last Action
 
-2026-03-30: Phase 11 Plan 02 VERIFIED — browser checkpoint approved. All 3 content panels confirmed working: Research Paper (5 sections + GPU timeline + thesis, cyan accent), Presentation (6 slides with discipline tags, magenta accent), Experience (CPU vs GPU demo, 9 pioneers with real photos, stat counters, green accent). Zero console errors. Commits: ec4201b, 5a6e770. Ready for 11-03 (polish).
+2026-03-30: Phase 11 Plan 04 COMPLETE — Win95 desktop OS shell built. BIOS boot sequence with GPU-themed text, Win95 desktop with 7 icons, WindowManager class (drag/minimize/maximize/close/z-stack), Web Audio synthesis (startup chime + click sounds), CRT scanline overlay, Press Start 2P pixel font. All 3 content panels wrapped in draggable Win95 windows. Commits: c70e49c, e8d3169. Ready for 11-05 (terminal commands + polish).
+
+## Phase 11 Plan 04 Decisions (2026-03-30)
+
+- WindowManager class chosen over functional approach — better encapsulation for z-index tracking and window state
+- Double-click detection via lastClick timestamp instead of native dblclick — enables single-click selection behavior
+- Web Audio oscillators only (no external files) — synthesized chimes/clicks work offline, no loading required
+- APP_CONFIG object literal with open() methods — self-contained per-app logic, easy to extend in 11-05
+- Panels moved dynamically into windows (appendChild) and returned to document.body on close — preserves existing HTML/styles
+- CRT overlay z-index 9000 (above all windows at 300+) with pointer-events:none — no interaction interference
 
 ## Phase 11 Decisions (2026-03-30)
 
