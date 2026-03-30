@@ -4,7 +4,7 @@ import { RGBELoader } from 'three/addons/loaders/RGBELoader.js';
 import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
 import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
 import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
-import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+// No OrbitControls — custom third-person camera
 
 // ═══════════════════════════════════════════════════
 // STATE
@@ -56,15 +56,28 @@ scene.fog = new THREE.FogExp2(0x020206, 0.02);
 const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 200);
 camera.position.set(0, 3, 6);
 
-// Third-person orbit camera (disabled during cutscene)
-const orbitControls = new OrbitControls(camera, renderer.domElement);
-orbitControls.enableDamping = true;
-orbitControls.dampingFactor = 0.1;
-orbitControls.maxPolarAngle = Math.PI * 0.85;
-orbitControls.minPolarAngle = Math.PI * 0.1;
-orbitControls.minDistance = 2;
-orbitControls.maxDistance = 10;
-orbitControls.enabled = false; // disabled until cutscene ends
+// Camera follow state (no OrbitControls — custom third-person follow)
+const camState = {
+  distance: 5,
+  height: 3,
+  lookHeight: 1.5,
+  mouseX: 0,
+  mouseY: 0,
+  angleX: Math.PI, // horizontal angle around character
+  angleY: 0.3,     // vertical angle
+  sensitivity: 0.003,
+  isDragging: false
+};
+
+// Mouse drag to rotate camera around character
+canvas.addEventListener('mousedown', () => { if (state.phase === 'playing') camState.isDragging = true; });
+window.addEventListener('mouseup', () => { camState.isDragging = false; });
+window.addEventListener('mousemove', (e) => {
+  if (camState.isDragging && state.phase === 'playing') {
+    camState.angleX -= e.movementX * camState.sensitivity;
+    camState.angleY = Math.max(0.1, Math.min(1.2, camState.angleY + e.movementY * camState.sensitivity));
+  }
+});
 
 // ═══════════════════════════════════════════════════
 // POST-PROCESSING
@@ -237,8 +250,8 @@ loader.load('./assets/models/futuristic-room/scene.gltf', (gltf) => {
 // ─── Character ───
 loader.load('./assets/models/character.glb', (gltf) => {
   const model = gltf.scene;
-  // Scale character to fit the room — measure and match
-  model.scale.setScalar(2.5);
+  // Scale character to fit the room
+  model.scale.setScalar(1.5);
   model.position.set(0, 0, 0);
   model.traverse(c => {
     if (c.isMesh) { c.castShadow = true; c.receiveShadow = true; }
@@ -297,17 +310,16 @@ function playAction(name, options) {
 // ═══════════════════════════════════════════════════
 function startCutscene() {
   state.phase = 'cutscene';
-  orbitControls.enabled = false;
+  // camera controlled manually
 
   if (state.character) {
-    // Position on the chair — elevated to seat height
-    state.character.position.set(-2, 1.2, 0);
-    state.character.rotation.y = Math.PI * 0.5; // facing the desk
+    state.character.position.set(0, 0, 0);
+    state.character.rotation.y = 0;
   }
 
-  // Camera looking at character from side
-  camera.position.set(1, 3.5, 3);
-  camera.lookAt(-2, 2, 0);
+  // Camera looking at character
+  camera.position.set(2, 2.5, 4);
+  camera.lookAt(0, 1, 0);
 
   // Start sitting
   playAction('SitIdle', { loop: true });
@@ -326,16 +338,18 @@ function startCutscene() {
 
       setTimeout(() => {
         state.phase = 'playing';
-        orbitControls.enabled = true;
-        camera.position.set(0, 3, 6);
-        orbitControls.target.set(0, 1, 0);
-        orbitControls.update();
+        // Reset camera angle behind character
+        camState.angleX = Math.PI;
+        camState.angleY = 0.3;
 
         const el = document.getElementById('hudControls');
         el.textContent = '';
-        const s = document.createElement('span');
-        s.textContent = 'WASD TO MOVE \u00B7 MOUSE TO ORBIT';
-        el.appendChild(s);
+        const s1 = document.createElement('span');
+        s1.textContent = 'WASD TO MOVE \u00B7 DRAG TO LOOK';
+        const s2 = document.createElement('span');
+        s2.textContent = 'WALK TO THE COMPUTER TO BEGIN';
+        el.appendChild(s1);
+        el.appendChild(s2);
       }, 500);
     }, 2000);
   }, 2500);
@@ -357,7 +371,7 @@ function openPanel(key) {
   panel.style.pointerEvents = 'auto';
   state.activePanel = key;
   document.getElementById('hud').classList.remove('visible');
-  orbitControls.enabled = false;
+  // camera controlled manually
 
   // Play sit animation if computer
   if (key === 'paper') {
@@ -398,7 +412,7 @@ window.closePanel = function() {
   document.getElementById(portal.panel).style.pointerEvents = 'none';
   state.activePanel = null;
   document.getElementById('hud').classList.add('visible');
-  orbitControls.enabled = true;
+  // camera controlled manually
 
   // Stand back up
   playAction('Idle', { loop: true, fade: 0.5 });
@@ -483,8 +497,7 @@ function animate() {
   // Update animation mixer
   if (state.mixer) state.mixer.update(delta);
 
-  // Update orbit controls
-  if (orbitControls.enabled) orbitControls.update();
+  // (camera updated in movement section)
 
   if (!state.loaded) { composer.render(); return; }
   if (state.activePanel) { composer.render(); return; }
@@ -495,11 +508,8 @@ function animate() {
     const char = state.character;
     const speed = state.moveSpeed * delta;
 
-    // Get camera's forward direction (flattened to XZ plane)
-    const camForward = new THREE.Vector3();
-    camera.getWorldDirection(camForward);
-    camForward.y = 0;
-    camForward.normalize();
+    // Camera-relative movement direction
+    const camForward = new THREE.Vector3(-Math.sin(camState.angleX), 0, -Math.cos(camState.angleX)).normalize();
     const camRight = new THREE.Vector3().crossVectors(camForward, new THREE.Vector3(0, 1, 0)).normalize();
 
     const moveDir = new THREE.Vector3();
@@ -555,15 +565,15 @@ function animate() {
       }
     }
 
-    // Camera follows character — always track
-    const targetPos = new THREE.Vector3(char.position.x, char.position.y + 1.2, char.position.z);
-    orbitControls.target.copy(targetPos);
-    // Keep camera offset relative to character
-    const camOffset = camera.position.clone().sub(orbitControls.target);
-    if (moving) {
-      camera.position.copy(char.position).add(camOffset);
-      camera.position.y = Math.max(char.position.y + 1.5, camera.position.y);
-    }
+    // Third-person camera — orbits around character, physically follows
+    const charCenter = new THREE.Vector3(char.position.x, char.position.y + camState.lookHeight, char.position.z);
+
+    const camX = charCenter.x + Math.sin(camState.angleX) * Math.cos(camState.angleY) * camState.distance;
+    const camY = charCenter.y + Math.sin(camState.angleY) * camState.distance;
+    const camZ = charCenter.z + Math.cos(camState.angleX) * Math.cos(camState.angleY) * camState.distance;
+
+    camera.position.lerp(new THREE.Vector3(camX, camY, camZ), 0.15);
+    camera.lookAt(charCenter);
   }
 
   // ─── Minimap ───
