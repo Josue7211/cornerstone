@@ -6,6 +6,7 @@
   <title>From Pixels to Intelligence — Explore</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Chakra+Petch:wght@300;400;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323:wght@400&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
 
   <script type="importmap">
@@ -467,28 +468,55 @@
     </div>
   </div>
 
-  <!-- DESKTOP UI (computer screen) -->
-  <div class="desktop" id="desktop">
-    <div class="desktop-wallpaper">
-      <div class="desktop-icons">
-        <div class="desktop-icon" data-open="panelPaper">
-          <div class="icon-img">&#128196;</div>
-          <span>Research Paper</span>
+  <!-- BIOS SCREEN -->
+  <div id="biosScreen">
+    <div id="biosOutput"></div><span id="biosCursor">_</span>
+  </div>
+
+  <!-- DESKTOP UI (Win95) -->
+  <div class="win95-desktop" id="desktop">
+    <div class="crt-overlay" id="crtOverlay"></div>
+    <div class="win95-wallpaper" id="win95Wallpaper">
+      <div class="icon-grid" id="iconGrid">
+        <div class="desktop-icon" data-app="paper" data-label="Research Paper">
+          <span class="icon-emoji">📄</span>
+          <span class="icon-label">Research Paper</span>
         </div>
-        <div class="desktop-icon" data-open="panelPres">
-          <div class="icon-img">&#127916;</div>
-          <span>Presentation</span>
+        <div class="desktop-icon" data-app="pres" data-label="Presentation">
+          <span class="icon-emoji">🎬</span>
+          <span class="icon-label">Presentation</span>
         </div>
-        <div class="desktop-icon" data-open="panelExp">
-          <div class="icon-img">&#128300;</div>
-          <span>Interactive Experience</span>
+        <div class="desktop-icon" data-app="exp" data-label="Experience">
+          <span class="icon-emoji">🔬</span>
+          <span class="icon-label">Experience</span>
+        </div>
+        <div class="desktop-icon" data-app="explorer" data-label="My Computer">
+          <span class="icon-emoji">💾</span>
+          <span class="icon-label">My Computer</span>
+        </div>
+        <div class="desktop-icon" data-app="terminal" data-label="Terminal">
+          <span class="icon-emoji">⌨️</span>
+          <span class="icon-label">Terminal</span>
+        </div>
+        <div class="desktop-icon" data-app="notepad" data-label="Notepad">
+          <span class="icon-emoji">📝</span>
+          <span class="icon-label">Notepad</span>
+        </div>
+        <div class="desktop-icon" data-app="recycle" data-label="Recycle Bin">
+          <span class="icon-emoji">🗑️</span>
+          <span class="icon-label">Recycle Bin</span>
         </div>
       </div>
-      <div class="desktop-taskbar">
-        <span class="taskbar-title">FROM PIXELS TO INTELLIGENCE</span>
-        <span class="taskbar-user">Josue Aparcedo Gonzalez &middot; IDS2891</span>
-        <span class="taskbar-time" id="taskbarTime"></span>
-      </div>
+      <div id="windowLayer"></div>
+    </div>
+    <div class="win95-taskbar" id="win95Taskbar">
+      <button class="start-btn" id="startBtn">
+        <span class="start-logo">⊞</span>
+        <span class="start-text">Start</span>
+      </button>
+      <div class="taskbar-divider"></div>
+      <div class="taskbar-pills" id="taskbarPills"></div>
+      <div class="taskbar-clock" id="taskbarClock">12:00 PM</div>
     </div>
   </div>
 
