@@ -302,7 +302,7 @@ gltfLoader.load(
   }
 );
 
-// ─── Panel management (pointer-events fix: pitfall #5) ───
+// ─── Panel management ───
 function openPanel(key) {
   const portal = PORTALS[key];
   const panel = document.getElementById(portal.panel);
@@ -310,6 +310,52 @@ function openPanel(key) {
   panel.style.pointerEvents = 'auto';
   state.activePanel = key;
   document.getElementById('hud').classList.remove('visible');
+
+  // GSAP: animate content in after panel opens
+  if (typeof gsap !== 'undefined') {
+    const sections = panel.querySelectorAll('.paper-section, .pres-slide, .arch-demo, .pioneers-grid, .exp-stat, .paper-abstract, .paper-timeline, .slide-implications, .slide-connections, .slide-advocacy-points');
+    if (sections.length > 0) {
+      gsap.fromTo(sections,
+        { opacity: 0, y: 30 },
+        { opacity: 1, y: 0, duration: 0.6, stagger: 0.1, delay: 0.3, ease: 'power2.out' }
+      );
+    }
+    // Also animate the panel header
+    const header = panel.querySelector('.panel-header, .pres-header');
+    if (header) {
+      gsap.fromTo(header,
+        { opacity: 0, y: -20 },
+        { opacity: 1, y: 0, duration: 0.5, ease: 'power2.out' }
+      );
+    }
+  }
+
+  // Animate stat counters when Experience panel opens
+  if (key === 'exp') {
+    animateCounters();
+  }
+}
+
+// ─── Stat counter animation ───
+function animateCounters() {
+  if (typeof gsap === 'undefined') return;
+  document.querySelectorAll('.exp-stat-num[data-target]').forEach(el => {
+    const target = parseFloat(el.dataset.target);
+    const prefix = el.dataset.prefix || '';
+    const suffix = el.dataset.suffix || '';
+    const isDecimal = target % 1 !== 0;
+    const obj = { val: 0 };
+    gsap.to(obj, {
+      val: target,
+      duration: 2,
+      delay: 0.5,
+      ease: 'power2.out',
+      onUpdate: function() {
+        const display = isDecimal ? obj.val.toFixed(1) : Math.round(obj.val).toString();
+        el.textContent = prefix + display + suffix;
+      }
+    });
+  });
 }
 
 window.closePanel = function() {
@@ -342,7 +388,8 @@ document.querySelectorAll('.pioneer').forEach(el => {
   el.addEventListener('click', () => {
     const info = document.getElementById('pioneerInfo');
     info.textContent = el.dataset.info;
-    info.style.borderColor = 'var(--cyan)';
+    info.style.borderColor = 'var(--green)';
+    info.style.color = 'var(--text)';
   });
 });
 
