@@ -12,8 +12,11 @@ const state = {
   activePanel: null,
   loaded: false,
   portalProximity: { paper: false, pres: false, exp: false },
-  moveSpeed: 8,
-  direction: new THREE.Vector3()
+  moveSpeed: 6,
+  direction: new THREE.Vector3(),
+  colliders: [],       // meshes to collide with
+  playerHeight: 2.8,   // eye height — will be recalculated after model loads
+  groundY: 0           // floor level
 };
 
 // ─── Portal positions ───
@@ -201,10 +204,20 @@ gltfLoader.load(
     const center = sBox.getCenter(new THREE.Vector3());
     model.position.set(-center.x, -sBox.min.y, -center.z);
     model.traverse(child => {
-      if (child.isMesh) { child.castShadow = true; child.receiveShadow = true; }
+      if (child.isMesh) {
+        child.castShadow = true;
+        child.receiveShadow = true;
+        state.colliders.push(child);
+      }
     });
     scene.add(model);
-    console.log('GLTF loaded — scale:', scaleFactor.toFixed(4), 'size:', size);
+
+    // Calculate player height as ~1/4 of room height (standing inside)
+    const roomHeight = sBox.max.y - sBox.min.y;
+    state.playerHeight = roomHeight * 0.15; // eye level
+    state.groundY = 0;
+    camera.position.set(0, state.playerHeight, 0);
+    console.log('GLTF loaded — scale:', scaleFactor.toFixed(4), 'roomH:', roomHeight.toFixed(1), 'eyeH:', state.playerHeight.toFixed(1));
 
     loaderFill.style.width = '100%';
     loaderPct.textContent = '100%';
@@ -363,7 +376,7 @@ function animate() {
 
   if (!state.loaded || state.activePanel) { composer.render(); return; }
 
-  // FPS movement
+  // FPS movement with collision
   if (controls.isLocked) {
     const speed = state.moveSpeed * delta;
     state.direction.set(0, 0, 0);
@@ -371,14 +384,41 @@ function animate() {
     if (state.keys['KeyS'] || state.keys['ArrowDown']) state.direction.z = 1;
     if (state.keys['KeyA'] || state.keys['ArrowLeft']) state.direction.x = -1;
     if (state.keys['KeyD'] || state.keys['ArrowRight']) state.direction.x = 1;
+
     if (state.direction.length() > 0) {
       state.direction.normalize();
+      const prevPos = camera.position.clone();
+
       controls.moveRight(state.direction.x * speed);
       controls.moveForward(-state.direction.z * speed);
+
+      // Wall collision — cast rays in move direction from chest height
+      if (state.colliders.length > 0) {
+        const moveDir = new THREE.Vector3().subVectors(camera.position, prevPos).normalize();
+        const ray = new THREE.Raycaster(prevPos, moveDir, 0, 0.8);
+        const hits = ray.intersectObjects(state.colliders, false);
+        if (hits.length > 0) {
+          // Blocked — revert
+          camera.position.copy(prevPos);
+        }
+      }
     }
+
+    // Floor raycast — snap to ground
+    if (state.colliders.length > 0) {
+      const downRay = new THREE.Raycaster(
+        new THREE.Vector3(camera.position.x, camera.position.y + 2, camera.position.z),
+        new THREE.Vector3(0, -1, 0), 0, 20
+      );
+      const floorHits = downRay.intersectObjects(state.colliders, false);
+      if (floorHits.length > 0) {
+        camera.position.y = floorHits[0].point.y + state.playerHeight;
+      }
+    }
+
+    // Boundary clamp as fallback
     camera.position.x = Math.max(-BOUNDARY, Math.min(BOUNDARY, camera.position.x));
     camera.position.z = Math.max(-BOUNDARY, Math.min(BOUNDARY, camera.position.z));
-    camera.position.y = 1.7;
   }
 
   // Minimap
