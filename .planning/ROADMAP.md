@@ -144,6 +144,6 @@ Plans:
 | 7 | Research Presentation (#13) | 100 | Complete    | 2026-03-30 |
 | 8 | Co-Curricular Reflection (#14) | 100 | Apr 5 | NOT STARTED |
 | 9 | Research Documentation (#15) | 1/1 | Complete   | 2026-03-30 |
-| 10 | Revision & Reflection (#16) | 100 | Apr 19 | NOT STARTED |
+| 10 | Revision & Reflection (#16) | 1/1 | Complete   | 2026-03-30 |
 | 11 | Final Project — Website (#17) | 100 | Apr 19 | NOT STARTED |
 | **Total** | | **850** | | |
