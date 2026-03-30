@@ -118,7 +118,7 @@ This is explicitly **not** an essay or PowerPoint presentation.
 
 5. Data Center Knowledge. (2025). The hottest data center chip developments in 2025. https://www.datacenterknowledge.com/infrastructure/the-hottest-data-center-chip-developments-in-2025
 
-6. Henderson, H. (2009). Graphics processing unit. In *Encyclopedia of computer science and technology* (Rev. ed.). Facts On File. Credo Reference.
+6. Glassner, A. (2012). Graphics processing unit; GPU. In *3D A-to-Z: An encyclopedic dictionary*. McFarland & Company. https://search.credoreference.com/articles/Qm9va0FydGljbGU6MzAyMzkwNw== Credo Reference.
 
 7. IBM. (2024). NPU vs GPU: What's the difference? https://www.ibm.com/think/topics/npu-vs-gpu
 
