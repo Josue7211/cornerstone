@@ -1,31 +1,38 @@
 {
   "version": "1.0",
-  "timestamp": "2026-03-30T20:32:07Z",
+  "timestamp": "2026-03-30T23:48:17.091Z",
   "phase": "11",
   "phase_name": "final-project-interactive-website",
   "phase_dir": ".planning/phases/11-final-project-interactive-website",
-  "plan": 3,
-  "task": "desktop-os-ui",
+  "plan": 6,
+  "task": 1,
   "total_tasks": 3,
   "status": "paused",
   "completed_tasks": [
-    {"id": 1, "name": "Core 3D scene + camera zoom", "status": "done"},
-    {"id": 2, "name": "Content panels (paper, presentation, experience)", "status": "done"},
-    {"id": 3, "name": "Camera position locked", "status": "done"}
+    {"id": 1, "name": "BIOS Screen 1 visual redesign (YouTube reference match)", "status": "done"},
+    {"id": 2, "name": "Energy Star + Award ribbon inline SVGs", "status": "done"},
+    {"id": 3, "name": "Wallpaper swap to wallpaper.jpg", "status": "done"},
+    {"id": 4, "name": "Remove dead showBios/biosCursor code", "status": "done"},
+    {"id": 5, "name": "Hide desktop/CRT during splash", "status": "done"}
   ],
   "remaining_tasks": [
-    {"id": 4, "name": "Desktop OS UI (retro computer interface)", "status": "not_started"},
-    {"id": 5, "name": "Window chrome + animations", "status": "not_started"},
-    {"id": 6, "name": "Final polish + submission", "status": "not_started"}
+    {"id": 6, "name": "Verify splash blinking bug is fixed", "status": "not_started"},
+    {"id": 7, "name": "Commit all changes", "status": "not_started"},
+    {"id": 8, "name": "Delete unused wallpaper.png", "status": "not_started"}
   ],
-  "blockers": [],
-  "human_actions_pending": [],
+  "blockers": [
+    {"description": "Win95 splash blinking bug — last fix (hide desktop/CRT) untested by user", "type": "human_action", "workaround": "User needs to hard-refresh and verify"}
+  ],
+  "human_actions_pending": [
+    {"action": "Hard-refresh browser and check if blinking on Win95 splash is gone", "context": "6+ fix attempts, last one hides CRT overlay z:9000 during splash", "blocking": true}
+  ],
   "decisions": [
-    {"decision": "Scrapped 3D character controller for desktop OS approach", "rationale": "Too complex for deadline, content panels are what gets graded", "phase": "11"},
-    {"decision": "Reference: qwook.itch.io/last-seen-online", "rationale": "User wants interactive computer desktop vibe", "phase": "11"},
-    {"decision": "Camera position hardcoded from user session", "rationale": "camEnd: -0.90, 4.01, 0.06 / lookEnd: 1.80, 1.75, 0.54", "phase": "11"}
+    {"decision": "Inline SVG for Energy Star logo", "rationale": "External PNG was corrupted HTML file", "phase": "11"},
+    {"decision": "Removed Screen 3 from boot sequence", "rationale": "Was causing visible flash during transition to splash", "phase": "11"},
+    {"decision": "Win95 splash z-index 2001", "rationale": "Must be above biosScreen z:2000", "phase": "11"},
+    {"decision": "Hide desktop+CRT during splash", "rationale": "eval dump showed crtOverlay z:9000 and desktop elements bleeding through", "phase": "11"}
   ],
-  "uncommitted_files": [".planning/STATE.md", ".planning/config.json", "research-paper.md"],
-  "next_action": "Build desktop OS UI inspired by last-seen-online — scrape reference, build retro/futuristic OS with icons, taskbar, window chrome, animated transitions",
-  "context_notes": "Character.glb (3.3MB, 12 Mixamo animations) is saved for later. Futuristic room GLTF is 561MB. Dev server on port 3000. User frustrated with 3D approach complexity — wants fast results on the desktop UI."
+  "uncommitted_files": ["website/index.html", "website/main.js", "website/style.css", "website/wallpaper.jpg", "website/boot.mp3"],
+  "next_action": "Ask user to hard-refresh and verify splash blinking is gone, then commit",
+  "context_notes": "User was extremely frustrated after 6+ failed fix rounds. The eval showing crtOverlay at z:9000 during splash was the breakthrough. agent-browser at ~/.npm-global/bin. Dev server port 8090."
 }
