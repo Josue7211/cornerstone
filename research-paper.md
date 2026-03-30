@@ -261,6 +261,10 @@ Accessible AI hardware enables both unprecedented creativity and unprecedented h
 
 The military dimension is equally concerning. AI-powered autonomous weapons systems — drones that identify, select, and engage targets without human oversight in the decision loop — depend on the same specialized processor architectures discussed throughout this paper. The NPU in a military drone is an architectural cousin of the NPU in a smartphone. The silicon is the same. The application is different. Nations and non-state actors are engaged in an undeclared race to deploy autonomous AI-enabled military systems, raising ethical questions about autonomous lethal decision-making that the international community has not resolved and that the technology is outpacing.
 
+The cybersecurity dimension illustrates this dual-use tension with alarming specificity. In March 2026, details of Anthropic's unreleased model, codenamed Claude Mythos, were exposed through a misconfigured content management system. The leaked internal documentation described Mythos as "by far the most powerful AI model we've ever developed" — a system so capable at discovering and exploiting software vulnerabilities that Anthropic had planned a deliberate slow rollout, providing early access to cybersecurity defense firms before making the model publicly available (Fortune, 2026). Anthropic's own assessment stated that Mythos could enable large-scale cyberattacks that "far outpace the efforts of defenders." The market reacted immediately: cybersecurity stocks across the sector plummeted, with companies like CrowdStrike, Palo Alto Networks, and Zscaler losing approximately 6% of their value in a single trading session as investors grappled with the possibility that an AI model could undermine the entire cybersecurity industry's value proposition (Yahoo Finance, 2026).
+
+The Mythos incident revealed a truth that the AI industry has been reluctant to state plainly: the same capabilities that make AI models useful for security research — finding vulnerabilities, analyzing attack surfaces, generating exploit code — make them equally useful for conducting attacks. Anthropic chose caution, giving defenders a head start before releasing the model broadly. But the hardware trajectory described in this paper undermines that caution: once a model is released in any form, the compression and optimization techniques discussed in previous sections will eventually bring it to consumer hardware where no safety team controls its use. The same week the Mythos leak made headlines, a separate incident demonstrated the fragility of AI infrastructure itself: a supply chain attack compromised the popular open-source AI proxy tool LiteLLM, injecting malicious code that harvested cloud credentials and SSH keys from thousands of organizations (Sonatype, 2026). AI is not just a cybersecurity tool or threat — it is a new attack surface.
+
 Sam Altman, CEO of OpenAI, has argued that precisely these risks justify keeping AI centralized — so that safety guardrails can be enforced by responsible companies with the resources to implement them. The counter-argument, advanced by open-source advocates and researchers, is that centralized control creates its own dangers: single points of failure, opaque decision-making, and the concentration of power in a small number of organizations whose interests may not align with the public good. Local AI eliminates corporate guardrails entirely — a model running on personal hardware has no content filter and no monitoring. Whether this represents liberation or recklessness depends on one's trust in individuals versus institutions. The hardware trajectory does not resolve this debate. It merely ensures that the debate must be had.
 
 ## AI as a Tool: Historical Parallels and Economic Futures
@@ -419,6 +423,8 @@ Data Center Knowledge. (2025). The hottest data center chip developments in 2025
 
 Foundation for Defense of Democracies. (2026, February 13). OpenAI alleges China's DeepSeek stole its intellectual property to train its own models. https://www.fdd.org/analysis/2026/02/13/openai-alleges-chinas-deepseek-stole-its-intellectual-property-to-train-its-own-models/
 
+Fortune. (2026, March 26). Exclusive: Anthropic "Mythos" AI model representing "step change" in power revealed in data leak. https://fortune.com/2026/03/26/anthropic-says-testing-mythos-powerful-new-ai-model-after-data-leak-reveals-its-existence-step-change-in-capabilities/
+
 Glassner, A. (2012). Graphics processing unit; GPU. In *3D A-to-Z: An encyclopedic dictionary*. McFarland & Company. https://search.credoreference.com/articles/Qm9va0FydGljbGU6MzAyMzkwNw==
 
 Glukhov, R. (2025). Local LLM hosting: Complete 2025 guide — Ollama, vLLM, LocalAI, Jan, LM Studio & more. *Medium*. https://medium.com/@rosgluk/local-llm-hosting-complete-2025-guide-ollama-vllm-localai-jan-lm-studio-more-f98136ce7e4a
@@ -447,6 +453,8 @@ Rathore, A. (2024). How Nvidia built the ultimate AI engine: A look at GPU core 
 
 Sanmartín, D., & Prohaska, V. (2023). Exploring TPUs for AI applications. *arXiv preprint arXiv:2309.08918*. https://arxiv.org/abs/2309.08918
 
+Sonatype. (2026). Compromised litellm PyPI package delivers multi-stage credential stealer. https://www.sonatype.com/blog/compromised-litellm-package-delivers-multi-stage-credential-stealer
+
 Semiconductor Industry Association. (2024). Taking stock of China's semiconductor industry. https://www.semiconductors.org/taking-stock-of-chinas-semiconductor-industry/
 
 Trendforce. (2024, June 11). Huawei's self-developed AI chip challenges NVIDIA, boasting its Ascend 910B to be equal in match with A100. https://www.trendforce.com/news/2024/06/11/news-huaweis-self-developed-ai-chip-challenges-nvidia-boasting-its-ascend-910b-to-be-equal-in-match-with-a100/
@@ -456,5 +464,7 @@ U.S. Congressional Research Service. (2024). U.S. export controls and China: Adv
 UST. (2024). AI chips power growth while transforming the semiconductor industry. https://www.ust.com/en/insights/ai-chips-driving-the-next-semiconductor-supercycle-strategic-analysis-and-industry-outlook
 
 VoltagePark. (2025). GPU as a service: Key benefits and providers in 2025. https://www.voltagepark.com/blog/gpu-as-a-service-key-benefits-and-providers-in-2025/
+
+Yahoo Finance. (2026, March 27). Cybersecurity stocks plunge as Anthropic's "Claude Mythos" leak sparks AI fear. https://finance.yahoo.com/markets/stocks/articles/cybersecurity-stocks-plunge-anthropic-claude-124638691.html
 
 Wiggers, K. (2023, May 2). Samsung bans use of generative AI tools like ChatGPT after internal data leak. *TechCrunch*. https://techcrunch.com/2023/05/02/samsung-bans-use-of-ai-like-chatgpt-for-staff-after-misuse-of-chatbot.html
