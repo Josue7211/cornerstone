@@ -127,6 +127,22 @@ loader.load('./assets/models/futuristic-room/scene.gltf', (gltf) => {
   console.log('Camera: chair→desk, start:', camStart.x.toFixed(1), camStart.y.toFixed(1), camStart.z.toFixed(1));
   camera.position.copy(camStart);
 
+  // DEBUG: arrow keys to nudge camera end position, prints coords to console
+  window.addEventListener('keydown', (e) => {
+    if (state.phase !== 'desktop') return;
+    const step = 0.3;
+    if (e.key === 'ArrowUp') { camEnd.z -= step; lookEnd.z -= step; }
+    if (e.key === 'ArrowDown') { camEnd.z += step; lookEnd.z += step; }
+    if (e.key === 'ArrowLeft') { camEnd.x -= step; lookEnd.x -= step; }
+    if (e.key === 'ArrowRight') { camEnd.x += step; lookEnd.x += step; }
+    if (e.key === 'PageUp') { camEnd.y += step; }
+    if (e.key === 'PageDown') { camEnd.y -= step; }
+    camera.position.copy(camEnd);
+    camera.lookAt(lookEnd);
+    console.log('camEnd:', camEnd.x.toFixed(2), camEnd.y.toFixed(2), camEnd.z.toFixed(2),
+                'lookEnd:', lookEnd.x.toFixed(2), lookEnd.y.toFixed(2), lookEnd.z.toFixed(2));
+  });
+
   loaderFill.style.width = '100%';
   loaderPct.textContent = '100%';
   loaderText.textContent = 'ENTERING THE GRID...';
