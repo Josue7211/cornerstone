@@ -125,7 +125,7 @@ Plans:
 **Plans:** 1/3 plans executed
 
 Plans:
-- [x] 11-01-PLAN.md — Core 3D scene rebuild: GLTF load, HDRI, post-processing, WASD movement, portals, panel skeleton
+- [x] 11-01-PLAN.md — Core 3D scene rebuild: GLTF load, HDRI, post-processing, WASD movement, portals, panel skeleton — DONE (commits: 8bd038b, a5cf71b)
 - [ ] 11-02-PLAN.md — Content panels: Research Paper (5 sections), Presentation (6 cinematic slides, no iframe), Experience (CPU vs GPU demo, pioneer photos, stat counters)
 - [ ] 11-03-PLAN.md — Polish + bug fixes from checkpoint feedback, final submission-ready state
 

@@ -67,7 +67,7 @@ completed: 2026-03-30
 - **Duration:** ~8 min
 - **Started:** 2026-03-30T16:01:27Z
 - **Completed:** 2026-03-30T16:09:30Z
-- **Tasks:** 2/2 auto tasks complete (1 checkpoint remaining)
+- **Tasks:** 3/3 complete (2 auto + 1 checkpoint:human-verify PASSED)
 - **Files modified:** 3 rewritten + 18 deleted
 
 ## Accomplishments
@@ -82,6 +82,9 @@ completed: 2026-03-30
 
 1. **Task 1: Clean up broken files, scaffold index.html + style.css** - `8bd038b` (feat)
 2. **Task 2: Rebuild main.js — GLTF, HDRI, post-processing, WASD, portals** - `a5cf71b` (feat)
+3. **Task 3: Browser verify — 3D lobby loads and works** - checkpoint:human-verify PASSED (no commit)
+
+**Plan metadata:** `6bccc51` (docs: complete lobby rebuild plan)
 
 ## Files Created/Modified
 - `website/index.html` — importmap with Three.js r160, module script, HUD, 3 panels, portal labels
@@ -126,8 +129,18 @@ completed: 2026-03-30
 - `panelExp` — Experience panel has CPU/GPU demo + pioneers but no animated stats counters; plan 11-02
 - Presentation section does NOT have the 10-12 minute cinematic content yet — this is intentional, plan 11-01 is the scaffold
 
+## Browser Verification Results (Task 3)
+- All 58 GLTF textures loaded (HTTP 200)
+- scene.bin + scene.gltf loaded successfully
+- night_sky.hdr HDRI loaded (HTTP 200)
+- Three.js r160 ESM imports all resolved
+- Bloom post-processing visible on portal neon elements
+- Player capsule rendering with glow
+- 3 portal rings visible (cyan, magenta, green)
+- HUD with title, controls hint, enlarged minimap (160px) all present
+- Zero JavaScript errors (only headless browser WebGL GPU warnings — not real issues)
+
 ## Next Phase Readiness
-- Dev server running at http://localhost:9090/ — ready for browser verification (Task 3 checkpoint)
 - All Three.js infrastructure in place for plan 11-02 content additions
 - Portal panel IDs match main.js PORTALS config: panelPaper, panelPres, panelExp
 - Close button IDs: closePanelBtn, closePanelPres, closePanelExp — all wired
@@ -142,7 +155,8 @@ completed: 2026-03-30
 - CONFIRMED: website/assets/jensen.jpg deleted (broken file)
 - FOUND commit 8bd038b: feat(11-01): scaffold fresh index.html + style.css
 - FOUND commit a5cf71b: feat(11-01): rebuild main.js as ES module
-- Dev server running at http://localhost:9090/
+- FOUND commit 6bccc51: docs(11-01): complete lobby rebuild plan
+- Browser verification: PASSED (all assets loaded, zero JS errors, bloom visible)
 
 ---
 *Phase: 11-final-project-interactive-website*
