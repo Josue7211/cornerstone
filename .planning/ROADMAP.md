@@ -122,11 +122,11 @@ Plans:
 **Due:** Apr 19
 **Status:** PLANNING COMPLETE
 **Depends on:** Phase 7 (presentation content) + Phase 10 (final research paper)
-**Plans:** 1/3 plans executed
+**Plans:** 2/3 plans executed
 
 Plans:
 - [x] 11-01-PLAN.md — Core 3D scene rebuild: GLTF load, HDRI, post-processing, WASD movement, portals, panel skeleton — DONE (commits: 8bd038b, a5cf71b)
-- [ ] 11-02-PLAN.md — Content panels: Research Paper (5 sections), Presentation (6 cinematic slides, no iframe), Experience (CPU vs GPU demo, pioneer photos, stat counters)
+- [x] 11-02-PLAN.md — Content panels: Research Paper (5 sections), Presentation (6 cinematic slides, no iframe), Experience (CPU vs GPU demo, pioneer photos, stat counters)
 - [ ] 11-03-PLAN.md — Polish + bug fixes from checkpoint feedback, final submission-ready state
 
 ---
@@ -146,5 +146,5 @@ Plans:
 | 8 | Co-Curricular Reflection (#14) | 100 | Apr 5 | NOT STARTED |
 | 9 | Research Documentation (#15) | 1/1 | Complete   | 2026-03-30 |
 | 10 | Revision & Reflection (#16) | 1/1 | Complete    | 2026-03-30 |
-| 11 | Final Project — Website (#17) | 1/3 | In Progress|  |
+| 11 | Final Project — Website (#17) | 2/3 | In Progress|  |
 | **Total** | | **850** | | |

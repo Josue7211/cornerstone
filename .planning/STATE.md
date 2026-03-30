@@ -3,12 +3,12 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-last_updated: "2026-03-30T16:14:36.503Z"
+last_updated: "2026-03-30T16:26:56.172Z"
 progress:
   total_phases: 11
   completed_phases: 2
   total_plans: 8
-  completed_plans: 4
+  completed_plans: 5
 ---
 
 # Project State — IDS2891 Cornerstone
@@ -19,7 +19,7 @@ Phase 11 — Final Project (interactive website)
 
 ## Last Action
 
-2026-03-30: Phase 11 Plan 01 COMPLETE — browser verification PASSED. 3D cyberpunk lobby with Three.js r160 ESM importmap, GLTFLoader (51MB scene), RGBELoader HDRI, EffectComposer (bloom + chromatic aberration), WASD 0.06 speed, 160px minimap. All 58 textures loaded, zero JS errors. Commits: 8bd038b, a5cf71b, 6bccc51. Ready for plan 11-02 (content panels).
+2026-03-30: Phase 11 Plan 02 COMPLETE — all 3 content panels filled. Research Paper: 5 cinematic sections + GPU timeline + thesis quote. Presentation: 6 animated slides (no iframe). Experience: 9 pioneers (real photos), stat counters animate with GSAP, CPU vs GPU demo. Commits: ec4201b, 5a6e770. Zero real console errors. Checkpoint:human-verify task is next.
 
 ## Phase 11 Decisions (2026-03-30)
 
@@ -28,6 +28,9 @@ Phase 11 — Final Project (interactive website)
 - GLTF scale 0.05 — initial value to fit cyberpunk-scene into 30-unit lobby floor
 - HDRI as scene.environment only (not background) — preserves dark void fog aesthetic
 - Pioneer portraits use real website/portraits/*.jpg photos instead of CSS initials avatars
+- GSAP loaded as UMD global before module script (typeof gsap guard for graceful degradation)
+- Pioneer photos use ./portraits/*.jpg with loading=lazy — all 9 real photos confirmed working
+- Stat counters use data-target + data-prefix + data-suffix attributes for flexible counter animation
 
 ## Session Summary — 2026-03-29/30
 
