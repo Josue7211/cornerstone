@@ -54,7 +54,27 @@ Download these BEFORE building:
 ### Option C: Kenney (CC0, direct download)
 5. **Space Kit** — https://kenney.nl/assets/space-kit
 
-**User said they can auth for Sketchfab downloads. Use agent-browser with `--auto-connect` or `--cdp 9222` after user launches Chrome with remote debugging.**
+**ALL ASSETS DOWNLOADED AND UNZIPPED (2026-03-30):**
+
+```
+website/assets/models/
+├── cyberpunk-scene/          # 51MB — Sketchfab complete scene (scene.gltf + textures/)
+│   ├── scene.gltf
+│   ├── scene.bin
+│   └── textures/
+├── quaternius-scifi/         # ~200MB — Modular Sci-Fi MegaKit
+│   └── Modular SciFi MegaKit[Standard]/glTF/
+│       ├── Walls/            # 83 wall pieces (corners, straights, windows)
+│       ├── Platforms/        # 37 floor/door pieces
+│       ├── Props/            # 28 props (computers, lights, vents, crates)
+│       ├── Columns/          # column variants
+│       ├── Decals/           # 29 decals (numbers, signs, logos)
+│       └── Aliens/           # 3 alien enemies
+└── quaternius-essentials/    # ~40MB — Sci-Fi Essentials Kit
+    └── glTF/                 # enemies, guns, barrels, ammo props
+```
+
+228 total GLTF models. Gitignored (291MB).
 
 ## Tech Stack
 - **Three.js** (v0.160+) with GLTFLoader for 3D models
