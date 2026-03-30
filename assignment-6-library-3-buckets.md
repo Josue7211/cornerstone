@@ -6,25 +6,23 @@
 
 ## Step 1: Research Buckets
 
-**Bucket 1: GPU Architecture Evolution (Graphics to AI)**
-The historical progression of GPU hardware from dedicated graphics rendering to general-purpose AI acceleration, including the role of CUDA, parallel processing paradigms, and architectural innovations like tensor cores.
+**Bucket 1: Local/On-Device AI and Affordability**
+How AI hardware has become accessible enough for consumer devices and home use. This includes how open-source AI models can now run on a standard laptop or gaming PC, the falling cost curve of AI hardware over time, and the tools and techniques that make running AI locally practical for everyday people — not just research labs. The central question: who gets to use powerful AI, and is that changing?
 
-**Bucket 2: Specialized AI Chip Design (TPUs, NPUs, Custom Silicon)**
-The design and purpose of application-specific AI processors built from the ground up for machine learning, including Google's TPU, Apple's Neural Engine, and emerging NPU architectures for edge computing.
+**Bucket 2: GPU Evolution and the Path to Accessible AI Computing**
+The technical progression from graphics-only GPUs to today's AI accelerators, and how that shift is directly connected to democratizing AI. As GPUs became better at parallel computation, they also became the key hardware that allows AI models to run on consumer-grade machines. This bucket also covers efficiency breakthroughs — like running AI models on less memory and cheaper hardware (token optimization, quantization) — that are expanding what's possible outside of data centers.
 
 ---
 
 ## Step 2: Experts for Each Bucket
 
-**Bucket 1 — GPU Architecture Evolution:**
-- GPU hardware architects and NVIDIA engineering researchers (designers of CUDA and tensor core architectures)
-- Parallel computing researchers at universities (Stanford, MIT, UC Berkeley — where GPU computing research originated)
-- Semiconductor industry analysts covering GPU market evolution
+**Bucket 1 — Local/On-Device AI and Affordability:**
+- **Tim Dettmers** — PhD researcher known for his work on quantization techniques (reducing AI model size so they run on consumer hardware). He created the *bitsandbytes* library, which makes it possible to run large AI models in 4-bit precision on GPUs that cost a few hundred dollars.
+- **Georgi Gerganov** — Creator of *llama.cpp*, an open-source project that brought large language model inference to consumer hardware (including laptops and older machines with no GPU). His work is one of the most concrete examples of AI democratization in practice.
 
-**Bucket 2 — Specialized AI Chip Design:**
-- Google TPU design engineers and AI infrastructure researchers (architects of the TPU systolic array)
-- Apple silicon engineers working on Neural Engine integration
-- Computer architecture professors specializing in domain-specific accelerators (published in IEEE/ACM conferences like ISCA)
+**Bucket 2 — GPU Evolution and Path to Accessible AI:**
+- **Jensen Huang** — CEO and co-founder of NVIDIA. He led the strategic shift from GPUs as graphics hardware to GPUs as general AI accelerators, starting with the CUDA platform in 2006. His decisions shaped the hardware infrastructure that now makes consumer AI possible.
+- **Kunle Olukotun** — Professor at Stanford and a pioneer in domain-specific hardware research for machine learning. His academic work on specialized compute architectures has directly influenced how researchers think about building efficient AI hardware for broader deployment.
 
 ---
 
@@ -36,7 +34,7 @@ Jouppi, N. P., Young, C., Patil, N., Patterson, D., Agrawal, G., Bajwa, R., Bate
 
 **Link:** https://doi.org/10.1145/3079856.3080246
 
-This is Google's seminal paper introducing the first-generation TPU architecture, authored by Norman Jouppi (the TPU's principal architect) and presented at ISCA 2017. It provides detailed performance benchmarks comparing the TPU against contemporary CPUs and GPUs on neural network inference workloads, demonstrating 15–30x better performance-per-watt. Available through FSW library database access to ACM Digital Library.
+**Research Note:** Google's 2017 TPU paper, authored by Norman Jouppi and the team that built the first Tensor Processing Unit, is relevant beyond just describing a single chip. It demonstrates that purpose-built, efficient silicon is a key step in making AI computation practical at scale — and eventually affordable enough to reach consumer devices. The performance-per-watt gains documented here are the same logic that now powers efficient on-device AI in phones, laptops, and consumer hardware. Available through FSW library access to the ACM Digital Library.
 
 ---
 
@@ -48,4 +46,5 @@ Rathore, A. (2024). How Nvidia built the ultimate AI engine: A look at GPU core 
 
 **Link:** https://www.embedded.com/how-nvidia-built-the-ultimate-ai-engine-a-look-at-gpu-core-architecture/
 
-This industry article traces NVIDIA's GPU architecture from early graphics pipelines through the introduction of CUDA cores and tensor cores, explaining the specific hardware innovations that made GPUs viable for AI training and inference. Written for an engineering audience by an embedded systems expert.
+**Research Note:** This article traces NVIDIA's GPU architecture from early graphics hardware through the CUDA platform and tensor cores, explaining in accessible terms how those engineering decisions are what made GPUs the default tool for AI today. It directly supports Bucket 2 by showing the technical evolution path — and connects to the democratization angle because the same GPU innovations that scaled AI in data centers are what now power affordable consumer AI hardware.
+
