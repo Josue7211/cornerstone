@@ -56,28 +56,13 @@ scene.fog = new THREE.FogExp2(0x020206, 0.02);
 const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 200);
 camera.position.set(0, 3, 6);
 
-// Camera follow state (no OrbitControls — custom third-person follow)
+// Third-person camera — always behind the character
 const camState = {
-  distance: 5,
-  height: 3,
-  lookHeight: 1.5,
-  mouseX: 0,
-  mouseY: 0,
-  angleX: Math.PI, // horizontal angle around character
-  angleY: 0.3,     // vertical angle
-  sensitivity: 0.003,
-  isDragging: false
+  distance: 4.5,
+  height: 2.5,
+  lookHeight: 1.3,
+  smoothing: 0.08
 };
-
-// Mouse drag to rotate camera around character
-canvas.addEventListener('mousedown', () => { if (state.phase === 'playing') camState.isDragging = true; });
-window.addEventListener('mouseup', () => { camState.isDragging = false; });
-window.addEventListener('mousemove', (e) => {
-  if (camState.isDragging && state.phase === 'playing') {
-    camState.angleX -= e.movementX * camState.sensitivity;
-    camState.angleY = Math.max(0.1, Math.min(1.2, camState.angleY + e.movementY * camState.sensitivity));
-  }
-});
 
 // ═══════════════════════════════════════════════════
 // POST-PROCESSING
@@ -338,9 +323,15 @@ function startCutscene() {
 
       setTimeout(() => {
         state.phase = 'playing';
-        // Reset camera angle behind character
-        camState.angleX = Math.PI;
-        camState.angleY = 0.3;
+        // Snap camera behind character
+        if (state.character) {
+          const c = state.character;
+          camera.position.set(
+            c.position.x - Math.sin(c.rotation.y) * camState.distance,
+            c.position.y + camState.height,
+            c.position.z - Math.cos(c.rotation.y) * camState.distance
+          );
+        }
 
         const el = document.getElementById('hudControls');
         el.textContent = '';
@@ -508,8 +499,8 @@ function animate() {
     const char = state.character;
     const speed = state.moveSpeed * delta;
 
-    // Camera-relative movement direction
-    const camForward = new THREE.Vector3(-Math.sin(camState.angleX), 0, -Math.cos(camState.angleX)).normalize();
+    // Character-relative movement (W = forward where character faces)
+    const camForward = new THREE.Vector3(Math.sin(char.rotation.y), 0, Math.cos(char.rotation.y)).normalize();
     const camRight = new THREE.Vector3().crossVectors(camForward, new THREE.Vector3(0, 1, 0)).normalize();
 
     const moveDir = new THREE.Vector3();
@@ -565,15 +556,17 @@ function animate() {
       }
     }
 
-    // Third-person camera — orbits around character, physically follows
-    const charCenter = new THREE.Vector3(char.position.x, char.position.y + camState.lookHeight, char.position.z);
+    // Third-person camera — always behind the character
+    const lookTarget = new THREE.Vector3(char.position.x, char.position.y + camState.lookHeight, char.position.z);
 
-    const camX = charCenter.x + Math.sin(camState.angleX) * Math.cos(camState.angleY) * camState.distance;
-    const camY = charCenter.y + Math.sin(camState.angleY) * camState.distance;
-    const camZ = charCenter.z + Math.cos(camState.angleX) * Math.cos(camState.angleY) * camState.distance;
+    // Camera position: behind the character based on their facing direction
+    const behindX = char.position.x - Math.sin(char.rotation.y) * camState.distance;
+    const behindZ = char.position.z - Math.cos(char.rotation.y) * camState.distance;
+    const behindY = char.position.y + camState.height;
 
-    camera.position.lerp(new THREE.Vector3(camX, camY, camZ), 0.15);
-    camera.lookAt(charCenter);
+    const desiredPos = new THREE.Vector3(behindX, behindY, behindZ);
+    camera.position.lerp(desiredPos, camState.smoothing);
+    camera.lookAt(lookTarget);
   }
 
   // ─── Minimap ───
