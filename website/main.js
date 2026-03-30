@@ -288,51 +288,43 @@ function startCutscene() {
   state.phase = 'cutscene';
   orbitControls.enabled = false;
 
-  // Position character lying down
   if (state.character) {
     state.character.position.set(0, 0, 0);
-    state.character.rotation.y = 0;
+    state.character.rotation.y = Math.PI; // facing away from camera
   }
 
-  // Camera looking at character from above
-  camera.position.set(2, 3, 4);
-  camera.lookAt(0, 0.5, 0);
+  // Camera looking at character from front
+  camera.position.set(0, 2, 4);
+  camera.lookAt(0, 1, 0);
 
-  // Play sleeping animation
-  playAction('SleepIdle', { loop: true });
+  // Start sitting
+  playAction('SitIdle', { loop: true });
 
-  // After 2 seconds, wake up
+  // After 2 seconds, stand up (reverse SitDown = standing up)
   setTimeout(() => {
-    playAction('Waking', { loop: false, clamp: true, fade: 0.6 });
+    const sitAction = state.actions['SitDown'];
+    if (sitAction) {
+      playAction('SitDown', { loop: false, clamp: true, timeScale: -1, fade: 0.4 });
+      sitAction.time = sitAction.getClip().duration;
+    }
 
-    // After waking finishes, play LyingDown reversed (getting up) then idle
+    // After stand up, go to idle and give control
     setTimeout(() => {
-      const lyingAction = state.actions['LyingDown'];
-      if (lyingAction) {
-        playAction('LyingDown', { loop: false, clamp: true, timeScale: -1, fade: 0.5 });
-        // LyingDown reversed starts at end, plays backward to standing
-        lyingAction.time = lyingAction.getClip().duration;
-      }
+      playAction('Idle', { loop: true, fade: 0.5 });
 
       setTimeout(() => {
-        playAction('Idle', { loop: true, fade: 0.6 });
+        state.phase = 'playing';
+        orbitControls.enabled = true;
+        camera.position.set(0, 3, 6);
+        orbitControls.target.set(0, 1, 0);
+        orbitControls.update();
 
-        // Give player control
-        setTimeout(() => {
-          state.phase = 'playing';
-          orbitControls.enabled = true;
-          // Position camera behind character
-          camera.position.set(0, 3, 6);
-          orbitControls.target.set(0, 1, 0);
-          orbitControls.update();
-
-          const el = document.getElementById('hudControls');
-          el.textContent = '';
-          const s = document.createElement('span');
-          s.textContent = 'WASD TO MOVE \u00B7 MOUSE TO ORBIT';
-          el.appendChild(s);
-        }, 500);
-      }, 2500);
+        const el = document.getElementById('hudControls');
+        el.textContent = '';
+        const s = document.createElement('span');
+        s.textContent = 'WASD TO MOVE \u00B7 MOUSE TO ORBIT';
+        el.appendChild(s);
+      }, 500);
     }, 2000);
   }, 2500);
 }
@@ -551,11 +543,15 @@ function animate() {
       }
     }
 
-    // Camera follows character
-    orbitControls.target.lerp(
-      new THREE.Vector3(char.position.x, char.position.y + 1.2, char.position.z),
-      0.1
-    );
+    // Camera follows character — always track
+    const targetPos = new THREE.Vector3(char.position.x, char.position.y + 1.2, char.position.z);
+    orbitControls.target.copy(targetPos);
+    // Keep camera offset relative to character
+    const camOffset = camera.position.clone().sub(orbitControls.target);
+    if (moving) {
+      camera.position.copy(char.position).add(camOffset);
+      camera.position.y = Math.max(char.position.y + 1.5, camera.position.y);
+    }
   }
 
   // ─── Minimap ───
