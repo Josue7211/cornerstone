@@ -276,10 +276,97 @@ function showBios() {
 }
 
 // ─── WIN95 DESKTOP ────────────────────────────────
+function buildStartMenu() {
+  if (document.getElementById('startMenu')) return;
+  const menu = document.createElement('div');
+  menu.id = 'startMenu';
+  menu.className = 'start-menu';
+
+  // Left colored header strip
+  const header = document.createElement('div');
+  header.className = 'start-menu-header';
+  const brand = document.createElement('span');
+  brand.className = 'start-menu-brand';
+  brand.textContent = 'From Pixels to Intelligence';
+  header.appendChild(brand);
+  menu.appendChild(header);
+
+  // Items list
+  const itemsDiv = document.createElement('div');
+  itemsDiv.className = 'start-menu-items';
+
+  const appList = [
+    { id: 'paper',    icon: '📄', label: 'Research Paper.exe' },
+    { id: 'pres',     icon: '🎬', label: 'Presentation.exe' },
+    { id: 'exp',      icon: '🔬', label: 'Experience.exe' },
+    { id: 'explorer', icon: '💾', label: 'My Computer' },
+    { id: 'terminal', icon: '⌨️', label: 'Terminal.exe' },
+    { id: 'notepad',  icon: '📝', label: 'Notepad.exe' },
+    { id: 'recycle',  icon: '🗑️', label: 'Recycle Bin' },
+  ];
+
+  appList.forEach(app => {
+    const item = document.createElement('div');
+    item.className = 'start-menu-item';
+    item.dataset.app = app.id;
+
+    const iconSpan = document.createElement('span');
+    iconSpan.className = 'start-menu-icon';
+    iconSpan.textContent = app.icon;
+
+    const labelSpan = document.createElement('span');
+    labelSpan.className = 'start-menu-label';
+    labelSpan.textContent = app.label;
+
+    item.appendChild(iconSpan);
+    item.appendChild(labelSpan);
+    itemsDiv.appendChild(item);
+  });
+  menu.appendChild(itemsDiv);
+
+  // Footer
+  const footer = document.createElement('div');
+  footer.className = 'start-menu-footer';
+  const footerSpan = document.createElement('span');
+  footerSpan.textContent = '\u00A9 2026 Josue Aparcedo Gonzalez';
+  footer.appendChild(footerSpan);
+  menu.appendChild(footer);
+
+  document.getElementById('desktop').appendChild(menu);
+
+  // Start menu item click — open app and close menu
+  itemsDiv.addEventListener('click', (e) => {
+    const item = e.target.closest('.start-menu-item');
+    if (!item) return;
+    const appId = item.dataset.app;
+    const app = APP_CONFIG[appId];
+    if (app) app.open();
+    menu.classList.remove('visible');
+  });
+}
+
 function showWin95Desktop() {
   state.phase = 'desktop';
   desktop.classList.add('visible');
   playStartupChime();
+  buildStartMenu();
+
+  // Start button click
+  document.getElementById('startBtn').addEventListener('click', (e) => {
+    e.stopPropagation();
+    playClickSound();
+    const menu = document.getElementById('startMenu');
+    if (menu) menu.classList.toggle('visible');
+  });
+
+  // Close start menu when clicking elsewhere
+  document.getElementById('desktop').addEventListener('click', (e) => {
+    if (!e.target.closest('#startBtn') && !e.target.closest('#startMenu')) {
+      const menu = document.getElementById('startMenu');
+      if (menu) menu.classList.remove('visible');
+    }
+  });
+
   updateClock();
   setInterval(updateClock, 1000);
 }
@@ -517,6 +604,254 @@ class WindowManager {
 
 const wm = new WindowManager();
 
+// ─── GSAP WINDOW ANIMATIONS ──────────────────────
+function animateWindowOpen(appId, el) {
+  if (!el || typeof gsap === 'undefined') return;
+
+  switch (appId) {
+    case 'paper': {
+      // Pixel scatter dissolve — child elements fly in from random positions
+      const children = el.querySelectorAll('.paper-section, .paper-abstract, .timeline-item');
+      if (children.length > 0) {
+        gsap.set(el, { opacity: 0 });
+        gsap.to(el, { opacity: 1, duration: 0.05 });
+        children.forEach(child => {
+          gsap.fromTo(child,
+            { x: (Math.random() - 0.5) * 200, y: (Math.random() - 0.5) * 200, opacity: 0, scale: 0.3 },
+            { x: 0, y: 0, opacity: 1, scale: 1, duration: 0.5 + Math.random() * 0.3,
+              ease: 'power3.out', delay: Math.random() * 0.2 }
+          );
+        });
+      } else {
+        // Fallback: elastic bounce
+        gsap.fromTo(el,
+          { scale: 0.3, opacity: 0, transformOrigin: 'center center' },
+          { scale: 1, opacity: 1, duration: 0.6, ease: 'elastic.out(1.2, 0.5)' }
+        );
+      }
+      break;
+    }
+
+    case 'pres': {
+      // 3D flip on Y axis
+      el.style.perspective = '1200px';
+      gsap.fromTo(el,
+        { rotationY: -90, opacity: 0, transformOrigin: 'left center' },
+        { rotationY: 0, opacity: 1, duration: 0.5, ease: 'power2.out' }
+      );
+      break;
+    }
+
+    case 'exp': {
+      // Glitch effect — chromatic shift flicker
+      const tl = gsap.timeline();
+      gsap.set(el, { opacity: 1, x: 0 });
+      tl.to(el, { x: -6, duration: 0.04, repeat: 4, yoyo: true, ease: 'none' });
+      tl.fromTo(el,
+        { filter: 'hue-rotate(0deg)' },
+        { filter: 'hue-rotate(360deg)', duration: 0.3, ease: 'none' }
+      );
+      tl.to(el, { filter: 'none', x: 0 });
+      gsap.fromTo(el,
+        { scaleX: 1.04, scaleY: 0.96 },
+        { scaleX: 1, scaleY: 1, duration: 0.3, ease: 'elastic.out(1, 0.5)' }
+      );
+      break;
+    }
+
+    case 'terminal': {
+      // Matrix rain burst
+      gsap.set(el, { opacity: 0, scale: 0.95 });
+      const chars = 'ABCDEF0123456789';
+      const numRains = 10;
+      for (let c = 0; c < numRains; c++) {
+        const span = document.createElement('span');
+        span.style.cssText = 'position:absolute;top:0;left:' + (c * 12) + 'px;color:#33ff33;font-family:"Space Mono",monospace;font-size:12px;pointer-events:none;z-index:1000;';
+        let txt = '';
+        for (let k = 0; k < 10; k++) txt += chars[Math.floor(Math.random() * chars.length)];
+        span.textContent = txt;
+        el.appendChild(span);
+        const h = el.clientHeight || 300;
+        gsap.fromTo(span,
+          { y: -20, opacity: 1 },
+          { y: h, opacity: 0, duration: 0.4 + Math.random() * 0.3, ease: 'none',
+            onComplete: () => { if (span.parentNode) span.remove(); } }
+        );
+      }
+      setTimeout(() => {
+        gsap.to(el, { opacity: 1, scale: 1, duration: 0.2, ease: 'power2.out' });
+      }, 300);
+      break;
+    }
+
+    case 'explorer': {
+      // Elastic bounce from center
+      gsap.fromTo(el,
+        { scale: 0.3, opacity: 0, transformOrigin: 'center center' },
+        { scale: 1, opacity: 1, duration: 0.6, ease: 'elastic.out(1.2, 0.5)' }
+      );
+      break;
+    }
+
+    case 'notepad': {
+      // Typewriter reveal — fade in window then type out textarea content
+      gsap.fromTo(el, { opacity: 0 }, { opacity: 1, duration: 0.1 });
+      const ta = el.querySelector('textarea');
+      if (ta) {
+        const fullText = ta.value;
+        ta.value = '';
+        let idx = 0;
+        const batchSize = Math.ceil(fullText.length / 75); // ~1.5s max
+        const typeInterval = setInterval(() => {
+          idx = Math.min(idx + Math.max(1, batchSize), fullText.length);
+          ta.value = fullText.slice(0, idx);
+          if (idx >= fullText.length) clearInterval(typeInterval);
+        }, 20);
+      }
+      break;
+    }
+
+    case 'recycle': {
+      // Items fall in from top
+      gsap.set(el, { opacity: 1 });
+      const contentArea = el.querySelector('.win95-content') || el;
+      const kids = contentArea.querySelectorAll('div > div, li');
+      if (kids.length > 0) {
+        gsap.fromTo(kids,
+          { y: -60, opacity: 0 },
+          { y: 0, opacity: 1, duration: 0.4, stagger: 0.12, ease: 'bounce.out' }
+        );
+      } else {
+        gsap.fromTo(el, { y: -20, opacity: 0 }, { y: 0, opacity: 1, duration: 0.3 });
+      }
+      break;
+    }
+
+    default: {
+      // Default: elastic bounce
+      gsap.fromTo(el,
+        { scale: 0.3, opacity: 0, transformOrigin: 'center center' },
+        { scale: 1, opacity: 1, duration: 0.6, ease: 'elastic.out(1.2, 0.5)' }
+      );
+    }
+  }
+}
+
+// ─── TERMINAL COMMAND PARSER ─────────────────────
+function runTerminalCommand(cmd, output) {
+  const responses = {
+    help: () => [
+      '',
+      'Available commands:',
+      '  help     -- Show this menu',
+      '  thesis   -- Print the research thesis',
+      '  about    -- About this project',
+      '  gpu      -- GPU evolution timeline',
+      '  credits  -- Attribution and tools used',
+      '  clear    -- Clear terminal',
+      ''
+    ].join('\n'),
+
+    thesis: () => [
+      '',
+      'THESIS STATEMENT:',
+      '----------------',
+      'The cloud-first era of artificial intelligence',
+      'is a temporary phase in computing history,',
+      'not its conclusion.',
+      '',
+      'Four converging trends -- silicon miniaturization,',
+      'model compression, token optimization, and',
+      'open-source model availability -- have made it',
+      'possible for individuals to run AI systems on',
+      'consumer hardware that rival cloud services',
+      'costing thousands of dollars monthly.',
+      '',
+      'Source: research-paper.md, 13,455 words, 35 APA sources',
+      ''
+    ].join('\n'),
+
+    about: () => [
+      '',
+      'FROM PIXELS TO INTELLIGENCE',
+      '===========================',
+      'Author: Josue Aparcedo Gonzalez',
+      'Course: IDS2891 Cornerstone, Spring 2026',
+      'FSW College',
+      '',
+      'Built with:',
+      '  Three.js r160 -- 3D futuristic room',
+      '  GSAP 3.12.5   -- Animations',
+      '  Vanilla JS    -- Everything else',
+      '',
+      'Interesting fact: This website was built',
+      'using Claude Code (AI assistant) to prove',
+      'the thesis that consumer AI tools are',
+      'now powerful enough to replace expensive',
+      'cloud-only workflows.',
+      ''
+    ].join('\n'),
+
+    gpu: () => [
+      '',
+      'GPU EVOLUTION TIMELINE:',
+      '-----------------------',
+      '1999: GeForce 256 -- First GPU (gaming only)',
+      '2007: CUDA        -- General-purpose GPU compute',
+      '2012: Kepler      -- AlexNet moment (AI on consumer GPU)',
+      '2017: Volta       -- Tensor Cores invented',
+      '2020: Ampere      -- Sparsity-aware Tensor Cores',
+      '2022: Hopper      -- Transformer Engine',
+      '2024: Blackwell   -- 5th-gen Tensor Cores',
+      '',
+      'Key insight: Each generation doubles AI throughput.',
+      'Consumer GPUs now rival last-gen datacenter cards.',
+      ''
+    ].join('\n'),
+
+    credits: () => [
+      '',
+      'CREDITS:',
+      '--------',
+      'Three.js -- MIT License (three.js.org)',
+      'GSAP     -- Standard License (greensock.com)',
+      'Sketchfab -- Futuristic room model (CC license)',
+      'Poly Haven -- HDRI environment (CC0)',
+      'Google Fonts -- Press Start 2P, VT323 fonts',
+      '',
+      'Pioneer portraits from Wikipedia (CC BY-SA):',
+      '  Jensen Huang, Geoffrey Hinton, Gordon Moore,',
+      '  Lisa Su, Fei-Fei Li, Andrej Karpathy,',
+      '  Sam Altman, Dario Amodei, Jim Keller',
+      '',
+      'Research: 35 APA sources (see Experience panel)',
+      ''
+    ].join('\n'),
+
+    clear: () => null  // special case
+  };
+
+  if (cmd === 'clear') {
+    output.textContent = 'C:\\RESEARCH> \n\n';
+    output.textContent += 'C:\\RESEARCH> ';
+    return;
+  }
+
+  const handler = responses[cmd];
+  const result = handler ? handler() : '\nUnknown command: \'' + cmd + '\'\nType \'help\' for available commands.\n';
+
+  // Simulate typing delay — append char by char
+  const currentText = output.textContent;
+  const toAppend = '\n' + (cmd ? cmd : '') + '\n' + result + 'C:\\RESEARCH> ';
+  let i = 0;
+  const typeInterval = setInterval(() => {
+    i = Math.min(i + 3, toAppend.length);
+    output.textContent = currentText + toAppend.slice(0, i);
+    output.scrollTop = output.scrollHeight;
+    if (i >= toAppend.length) clearInterval(typeInterval);
+  }, 15);
+}
+
 // ─── APP CONFIG ──────────────────────────────────
 const APP_CONFIG = {
   paper: {
@@ -526,8 +861,9 @@ const APP_CONFIG = {
     height: 640,
     open() {
       const panel = document.getElementById('panelPaper');
-      const win = wm.createWindow('paper', this.title, this.icon, panel, { width: 900, height: 640 });
+      const winEl = wm.createWindow('paper', this.title, this.icon, panel, { width: 900, height: 640 });
       if (panel) panel.classList.add('open');
+      animateWindowOpen('paper', winEl);
     }
   },
   pres: {
@@ -537,8 +873,9 @@ const APP_CONFIG = {
     height: 640,
     open() {
       const panel = document.getElementById('panelPres');
-      const win = wm.createWindow('pres', this.title, this.icon, panel, { width: 900, height: 640 });
+      const winEl = wm.createWindow('pres', this.title, this.icon, panel, { width: 900, height: 640 });
       if (panel) panel.classList.add('open');
+      animateWindowOpen('pres', winEl);
     }
   },
   exp: {
@@ -549,54 +886,58 @@ const APP_CONFIG = {
     open() {
       animateCounters();
       const panel = document.getElementById('panelExp');
-      const win = wm.createWindow('exp', this.title, this.icon, panel, { width: 900, height: 640 });
+      const winEl = wm.createWindow('exp', this.title, this.icon, panel, { width: 900, height: 640 });
       if (panel) panel.classList.add('open');
+      animateWindowOpen('exp', winEl);
     }
   },
   explorer: {
     title: 'My Computer',
     icon: '\uD83D\uDCBE',
-    width: 480,
-    height: 360,
+    width: 520,
+    height: 380,
     open() {
-      const div = document.createElement('div');
-      div.style.background = '#fff';
-      div.style.padding = '12px';
-      div.style.fontFamily = 'var(--font-pixel)';
-      div.style.fontSize = '8px';
-      div.style.color = '#000';
+      const container = document.createElement('div');
+      container.style.cssText = 'display:flex;height:100%;background:#fff;';
 
-      const heading = document.createElement('p');
-      heading.textContent = 'My Computer';
-      heading.style.color = '#000080';
-      heading.style.marginBottom = '12px';
-      heading.style.fontSize = '10px';
-      div.appendChild(heading);
+      // Left panel — tree
+      const treePanel = document.createElement('div');
+      treePanel.style.cssText = 'width:140px;border-right:2px solid #808080;overflow-y:auto;flex-shrink:0;';
 
-      const grid = document.createElement('div');
-      grid.style.display = 'grid';
-      grid.style.gridTemplateColumns = 'repeat(3, 1fr)';
-      grid.style.gap = '8px';
-      grid.style.marginBottom = '12px';
-      const items = ['Research', 'Slides', 'Sources', 'C: Drive', 'Network', 'Printers'];
-      items.forEach(name => {
-        const item = document.createElement('div');
-        item.style.padding = '8px';
-        item.style.border = '1px solid #808080';
-        item.style.textAlign = 'center';
-        item.style.cursor = 'default';
-        item.textContent = name;
-        grid.appendChild(item);
+      const treeItems = [
+        { icon: '\uD83D\uDCC1', label: 'Research Paper', key: 'paper' },
+        { icon: '\uD83D\uDCC1', label: 'Presentation', key: 'pres' },
+        { icon: '\uD83D\uDCC1', label: '/Sources', key: 'sources' },
+        { icon: '\uD83D\uDCC1', label: 'About Me', key: 'about' },
+      ];
+
+      const folderContents = {
+        paper: 'research-paper.md -- 13,455 words, 35 APA sources\nTopics: GPU history, local AI, democratization, cloud disruption',
+        pres: 'presentation.html -- 8 sections\nRubric: Design, Prepare, Create, Communicate, Reflect',
+        sources: '35 APA sources including:\n- Krizhevsky et al. (2012) AlexNet\n- Vaswani et al. (2017) Attention Is All You Need\n- Dettmers et al. (2022) LLM.int8()\n- Hu et al. (2021) LoRA\n- ... and 31 more',
+        about: 'Josue Aparcedo Gonzalez\nIDS2891 Cornerstone\nFSW College, Spring 2026\nInterests: Local AI, hardware democratization\nHardware: RTX 4070 Ti SUPER, Ollama',
+      };
+
+      // Right panel — content viewer
+      const contentPanel = document.createElement('div');
+      contentPanel.id = 'explorerContent';
+      contentPanel.textContent = 'Select a folder to view files.';
+
+      treeItems.forEach(item => {
+        const row = document.createElement('div');
+        row.className = 'tree-item';
+        row.textContent = item.icon + ' ' + item.label;
+        row.addEventListener('click', () => {
+          contentPanel.textContent = folderContents[item.key] || 'No content available.';
+        });
+        treePanel.appendChild(row);
       });
-      div.appendChild(grid);
 
-      const info = document.createElement('p');
-      info.textContent = '6 object(s) * 13,455 words of research * 35 APA sources';
-      info.style.fontSize = '7px';
-      info.style.color = '#444';
-      div.appendChild(info);
+      container.appendChild(treePanel);
+      container.appendChild(contentPanel);
 
-      wm.createWindow('explorer', this.title, this.icon, div, { width: 480, height: 360 });
+      const winEl = wm.createWindow('explorer', this.title, this.icon, container, { width: 520, height: 380 });
+      animateWindowOpen('explorer', winEl);
     }
   },
   terminal: {
@@ -605,39 +946,48 @@ const APP_CONFIG = {
     width: 560,
     height: 400,
     open() {
-      const termDiv = document.createElement('div');
-      termDiv.style.background = '#000';
-      termDiv.style.color = '#33ff33';
-      termDiv.style.fontFamily = "'Space Mono', monospace";
-      termDiv.style.padding = '12px';
-      termDiv.style.overflow = 'auto';
-      termDiv.style.height = '100%';
-      termDiv.style.display = 'flex';
-      termDiv.style.flexDirection = 'column';
+      const wrap = document.createElement('div');
+      wrap.style.cssText = 'background:#000;height:100%;display:flex;flex-direction:column;padding:8px;font-family:"Space Mono",monospace;font-size:12px;color:#33ff33;overflow:hidden;';
 
       const output = document.createElement('pre');
-      output.textContent = 'Terminal ready. Type help for commands.';
-      output.style.flex = '1';
-      output.style.margin = '0 0 8px 0';
-      output.style.whiteSpace = 'pre-wrap';
-      output.style.fontSize = '12px';
+      output.id = 'termOutput';
+      output.style.cssText = 'flex:1;overflow-y:auto;white-space:pre-wrap;word-break:break-word;margin-bottom:8px;';
+      output.textContent = 'C:\\RESEARCH> ' + '\n\nFrom Pixels to Intelligence OS [Version 2.026.04]\n(C) 2026 Josue Aparcedo Gonzalez. All Rights Reserved.\n\nType \'help\' for available commands.\n\nC:\\RESEARCH> ';
+
+      const inputRow = document.createElement('div');
+      inputRow.style.cssText = 'display:flex;align-items:center;gap:4px;';
+
+      const prompt = document.createElement('span');
+      prompt.textContent = 'C:\\RESEARCH> ';
+      prompt.style.cssText = 'color:#33ff33;white-space:nowrap;font-family:"Space Mono",monospace;font-size:12px;';
 
       const input = document.createElement('input');
       input.type = 'text';
-      input.style.background = 'transparent';
-      input.style.border = 'none';
-      input.style.borderBottom = '1px solid #33ff33';
-      input.style.color = '#33ff33';
-      input.style.fontFamily = "'Space Mono', monospace";
-      input.style.fontSize = '12px';
-      input.style.outline = 'none';
-      input.style.width = '100%';
-      input.placeholder = '> type here...';
+      input.id = 'termInput';
+      input.style.cssText = 'background:transparent;border:none;outline:none;color:#33ff33;font-family:"Space Mono",monospace;font-size:12px;flex:1;caret-color:#33ff33;';
+      input.setAttribute('autocomplete', 'off');
+      input.setAttribute('spellcheck', 'false');
 
-      termDiv.appendChild(output);
-      termDiv.appendChild(input);
+      inputRow.appendChild(prompt);
+      inputRow.appendChild(input);
+      wrap.appendChild(output);
+      wrap.appendChild(inputRow);
 
-      wm.createWindow('terminal', this.title, this.icon, termDiv, { width: 560, height: 400 });
+      input.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+          const cmd = input.value.trim().toLowerCase();
+          input.value = '';
+          runTerminalCommand(cmd, output);
+        }
+      });
+
+      // Focus input when window is clicked
+      wrap.addEventListener('click', () => input.focus());
+
+      const winEl = wm.createWindow('terminal', this.title, this.icon, wrap, { width: 560, height: 400 });
+      animateWindowOpen('terminal', winEl);
+      // Auto-focus after window creation
+      setTimeout(() => input.focus(), 100);
     }
   },
   notepad: {
@@ -664,7 +1014,8 @@ const APP_CONFIG = {
       ta.textContent = 'FROM PIXELS TO INTELLIGENCE\n============================\nBy Josue Aparcedo Gonzalez\nIDS2891 Cornerstone, Spring 2026\n\nThanks for exploring this project.\nThis entire website was built with\nClaude Code + Three.js + GSAP.\n\nResearch: 13,455 words, 35 APA sources\nTopic: Local AI democratization\n\nFun fact: The GPU rendering this\nretro OS is the same type of hardware\nthis paper argues will obsolete the cloud.\n\n-- J.A.G.';
       div.appendChild(ta);
 
-      wm.createWindow('notepad', this.title, this.icon, div, { width: 480, height: 380 });
+      const noteWinEl = wm.createWindow('notepad', this.title, this.icon, div, { width: 480, height: 380 });
+      animateWindowOpen('notepad', noteWinEl);
     }
   },
   recycle: {
@@ -723,7 +1074,8 @@ const APP_CONFIG = {
       note.style.fontSize = '7px';
       div.appendChild(note);
 
-      wm.createWindow('recycle', this.title, this.icon, div, { width: 440, height: 340 });
+      const recycleWinEl = wm.createWindow('recycle', this.title, this.icon, div, { width: 440, height: 340 });
+      animateWindowOpen('recycle', recycleWinEl);
     }
   }
 };

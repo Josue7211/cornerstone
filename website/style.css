@@ -1153,3 +1153,121 @@ canvas#scene {
   border-bottom: 2px solid var(--win95-shadow-light);
   white-space: nowrap;
 }
+
+/* ═══ START MENU ═══ */
+.start-menu {
+  position: absolute;
+  bottom: 28px;
+  left: 0;
+  width: 220px;
+  background: var(--win95-gray);
+  border-top: 2px solid var(--win95-shadow-light);
+  border-right: 2px solid var(--win95-shadow-light);
+  border-left: 2px solid var(--win95-shadow-dark);
+  border-bottom: 2px solid var(--win95-shadow-dark);
+  z-index: 600;
+  display: none;
+  flex-direction: row;
+  box-shadow: 2px 2px 4px rgba(0,0,0,0.4);
+}
+.start-menu.visible {
+  display: flex;
+}
+.start-menu-header {
+  width: 28px;
+  background: linear-gradient(to bottom, var(--win95-title-start, #000080), var(--win95-dark, #0a0a2e));
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding-bottom: 8px;
+  flex-shrink: 0;
+}
+.start-menu-brand {
+  font-family: var(--font-pixel);
+  font-size: 6px;
+  color: rgba(255,255,255,0.7);
+  writing-mode: vertical-rl;
+  text-orientation: mixed;
+  transform: rotate(180deg);
+  white-space: nowrap;
+}
+.start-menu-items {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+.start-menu-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px;
+  cursor: pointer;
+  border-bottom: 1px solid rgba(0,0,0,0.1);
+}
+.start-menu-item:hover {
+  background: var(--win95-blue, #000080);
+  color: #fff;
+}
+.start-menu-item:hover .start-menu-label {
+  color: #fff;
+}
+.start-menu-icon {
+  font-size: 16px;
+  flex-shrink: 0;
+}
+.start-menu-label {
+  font-family: var(--font-pixel);
+  font-size: 6px;
+  color: #000;
+  line-height: 1.4;
+}
+.start-menu-footer {
+  background: var(--win95-gray);
+  border-top: 1px solid var(--win95-dark);
+  padding: 4px 8px;
+  font-family: var(--font-pixel);
+  font-size: 5px;
+  color: #666;
+  display: flex;
+  align-items: center;
+}
+
+/* ═══ FILE EXPLORER TREE ═══ */
+.tree-item {
+  padding: 4px 8px;
+  cursor: pointer;
+  font-family: var(--font-pixel);
+  font-size: 6px;
+  color: #000;
+  white-space: nowrap;
+  border-bottom: 1px solid #ddd;
+}
+.tree-item:hover {
+  background: var(--win95-blue, #000080);
+  color: #fff;
+}
+#explorerContent {
+  padding: 8px;
+  font-family: 'Space Mono', monospace;
+  font-size: 11px;
+  color: #000;
+  white-space: pre-wrap;
+  flex: 1;
+  overflow-y: auto;
+}
+
+/* ═══ GLITCH ANIMATION KEYFRAME ═══ */
+@keyframes glitchShift {
+  0%, 100% { transform: translateX(0); filter: none; }
+  25% { transform: translateX(-4px); filter: hue-rotate(90deg); }
+  75% { transform: translateX(4px); filter: hue-rotate(270deg); }
+}
+
+/* ═══ DESKTOP ICON PIXEL ART RENDERING ═══ */
+.desktop-icon .icon-emoji {
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+}
+
+/* ═══ WIN95 DESKTOP BASE PERSPECTIVE ═══ */
+.win95-desktop { perspective: none; }  /* windows set their own perspective */
