@@ -1,0 +1,320 @@
+{
+  "metadata": {
+    "generated": "2026-03-29T23:59:33.582226",
+    "total_papers_found": 8,
+    "search_scope": [
+      "GPU architecture AI acceleration",
+      "Tensor processing unit TPU architecture",
+      "Neural processing unit NPU on-device AI",
+      "CUDA parallel computing",
+      "GPU architecture machine learning",
+      "AI hardware democratization"
+    ],
+    "verification_status": {
+      "jouppi_2017_tpu": "VERIFIED - 5136 citations, DOI: 10.1145/3079856.3080246",
+      "sanmartin_2023_tpu": "NOT_FOUND - arXiv ID 2309.08918 not accessible due to rate limiting"
+    }
+  },
+  "all_papers": [
+    {
+      "id": "jouppi_2017_tpu",
+      "title": "In-datacenter performance analysis of a tensor processing unit",
+      "authors": [
+        "Norman P. Jouppi",
+        "C. Young",
+        "Nishant Patil",
+        "David A. Patterson"
+      ],
+      "year": 2017,
+      "citation_count": 5136,
+      "doi": "10.1145/3079856.3080246",
+      "url": "https://www.semanticscholar.org/paper/2dfeb5a90abc49ab2a80a492a01a4e2c8e92ec22",
+      "abstract": "This paper evaluates a custom ASIC-called a Tensor Processing Unit (TPU)-deployed in datacenters since 2015 that accelerates the inference phase of neural networks (NN) and compares it to a server-class Intel Haswell CPU and an Nvidia K80 GPU, which are contemporaries deployed in the samedatacenters.",
+      "tldr": "Custom ASIC TPU for neural network inference deployed in datacenters outperforms Intel Haswell CPU and Nvidia K80 GPU",
+      "venue": "ACM SIGARCH",
+      "relevance": {
+        "gpu_evolution": "high",
+        "cpu_gpu_comparison": "high",
+        "tpu_analysis": "high",
+        "ai_democratization": "medium"
+      }
+    },
+    {
+      "id": "cuda_plagiarism_2025",
+      "title": "Smith-Waterman Algorithm for Music Plagiarism Detection Using CUDA GPU Acceleration",
+      "authors": [
+        "Alfredo Gormantara",
+        "Ferdianto Tangdililing",
+        "Sean Coonery Sumarta"
+      ],
+      "year": 2025,
+      "citation_count": 0,
+      "url": "https://www.semanticscholar.org/",
+      "abstract": "Demonstrates CUDA GPU acceleration achieving 5.7x speedup for melody comparison and plagiarism detection using Smith-Waterman algorithm on music MIDI files",
+      "key_findings": "GPU speedup: 5.7x vs CPU",
+      "relevance": {
+        "gpu_acceleration": "high",
+        "cuda_parallel": "high",
+        "ai_democratization": "medium"
+      }
+    },
+    {
+      "id": "infrared_imaging_2020",
+      "title": "Infrared Target Imaging: Ray Tracing Acceleration with CUDA",
+      "authors": [
+        "Liu Lianwei",
+        "Dong Shikui"
+      ],
+      "year": 2020,
+      "citation_count": 5,
+      "url": "https://www.semanticscholar.org/",
+      "abstract": "Ray tracing algorithms accelerated via CUDA for thermal infrared imaging with over 100x speedup in skin projection calculations",
+      "key_findings": "100x+ speedup in ray tracing calculations",
+      "relevance": {
+        "gpu_acceleration": "high",
+        "cuda_parallel": "high"
+      }
+    },
+    {
+      "id": "stock_market_2020",
+      "title": "K-means Clustering with CUDA for Real-time Stock Market Prediction",
+      "authors": [
+        "Sangeeta Kumari",
+        "Nikhil Patil",
+        "Piyush Nankar",
+        "M. Kulkarni"
+      ],
+      "year": 2020,
+      "citation_count": 3,
+      "abstract": "Real-time financial data analysis using K-means clustering accelerated by CUDA, significantly reducing computation time versus CPU",
+      "relevance": {
+        "gpu_acceleration": "high",
+        "parallel_computing": "high",
+        "ai_democratization": "medium"
+      }
+    },
+    {
+      "id": "breast_cancer_2018",
+      "title": "Parallel Computing for Breast Cancer Image Segmentation",
+      "authors": [
+        "Andika Elok Amalia",
+        "Gregorius Airlangga",
+        "Afandi Nur Aziz Thohari"
+      ],
+      "year": 2018,
+      "citation_count": 8,
+      "abstract": "Medical imaging application achieving 2x speedup in mammography image segmentation using GPU parallel computing",
+      "key_findings": "2x speedup in image segmentation",
+      "relevance": {
+        "gpu_acceleration": "high",
+        "parallel_computing": "high"
+      }
+    },
+    {
+      "id": "eeg_processing_2018",
+      "title": "Real-time EEG Signal Processing Using GPU-Accelerated Wavelet Algorithms",
+      "authors": [
+        "V. Grubov",
+        "V. Maksimenko"
+      ],
+      "year": 2018,
+      "citation_count": 12,
+      "abstract": "GPU acceleration enables real-time evaluation of changes in EEG signals using wavelet analysis algorithms",
+      "relevance": {
+        "gpu_acceleration": "high",
+        "real_time_processing": "high"
+      }
+    },
+    {
+      "id": "radar_2025",
+      "title": "Radar Signal-Level Model Parallel Acceleration Method Based on Multi-GPU Architecture",
+      "authors": [
+        "Yilin Liu",
+        "Ruiyang Zhang",
+        "Yaoyao Lu"
+      ],
+      "year": 2025,
+      "citation_count": 0,
+      "doi": "10.1109/ICSMD67131.2025.11365469",
+      "abstract": "Multi-GPU parallel framework for radar signal processing with odd-even frame allocation, achieving 102.8x-164x speedups in different processing modules",
+      "key_findings": "102.8x-164x acceleration with dual GPU architecture",
+      "relevance": {
+        "gpu_evolution": "high",
+        "gpu_architecture": "high",
+        "parallel_computing": "high"
+      }
+    },
+    {
+      "id": "mimo_radar_2022",
+      "title": "MIMO Radar Parallel Simulation System Based on CPU/GPU Architecture",
+      "authors": [
+        "Gao-gao Liu",
+        "Wenbo Yang",
+        "Peng Li"
+      ],
+      "year": 2022,
+      "citation_count": 12,
+      "doi": "10.3390/s22010396",
+      "url": "https://www.mdpi.com/1424-8220/22/1/396/pdf",
+      "abstract": "Heterogeneous CPU/GPU architecture with OpenMP for coarse-grained CPU acceleration and fine-grained GPU processing for MIMO radar simulation with 13% improvement over GPU-only methods",
+      "tldr": "CPU/GPU heterogeneous architecture for radar simulation improves performance 13% vs GPU-only",
+      "venue": "Sensors Journal",
+      "relevance": {
+        "gpu_architecture": "high",
+        "cpu_gpu_hybrid": "high",
+        "parallel_computing": "high"
+      }
+    }
+  ],
+  "top_10_by_relevance": [
+    {
+      "id": "jouppi_2017_tpu",
+      "title": "In-datacenter performance analysis of a tensor processing unit",
+      "authors": [
+        "Norman P. Jouppi",
+        "C. Young",
+        "Nishant Patil",
+        "David A. Patterson"
+      ],
+      "year": 2017,
+      "citation_count": 5136,
+      "doi": "10.1145/3079856.3080246",
+      "url": "https://www.semanticscholar.org/paper/2dfeb5a90abc49ab2a80a492a01a4e2c8e92ec22",
+      "abstract": "This paper evaluates a custom ASIC-called a Tensor Processing Unit (TPU)-deployed in datacenters since 2015 that accelerates the inference phase of neural networks (NN) and compares it to a server-class Intel Haswell CPU and an Nvidia K80 GPU, which are contemporaries deployed in the samedatacenters.",
+      "tldr": "Custom ASIC TPU for neural network inference deployed in datacenters outperforms Intel Haswell CPU and Nvidia K80 GPU",
+      "venue": "ACM SIGARCH",
+      "relevance": {
+        "gpu_evolution": "high",
+        "cpu_gpu_comparison": "high",
+        "tpu_analysis": "high",
+        "ai_democratization": "medium"
+      }
+    },
+    {
+      "id": "eeg_processing_2018",
+      "title": "Real-time EEG Signal Processing Using GPU-Accelerated Wavelet Algorithms",
+      "authors": [
+        "V. Grubov",
+        "V. Maksimenko"
+      ],
+      "year": 2018,
+      "citation_count": 12,
+      "abstract": "GPU acceleration enables real-time evaluation of changes in EEG signals using wavelet analysis algorithms",
+      "relevance": {
+        "gpu_acceleration": "high",
+        "real_time_processing": "high"
+      }
+    },
+    {
+      "id": "mimo_radar_2022",
+      "title": "MIMO Radar Parallel Simulation System Based on CPU/GPU Architecture",
+      "authors": [
+        "Gao-gao Liu",
+        "Wenbo Yang",
+        "Peng Li"
+      ],
+      "year": 2022,
+      "citation_count": 12,
+      "doi": "10.3390/s22010396",
+      "url": "https://www.mdpi.com/1424-8220/22/1/396/pdf",
+      "abstract": "Heterogeneous CPU/GPU architecture with OpenMP for coarse-grained CPU acceleration and fine-grained GPU processing for MIMO radar simulation with 13% improvement over GPU-only methods",
+      "tldr": "CPU/GPU heterogeneous architecture for radar simulation improves performance 13% vs GPU-only",
+      "venue": "Sensors Journal",
+      "relevance": {
+        "gpu_architecture": "high",
+        "cpu_gpu_hybrid": "high",
+        "parallel_computing": "high"
+      }
+    },
+    {
+      "id": "breast_cancer_2018",
+      "title": "Parallel Computing for Breast Cancer Image Segmentation",
+      "authors": [
+        "Andika Elok Amalia",
+        "Gregorius Airlangga",
+        "Afandi Nur Aziz Thohari"
+      ],
+      "year": 2018,
+      "citation_count": 8,
+      "abstract": "Medical imaging application achieving 2x speedup in mammography image segmentation using GPU parallel computing",
+      "key_findings": "2x speedup in image segmentation",
+      "relevance": {
+        "gpu_acceleration": "high",
+        "parallel_computing": "high"
+      }
+    },
+    {
+      "id": "infrared_imaging_2020",
+      "title": "Infrared Target Imaging: Ray Tracing Acceleration with CUDA",
+      "authors": [
+        "Liu Lianwei",
+        "Dong Shikui"
+      ],
+      "year": 2020,
+      "citation_count": 5,
+      "url": "https://www.semanticscholar.org/",
+      "abstract": "Ray tracing algorithms accelerated via CUDA for thermal infrared imaging with over 100x speedup in skin projection calculations",
+      "key_findings": "100x+ speedup in ray tracing calculations",
+      "relevance": {
+        "gpu_acceleration": "high",
+        "cuda_parallel": "high"
+      }
+    },
+    {
+      "id": "stock_market_2020",
+      "title": "K-means Clustering with CUDA for Real-time Stock Market Prediction",
+      "authors": [
+        "Sangeeta Kumari",
+        "Nikhil Patil",
+        "Piyush Nankar",
+        "M. Kulkarni"
+      ],
+      "year": 2020,
+      "citation_count": 3,
+      "abstract": "Real-time financial data analysis using K-means clustering accelerated by CUDA, significantly reducing computation time versus CPU",
+      "relevance": {
+        "gpu_acceleration": "high",
+        "parallel_computing": "high",
+        "ai_democratization": "medium"
+      }
+    },
+    {
+      "id": "cuda_plagiarism_2025",
+      "title": "Smith-Waterman Algorithm for Music Plagiarism Detection Using CUDA GPU Acceleration",
+      "authors": [
+        "Alfredo Gormantara",
+        "Ferdianto Tangdililing",
+        "Sean Coonery Sumarta"
+      ],
+      "year": 2025,
+      "citation_count": 0,
+      "url": "https://www.semanticscholar.org/",
+      "abstract": "Demonstrates CUDA GPU acceleration achieving 5.7x speedup for melody comparison and plagiarism detection using Smith-Waterman algorithm on music MIDI files",
+      "key_findings": "GPU speedup: 5.7x vs CPU",
+      "relevance": {
+        "gpu_acceleration": "high",
+        "cuda_parallel": "high",
+        "ai_democratization": "medium"
+      }
+    },
+    {
+      "id": "radar_2025",
+      "title": "Radar Signal-Level Model Parallel Acceleration Method Based on Multi-GPU Architecture",
+      "authors": [
+        "Yilin Liu",
+        "Ruiyang Zhang",
+        "Yaoyao Lu"
+      ],
+      "year": 2025,
+      "citation_count": 0,
+      "doi": "10.1109/ICSMD67131.2025.11365469",
+      "abstract": "Multi-GPU parallel framework for radar signal processing with odd-even frame allocation, achieving 102.8x-164x speedups in different processing modules",
+      "key_findings": "102.8x-164x acceleration with dual GPU architecture",
+      "relevance": {
+        "gpu_evolution": "high",
+        "gpu_architecture": "high",
+        "parallel_computing": "high"
+      }
+    }
+  ]
+}

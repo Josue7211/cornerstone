@@ -1,0 +1,506 @@
+{
+  "metadata": {
+    "search_date": "2026-03-29T23:57:35.606483",
+    "total_papers_scanned": 130,
+    "hardware_architecture_papers": 28,
+    "foundation_count": 3,
+    "bridge_count": 17,
+    "frontier_count": 8
+  },
+  "top_10_hardware_papers": [
+    {
+      "rank": 1,
+      "title": "ImageNet classification with deep convolutional neural networks",
+      "authors": [
+        "Alex Krizhevsky",
+        "Ilya Sutskever",
+        "Geoffrey E. Hinton"
+      ],
+      "year": 2017,
+      "venue": "Unknown",
+      "citation_count": 75550,
+      "category": "Bridge",
+      "abstract_snippet": "We trained a large, deep convolutional neural network to classify the 1.2 million high-resolution images in the ImageNet LSVRC-2010 contest into the 1000 different classes. On the test data, we achieved top-1 and top-5 error rates of 37.5% and 17.0%, respectively, which is considerably better than the previous state-of-the-art. The neural network, ...",
+      "openalex_url": "https://openalex.org/W2163605009"
+    },
+    {
+      "rank": 2,
+      "title": "A Multi-Modal Distributed Real-Time IoT System for Urban Traffic Control (Invited Paper)",
+      "authors": [
+        "Khanam, Zeba",
+        "Achari, Vejey Pradeep Suresh",
+        "Boukhennoufa, Issam",
+        "Jindal, Anish"
+      ],
+      "year": 2024,
+      "venue": "Unknown",
+      "citation_count": 14265,
+      "category": "Frontier",
+      "abstract_snippet": "Traffic congestion is one of the growing urban problem with associated problems like fuel wastage, loss of lives, and slow productivity. The existing traffic system uses programming logic control (PLC) with round-robin scheduling algorithm. Recent works have proposed IoT-based frameworks that use traffic density of each lane to control traffic move...",
+      "openalex_url": "https://openalex.org/W4293584584"
+    },
+    {
+      "rank": 3,
+      "title": "TensorFlow: A system for large-scale machine learning",
+      "authors": [
+        "Mart\u0131\u0301n Abadi",
+        "Paul Barham",
+        "Jianmin Chen",
+        "Zhifeng Chen"
+      ],
+      "year": 2016,
+      "venue": "Unknown",
+      "citation_count": 8791,
+      "category": "Bridge",
+      "abstract_snippet": "TensorFlow is a machine learning system that operates at large scale and in heterogeneous environments. TensorFlow uses dataflow graphs to represent computation, shared state, and the operations that mutate that state. It maps the nodes of a dataflow graph across many machines in a cluster, and within a machine across multiple computational devices...",
+      "openalex_url": "https://openalex.org/W2953384591"
+    },
+    {
+      "rank": 4,
+      "title": "Review of deep learning: concepts, CNN architectures, challenges, applications, future directions",
+      "authors": [
+        "Laith Alzubaidi",
+        "Jinglan Zhang",
+        "Amjad J. Humaidi",
+        "Ayad Q. Al-Dujaili"
+      ],
+      "year": 2021,
+      "venue": "Unknown",
+      "citation_count": 7185,
+      "category": "Frontier",
+      "abstract_snippet": "In the last few years, the deep learning (DL) computing paradigm has been deemed the Gold Standard in the machine learning (ML) community. Moreover, it has gradually become the most widely used computational approach in the field of ML, thus achieving outstanding results on several complex cognitive tasks, matching or even beating those provided by...",
+      "openalex_url": "https://openalex.org/W3140854437"
+    },
+    {
+      "rank": 5,
+      "title": "Quantum supremacy using a programmable superconducting processor",
+      "authors": [
+        "Frank Arute",
+        "Kunal Arya",
+        "Ryan Babbush",
+        "Dave Bacon"
+      ],
+      "year": 2019,
+      "venue": "Unknown",
+      "citation_count": 6740,
+      "category": "Bridge",
+      "abstract_snippet": "The promise of quantum computers is that certain computational tasks might be executed exponentially faster on a quantum processor than on a classical processor<sup>1</sup>. A fundamental challenge is to build a high-fidelity processor capable of running quantum algorithms in an exponentially large computational space. Here we report the use of a p...",
+      "openalex_url": "https://openalex.org/W2982169647"
+    },
+    {
+      "rank": 6,
+      "title": "Dynamic Graph CNN for Learning on Point Clouds",
+      "authors": [
+        "Yue Wang",
+        "Yongbin Sun",
+        "Ziwei Liu",
+        "Sanjay E. Sarma"
+      ],
+      "year": 2019,
+      "venue": "Unknown",
+      "citation_count": 6500,
+      "category": "Bridge",
+      "abstract_snippet": "Point clouds provide a flexible geometric representation suitable for countless applications in computer graphics; they also comprise the raw output of most 3D data acquisition devices. While hand-designed features on point clouds have long been proposed in graphics and vision, however, the recent overwhelming success of convolutional neural networ...",
+      "openalex_url": "https://openalex.org/W2979750740"
+    },
+    {
+      "rank": 7,
+      "title": "TensorFlow: a system for large-scale machine learning",
+      "authors": [
+        "Mart\u0131\u0301n Abadi",
+        "Paul Barham",
+        "Jianmin Chen",
+        "Zhifeng Chen"
+      ],
+      "year": 2016,
+      "venue": "Unknown",
+      "citation_count": 6329,
+      "category": "Bridge",
+      "abstract_snippet": "TensorFlow is a machine learning system that operates at large scale and in heterogeneous environments. Tensor-Flow uses dataflow graphs to represent computation, shared state, and the operations that mutate that state. It maps the nodes of a dataflow graph across many machines in a cluster, and within a machine across multiple computational device...",
+      "openalex_url": "https://openalex.org/W2402144811"
+    },
+    {
+      "rank": 8,
+      "title": "Informer: Beyond Efficient Transformer for Long Sequence Time-Series Forecasting",
+      "authors": [
+        "Haoyi Zhou",
+        "Shanghang Zhang",
+        "Jieqi Peng",
+        "Shuai Zhang"
+      ],
+      "year": 2021,
+      "venue": "Unknown",
+      "citation_count": 5556,
+      "category": "Frontier",
+      "abstract_snippet": "Many real-world applications require the prediction of long sequence time-series, such as electricity consumption planning. Long sequence time-series forecasting (LSTF) demands a high prediction capacity of the model, which is the ability to capture precise long-range dependency coupling between output and input efficiently. Recent studies have sho...",
+      "openalex_url": "https://openalex.org/W3177318507"
+    },
+    {
+      "rank": 9,
+      "title": "Generative Adversarial Networks",
+      "authors": [
+        "Ian Goodfellow",
+        "Jean Pouget-Abadie",
+        "Mehdi Mirza",
+        "Bing Xu"
+      ],
+      "year": 2014,
+      "venue": "Unknown",
+      "citation_count": 4518,
+      "category": "Foundation",
+      "abstract_snippet": "We propose a new framework for estimating generative models via an adversarial process, in which we simultaneously train two models: a generative model G that captures the data distribution, and a discriminative model D that estimates the probability that a sample came from the training data rather than G. The training procedure for G is to maximiz...",
+      "openalex_url": "https://openalex.org/W4298289240"
+    },
+    {
+      "rank": 10,
+      "title": "Where Is Current Research on Blockchain Technology?\u2014A Systematic Review",
+      "authors": [
+        "Jesse Yli-Huumo",
+        "Deokyoon Ko",
+        "Sujin Choi",
+        "Sooyong Park"
+      ],
+      "year": 2016,
+      "venue": "Unknown",
+      "citation_count": 2269,
+      "category": "Bridge",
+      "abstract_snippet": "Blockchain is a decentralized transaction and data management technology developed first for Bitcoin cryptocurrency. The interest in Blockchain technology has been increasing since the idea was coined in 2008. The reason for the interest in Blockchain is its central attributes that provide security, anonymity and data integrity without any third pa...",
+      "openalex_url": "https://openalex.org/W2527800909"
+    }
+  ],
+  "papers_by_category": {
+    "foundation": [
+      {
+        "title": "Generative Adversarial Networks",
+        "authors": [
+          "Ian Goodfellow",
+          "Jean Pouget-Abadie",
+          "Mehdi Mirza",
+          "Bing Xu"
+        ],
+        "year": 2014,
+        "citation_count": 4518
+      },
+      {
+        "title": "Neuromorphic Silicon Neuron Circuits",
+        "authors": [
+          "Giacomo Indiveri",
+          "B. Linares-Barranco",
+          "Tara Julia Hamilton",
+          "Andr\u00e9 van Schaik"
+        ],
+        "year": 2011,
+        "citation_count": 1765
+      },
+      {
+        "title": "Techniques of EMG signal analysis: detection, processing, classification and applications",
+        "authors": [
+          "Mamun Bin Ibne Reaz",
+          "Muddassar Hussain",
+          "Faisal Mohd-Yasin"
+        ],
+        "year": 2006,
+        "citation_count": 1600
+      }
+    ],
+    "bridge": [
+      {
+        "title": "ImageNet classification with deep convolutional neural networks",
+        "authors": [
+          "Alex Krizhevsky",
+          "Ilya Sutskever",
+          "Geoffrey E. Hinton"
+        ],
+        "year": 2017,
+        "citation_count": 75550
+      },
+      {
+        "title": "TensorFlow: A system for large-scale machine learning",
+        "authors": [
+          "Mart\u0131\u0301n Abadi",
+          "Paul Barham",
+          "Jianmin Chen",
+          "Zhifeng Chen"
+        ],
+        "year": 2016,
+        "citation_count": 8791
+      },
+      {
+        "title": "Quantum supremacy using a programmable superconducting processor",
+        "authors": [
+          "Frank Arute",
+          "Kunal Arya",
+          "Ryan Babbush",
+          "Dave Bacon"
+        ],
+        "year": 2019,
+        "citation_count": 6740
+      },
+      {
+        "title": "Dynamic Graph CNN for Learning on Point Clouds",
+        "authors": [
+          "Yue Wang",
+          "Yongbin Sun",
+          "Ziwei Liu",
+          "Sanjay E. Sarma"
+        ],
+        "year": 2019,
+        "citation_count": 6500
+      },
+      {
+        "title": "TensorFlow: a system for large-scale machine learning",
+        "authors": [
+          "Mart\u0131\u0301n Abadi",
+          "Paul Barham",
+          "Jianmin Chen",
+          "Zhifeng Chen"
+        ],
+        "year": 2016,
+        "citation_count": 6329
+      },
+      {
+        "title": "Where Is Current Research on Blockchain Technology?\u2014A Systematic Review",
+        "authors": [
+          "Jesse Yli-Huumo",
+          "Deokyoon Ko",
+          "Sujin Choi",
+          "Sooyong Park"
+        ],
+        "year": 2016,
+        "citation_count": 2269
+      },
+      {
+        "title": "Edge Intelligence: Paving the Last Mile of Artificial Intelligence With Edge Computing",
+        "authors": [
+          "Zhi Zhou",
+          "Xu Chen",
+          "En Li",
+          "Liekang Zeng"
+        ],
+        "year": 2019,
+        "citation_count": 2071
+      },
+      {
+        "title": "Towards 6G wireless communication networks: vision, enabling technologies, and new paradigm shifts",
+        "authors": [
+          "Xiaohu You",
+          "Cheng\u2010Xiang Wang",
+          "Jie Huang",
+          "Xiqi Gao"
+        ],
+        "year": 2020,
+        "citation_count": 1897
+      },
+      {
+        "title": "Event-Based Vision: A Survey",
+        "authors": [
+          "Guillermo Gallego",
+          "Tobi Delbruck",
+          "Garrick Orchard",
+          "Chiara Bartolozzi"
+        ],
+        "year": 2020,
+        "citation_count": 1887
+      },
+      {
+        "title": "SLIM: Simultaneous Logic-in-Memory Computing Exploiting Bilayer Analog OxRAM Devices",
+        "authors": [
+          "Sandeep Kaur Kingra",
+          "Vivek Parmar",
+          "Che\u2010Chia Chang",
+          "Boris Hudec"
+        ],
+        "year": 2020,
+        "citation_count": 1430
+      }
+    ],
+    "frontier": [
+      {
+        "title": "A Multi-Modal Distributed Real-Time IoT System for Urban Traffic Control (Invited Paper)",
+        "authors": [
+          "Khanam, Zeba",
+          "Achari, Vejey Pradeep Suresh",
+          "Boukhennoufa, Issam",
+          "Jindal, Anish"
+        ],
+        "year": 2024,
+        "citation_count": 14265
+      },
+      {
+        "title": "Review of deep learning: concepts, CNN architectures, challenges, applications, future directions",
+        "authors": [
+          "Laith Alzubaidi",
+          "Jinglan Zhang",
+          "Amjad J. Humaidi",
+          "Ayad Q. Al-Dujaili"
+        ],
+        "year": 2021,
+        "citation_count": 7185
+      },
+      {
+        "title": "Informer: Beyond Efficient Transformer for Long Sequence Time-Series Forecasting",
+        "authors": [
+          "Haoyi Zhou",
+          "Shanghang Zhang",
+          "Jieqi Peng",
+          "Shuai Zhang"
+        ],
+        "year": 2021,
+        "citation_count": 5556
+      },
+      {
+        "title": "Sample Size Justification",
+        "authors": [
+          "Dani\u00ebl Lakens"
+        ],
+        "year": 2022,
+        "citation_count": 1415
+      },
+      {
+        "title": "A Survey of Quantization Methods for Efficient Neural Network Inference",
+        "authors": [
+          "Amir Gholami",
+          "Sehoon Kim",
+          "Zhen Dong",
+          "Zhewei Yao"
+        ],
+        "year": 2022,
+        "citation_count": 980
+      },
+      {
+        "title": "YOLOv7: Trainable bag-of-freebies sets new state-of-the-art for real-time object detectors",
+        "authors": [
+          "Chien-Yao Wang",
+          "Alexey Bochkovskiy",
+          "Hong-Yuan Mark Liao"
+        ],
+        "year": 2022,
+        "citation_count": 834
+      },
+      {
+        "title": "Edge Artificial Intelligence for 6G: Vision, Enabling Technologies, and Applications",
+        "authors": [
+          "Khaled B. Letaief",
+          "Yuanming Shi",
+          "Jianmin Lu",
+          "Jianhua Lu"
+        ],
+        "year": 2021,
+        "citation_count": 700
+      },
+      {
+        "title": "Seven Defining Features of Terahertz (THz) Wireless Systems: A Fellowship of Communication and Sensing",
+        "authors": [
+          "Christina Chaccour",
+          "Mehdi Naderi Soorki",
+          "Walid Saad",
+          "Mehdi Bennis"
+        ],
+        "year": 2022,
+        "citation_count": 476
+      }
+    ]
+  },
+  "top_10_for_college_paper": [
+    {
+      "rank": 1,
+      "title": "ImageNet classification with deep convolutional neural networks",
+      "authors": "Alex Krizhevsky; Ilya Sutskever; Geoffrey E. Hinton",
+      "year": 2017,
+      "citations": 75550,
+      "category": "Bridge",
+      "recommended_for": "AI Hardware Evolution & Democratization Research",
+      "openalex_id": "https://openalex.org/W2163605009"
+    },
+    {
+      "rank": 2,
+      "title": "A Multi-Modal Distributed Real-Time IoT System for Urban Traffic Control (Invited Paper)",
+      "authors": "Khanam, Zeba; Achari, Vejey Pradeep Suresh; Boukhennoufa, Issam; Jindal, Anish",
+      "year": 2024,
+      "citations": 14265,
+      "category": "Frontier",
+      "recommended_for": "AI Hardware Evolution & Democratization Research",
+      "openalex_id": "https://openalex.org/W4293584584"
+    },
+    {
+      "rank": 3,
+      "title": "TensorFlow: A system for large-scale machine learning",
+      "authors": "Mart\u0131\u0301n Abadi; Paul Barham; Jianmin Chen; Zhifeng Chen",
+      "year": 2016,
+      "citations": 8791,
+      "category": "Bridge",
+      "recommended_for": "AI Hardware Evolution & Democratization Research",
+      "openalex_id": "https://openalex.org/W2953384591"
+    },
+    {
+      "rank": 4,
+      "title": "Review of deep learning: concepts, CNN architectures, challenges, applications, future directions",
+      "authors": "Laith Alzubaidi; Jinglan Zhang; Amjad J. Humaidi; Ayad Q. Al-Dujaili",
+      "year": 2021,
+      "citations": 7185,
+      "category": "Frontier",
+      "recommended_for": "AI Hardware Evolution & Democratization Research",
+      "openalex_id": "https://openalex.org/W3140854437"
+    },
+    {
+      "rank": 5,
+      "title": "Quantum supremacy using a programmable superconducting processor",
+      "authors": "Frank Arute; Kunal Arya; Ryan Babbush; Dave Bacon",
+      "year": 2019,
+      "citations": 6740,
+      "category": "Bridge",
+      "recommended_for": "AI Hardware Evolution & Democratization Research",
+      "openalex_id": "https://openalex.org/W2982169647"
+    },
+    {
+      "rank": 6,
+      "title": "Dynamic Graph CNN for Learning on Point Clouds",
+      "authors": "Yue Wang; Yongbin Sun; Ziwei Liu; Sanjay E. Sarma",
+      "year": 2019,
+      "citations": 6500,
+      "category": "Bridge",
+      "recommended_for": "AI Hardware Evolution & Democratization Research",
+      "openalex_id": "https://openalex.org/W2979750740"
+    },
+    {
+      "rank": 7,
+      "title": "TensorFlow: a system for large-scale machine learning",
+      "authors": "Mart\u0131\u0301n Abadi; Paul Barham; Jianmin Chen; Zhifeng Chen",
+      "year": 2016,
+      "citations": 6329,
+      "category": "Bridge",
+      "recommended_for": "AI Hardware Evolution & Democratization Research",
+      "openalex_id": "https://openalex.org/W2402144811"
+    },
+    {
+      "rank": 8,
+      "title": "Informer: Beyond Efficient Transformer for Long Sequence Time-Series Forecasting",
+      "authors": "Haoyi Zhou; Shanghang Zhang; Jieqi Peng; Shuai Zhang",
+      "year": 2021,
+      "citations": 5556,
+      "category": "Frontier",
+      "recommended_for": "AI Hardware Evolution & Democratization Research",
+      "openalex_id": "https://openalex.org/W3177318507"
+    },
+    {
+      "rank": 9,
+      "title": "Generative Adversarial Networks",
+      "authors": "Ian Goodfellow; Jean Pouget-Abadie; Mehdi Mirza; Bing Xu",
+      "year": 2014,
+      "citations": 4518,
+      "category": "Foundation",
+      "recommended_for": "AI Hardware Evolution & Democratization Research",
+      "openalex_id": "https://openalex.org/W4298289240"
+    },
+    {
+      "rank": 10,
+      "title": "Where Is Current Research on Blockchain Technology?\u2014A Systematic Review",
+      "authors": "Jesse Yli-Huumo; Deokyoon Ko; Sujin Choi; Sooyong Park",
+      "year": 2016,
+      "citations": 2269,
+      "category": "Bridge",
+      "recommended_for": "AI Hardware Evolution & Democratization Research",
+      "openalex_id": "https://openalex.org/W2527800909"
+    }
+  ]
+}
