@@ -407,6 +407,97 @@ canvas#scene {
 .pres-slide h3 { font-size: 0.95rem; font-weight: 600; margin-bottom: 0.3rem; }
 .pres-slide p { font-size: 0.85rem; margin: 0; }
 
+/* Presentation — new section-specific styles */
+.slide-arch-compare { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin: 1.5rem 0; }
+.arch-compare-item {
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 1.25rem;
+}
+.arch-compare-item--ai { border-color: rgba(255,0,170,0.3); }
+.arch-label {
+  font-family: var(--font-display);
+  font-size: 0.75rem;
+  font-weight: 700;
+  display: block;
+  margin-bottom: 0.5rem;
+  color: var(--magenta);
+}
+.arch-detail { font-size: 0.8rem; color: var(--text-dim); line-height: 1.6; }
+
+.slide-timeline-mini { display: flex; flex-direction: column; gap: 0.5rem; margin: 1.5rem 0; }
+.tl-mini-item {
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  color: var(--text-dim);
+  padding: 0.5rem 1rem;
+  border-left: 2px solid var(--border);
+}
+.tl-mini-highlight { border-left-color: var(--magenta); color: var(--magenta); font-weight: 600; }
+.tl-mini-year {
+  font-family: var(--font-display);
+  font-weight: 700;
+  margin-right: 0.75rem;
+  color: var(--text);
+}
+.tl-mini-highlight .tl-mini-year { color: var(--magenta); }
+
+.slide-video {
+  margin: 1.5rem 0;
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  aspect-ratio: 16/9;
+}
+.slide-video iframe { width: 100%; height: 100%; display: block; }
+.video-caption {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  text-align: center;
+  padding: 0.75rem;
+  background: var(--card-bg);
+  margin: 0;
+}
+
+.slide-chip-compare { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin: 1.5rem 0; }
+.chip-item {
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 1.25rem;
+  text-align: center;
+}
+.chip-name {
+  font-family: var(--font-display);
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--magenta);
+  display: block;
+  margin-bottom: 0.5rem;
+}
+.chip-desc { font-size: 0.75rem; color: var(--text-dim); line-height: 1.6; }
+
+.slide-reflections { display: grid; gap: 1rem; margin: 1.5rem 0; }
+.reflection-item {
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 1.25rem 1.5rem;
+}
+.ref-label {
+  font-family: var(--font-display);
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: var(--magenta);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  display: block;
+  margin-bottom: 0.5rem;
+}
+.reflection-item p { font-size: 0.85rem; margin: 0; }
+
 /* Experience */
 .exp-desc { margin-bottom: 1.5rem !important; }
 

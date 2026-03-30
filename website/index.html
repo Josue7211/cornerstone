@@ -166,23 +166,87 @@
 
         <div class="pres-slide-track">
 
+          <!-- Section 1: Title & Introduction (0:00 – 1:30) -->
           <div class="pres-slide" data-slide="01">
-            <div class="slide-num">01 / 06</div>
-            <div class="slide-tag">INTRODUCTION</div>
+            <div class="slide-num">01 / 08</div>
+            <div class="slide-tag">TITLE &amp; INTRODUCTION</div>
             <h2>The Hook</h2>
-            <p class="slide-body">Every AI tool you use today — ChatGPT, Midjourney, Claude, Gemini — runs on hardware originally designed for video games. The chip powering DALL-E was built to render explosions in Call of Duty. This is not an exaggeration. This is a fact with extraordinary implications.</p>
-            <p class="slide-body">This presentation traces how a gaming GPU became the engine of a trillion-dollar AI industry — and why that same hardware, now in your laptop and phone, is making the cloud's monopoly on intelligence increasingly fragile.</p>
+            <p class="slide-body">How many of you have used ChatGPT, image generators, or voice assistants this week? Every one of those tools runs on hardware that was originally designed to play video games.</p>
+            <p class="slide-body">The chip powering DALL-E was built to render explosions in Call of Duty. This is not an exaggeration. This is a fact with extraordinary implications. We're going to trace how a gaming chip became the most important piece of technology in AI.</p>
             <div class="slide-stat-inline">
               <span class="inline-num">86%</span>
               <span>of AI GPUs sold today are NVIDIA — the same company that made the GeForce 256 in 1999.</span>
             </div>
           </div>
 
+          <!-- Section 2: The Problem — Why CPUs Couldn't Do AI (1:30 – 3:00) -->
           <div class="pres-slide" data-slide="02">
-            <div class="slide-num">02 / 06</div>
-            <div class="slide-tag">METHODS &amp; SCOPE</div>
-            <h2>How This Research Was Built</h2>
-            <p class="slide-body">This research synthesizes technical literature (IEEE, ACM, arXiv), industry analysis (McKinsey, Gartner, Data Center Knowledge), economic data (World Bank, UST), and firsthand operational evidence — the author runs a local AI homelab on an $800 consumer GPU.</p>
+            <div class="slide-num">02 / 08</div>
+            <div class="slide-tag">THE PROBLEM</div>
+            <h2>Why CPUs Couldn't Do AI</h2>
+            <p class="slide-body">A CPU is like one brilliant chef cooking dishes sequentially — fast at each individual task, but fundamentally limited when AI needs 10,000 simple calculations happening at the same time.</p>
+            <p class="slide-body">CPUs excel at complex sequential logic: operating systems, web browsers, databases. But neural networks are embarrassingly parallel — every neuron in a layer computes independently. A CPU with 8-16 cores processing one operation at a time simply cannot keep up with the thousands of simultaneous matrix multiplications that define modern AI.</p>
+            <div class="slide-arch-compare">
+              <div class="arch-compare-item">
+                <span class="arch-label">CPU</span>
+                <span class="arch-detail">Few powerful cores · Large caches · Sequential pipeline · Complex branch prediction</span>
+              </div>
+              <div class="arch-compare-item arch-compare-item--ai">
+                <span class="arch-label">What AI Needs</span>
+                <span class="arch-detail">Thousands of simple cores · Massive memory bandwidth · Parallel execution · Matrix math throughput</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Section 3: The Accidental Revolution — GPUs Enter AI (3:00 – 5:00) -->
+          <div class="pres-slide" data-slide="03">
+            <div class="slide-num">03 / 08</div>
+            <div class="slide-tag">THE ACCIDENTAL REVOLUTION</div>
+            <h2>GPUs Enter AI</h2>
+            <p class="slide-body">GPUs were designed to render millions of pixels simultaneously — each pixel is a simple math operation. That parallel architecture accidentally aligned with the matrix math neural networks need.</p>
+            <p class="slide-body">In 2007, NVIDIA released CUDA — a programming platform that let developers write general-purpose code for GPU cores. Jensen Huang bet hundreds of millions on it with no guaranteed return. It was a platform moat: once researchers wrote code in CUDA, they were locked into NVIDIA hardware.</p>
+            <p class="slide-body">The proof came in 2012. Alex Krizhevsky, Ilya Sutskever, and Geoffrey Hinton trained AlexNet on two NVIDIA GTX 580 gaming GPUs — hardware you could buy at Best Buy — and won ImageNet by a margin that shocked the field: 15.3% error vs. 26.2% for second place. The AI community pivoted overnight.</p>
+            <div class="slide-timeline-mini">
+              <div class="tl-mini-item"><span class="tl-mini-year">1999</span> GeForce 256 — first consumer GPU</div>
+              <div class="tl-mini-item"><span class="tl-mini-year">2007</span> CUDA — GPUs become programmable</div>
+              <div class="tl-mini-item tl-mini-highlight"><span class="tl-mini-year">2012</span> AlexNet — GPUs prove they can think</div>
+              <div class="tl-mini-item"><span class="tl-mini-year">2017</span> Volta Tensor Cores — dedicated AI hardware</div>
+              <div class="tl-mini-item"><span class="tl-mini-year">2024</span> Blackwell — trillion-parameter training</div>
+            </div>
+          </div>
+
+          <!-- Section 4: Specialized Chips — TPUs and NPUs (5:00 – 7:00) -->
+          <div class="pres-slide" data-slide="04">
+            <div class="slide-num">04 / 08</div>
+            <div class="slide-tag">SPECIALIZED CHIPS</div>
+            <h2>TPUs, NPUs, and Purpose-Built Silicon</h2>
+            <div class="slide-video">
+              <iframe src="https://www.youtube.com/embed/r5NQecwZs1A?start=39" title="CPU vs GPU vs TPU vs NPU — Fireship" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+              <p class="video-caption">Fireship — CPU vs GPU vs TPU vs NPU explained in 100 seconds (starts at the comparison)</p>
+            </div>
+            <p class="slide-body">Google asked: "What if we built a chip <em>only</em> for neural networks?" The result was the TPU — a Tensor Processing Unit that uses systolic arrays, where data flows through a grid of processors without touching memory at every step. The result: 15–30x better performance per watt than GPUs on inference workloads (Jouppi et al., 2017).</p>
+            <p class="slide-body">Apple put a Neural Engine in your iPhone — AI runs on your device without sending data to the cloud. The M-series unified memory architecture puts CPU, GPU, and neural engine on the same memory pool. An M4 MacBook can run a 70-billion-parameter model from its 128GB of unified memory — performance requiring a $30,000 server three years ago.</p>
+            <div class="slide-chip-compare">
+              <div class="chip-item">
+                <span class="chip-name">GPU</span>
+                <span class="chip-desc">Parallel cores · General purpose · Training + Inference · NVIDIA dominance</span>
+              </div>
+              <div class="chip-item">
+                <span class="chip-name">TPU</span>
+                <span class="chip-desc">Systolic arrays · Inference optimized · 15-30x per-watt vs GPU · Google proprietary</span>
+              </div>
+              <div class="chip-item">
+                <span class="chip-name">NPU</span>
+                <span class="chip-desc">On-device AI · In every new phone/laptop · Apple, Qualcomm, AMD, Intel · Privacy-first</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Section 5: Transdisciplinary Connections (7:00 – 8:00) -->
+          <div class="pres-slide" data-slide="05">
+            <div class="slide-num">05 / 08</div>
+            <div class="slide-tag">TRANSDISCIPLINARY CONNECTIONS</div>
+            <h2>This Is Not Just an Engineering Problem</h2>
             <div class="slide-disciplines">
               <div class="discipline-tag">Computer Science</div>
               <div class="discipline-tag">Economics</div>
@@ -191,86 +255,96 @@
               <div class="discipline-tag">Ethics</div>
               <div class="discipline-tag">Sociology</div>
             </div>
-            <p class="slide-body">The transdisciplinary approach is intentional — AI hardware is not a CS problem. It intersects behavioral economics (why users pay cloud premiums), geopolitics (U.S.-China chip export controls), labor economics (automation and UBI), and the ethics of intelligence concentration in a handful of corporations.</p>
-          </div>
-
-          <div class="pres-slide" data-slide="03">
-            <div class="slide-num">03 / 06</div>
-            <div class="slide-tag">TRANSDISCIPLINARY CONNECTIONS</div>
-            <h2>This Is Not Just an Engineering Problem</h2>
             <div class="slide-connections">
               <div class="connection-item">
+                <span class="conn-field">MATH</span>
+                <span class="conn-desc">The linear algebra you learn in class IS what these chips compute — matrix multiplication is literally the operation GPUs and TPUs are built for.</span>
+              </div>
+              <div class="connection-item">
                 <span class="conn-field">ECONOMICS</span>
-                <span class="conn-desc">Moore's Law drove 50 years of deflation in computing costs. Its stall forces architectural innovation — and concentrates power among the few who can afford to innovate at scale.</span>
+                <span class="conn-desc">NVIDIA has 86% market share in AI chips. That concentration of power determines who builds AI and at what cost. A fortunate coincidence between gaming hardware and AI math created a trillion-dollar industry.</span>
               </div>
               <div class="connection-item">
                 <span class="conn-field">PSYCHOLOGY</span>
-                <span class="conn-desc">The "delegation premium": users pay for cloud AI not because it's better, but because it removes responsibility. The legitimacy illusion: free software feels inferior even when it isn't.</span>
+                <span class="conn-desc">The "delegation premium": users pay for cloud AI not because it's better, but because it removes responsibility. Free software feels inferior even when it isn't — a pricing psychology heuristic.</span>
               </div>
               <div class="connection-item">
                 <span class="conn-field">POLITICAL SCIENCE</span>
                 <span class="conn-desc">U.S. export controls on NVIDIA H100 chips to China are shaping which nations can develop frontier AI. Silicon has become a geopolitical weapon.</span>
               </div>
-              <div class="connection-item">
-                <span class="conn-field">ETHICS</span>
-                <span class="conn-desc">When AI models run on corporate servers, every query reveals intent, behavior, and identity to a private company. Local AI is a privacy right, not just a technical preference.</span>
-              </div>
             </div>
           </div>
 
-          <div class="pres-slide" data-slide="04">
-            <div class="slide-num">04 / 06</div>
-            <div class="slide-tag">IMPLICATIONS &amp; CONCLUSIONS</div>
+          <!-- Section 6: Implications & Future (8:00 – 9:30) -->
+          <div class="pres-slide" data-slide="06">
+            <div class="slide-num">06 / 08</div>
+            <div class="slide-tag">IMPLICATIONS &amp; FUTURE</div>
             <h2>What This Means For Everyone</h2>
             <div class="slide-implications">
               <div class="impl-item impl-pos">
                 <span class="impl-label">DEMOCRATIZATION</span>
-                <p>An $800 GPU running 70B parameter models locally is real today. By 2027, $500 consumer GPUs will match current $30,000 server performance. AI is following the same curve as the internet, the smartphone, and every prior computing revolution.</p>
+                <p>An $800 GPU running 70B parameter models locally is real today. By 2027, $500 consumer GPUs will match current $30,000 server performance. The AI chip market is growing from $30B to $164B in 5 years.</p>
               </div>
               <div class="impl-item impl-pos">
                 <span class="impl-label">PRIVACY</span>
-                <p>Local AI means your data never leaves your machine. No API logging. No training on your queries. No corporate surveillance of your intellectual process. This matters for journalists, lawyers, healthcare workers, and anyone with sensitive information.</p>
+                <p>Local AI means your data never leaves your machine. No API logging. No training on your queries. This matters for journalists, lawyers, healthcare workers, and anyone with sensitive information.</p>
               </div>
               <div class="impl-item impl-pos">
                 <span class="impl-label">EQUITY</span>
-                <p>2.6 billion people lack reliable internet access. Cloud AI is inaccessible to them by definition. Local AI — on a device that works offline — is the only path to AI equity for the majority of the world's population.</p>
+                <p>2.6 billion people lack reliable internet. Cloud AI is inaccessible to them by definition. Local AI on an offline-capable device is the only path to AI equity for the world's majority.</p>
               </div>
               <div class="impl-item impl-warn">
                 <span class="impl-label">DISRUPTION</span>
-                <p>AI-driven automation will affect 40% of jobs globally (IMF, 2024). The democratization of AI tools accelerates this timeline. Universal Basic Income is transitioning from fringe to mainstream policy conversation as a necessary response.</p>
+                <p>AI-driven automation will affect 40% of jobs globally (IMF, 2024). Emerging approaches — photonic computing, analog chips, 3D stacked architectures — will accelerate this further. The shift from "one chip does everything" to specialized silicon is fundamental.</p>
               </div>
             </div>
           </div>
 
-          <div class="pres-slide" data-slide="05">
-            <div class="slide-num">05 / 06</div>
+          <!-- Section 7: Advocacy — Why This Matters (9:30 – 10:30) -->
+          <div class="pres-slide" data-slide="07">
+            <div class="slide-num">07 / 08</div>
             <div class="slide-tag">ADVOCACY</div>
             <h2>Why This Matters — Right Now</h2>
-            <p class="slide-body">The decisions being made in the next 3-5 years — which AI models get open-sourced, which chips get export-controlled, which companies get to define what "safe AI" means — will determine whether the intelligence revolution repeats the history of the internet (democratic, distributed) or the history of the railroad (monopolistic, extractive).</p>
+            <p class="slide-body">You don't need to be an engineer to understand what powers the tools you use every day. Hardware decisions determine AI's cost, speed, and who has access. Understanding the infrastructure layer is the difference between being a passive consumer and an informed participant.</p>
             <div class="slide-advocacy-points">
               <div class="advocacy-point">
                 <span class="adv-num">1</span>
-                <p>Support open-source AI development. Meta's Llama, Mistral's models, and the broader Hugging Face ecosystem are the only counterweight to the cloud monopoly.</p>
+                <p>Support open-source AI. Meta's Llama, Mistral's models, and the Hugging Face ecosystem are the only counterweight to the cloud monopoly.</p>
               </div>
               <div class="advocacy-point">
                 <span class="adv-num">2</span>
-                <p>Understand what you're renting. Cloud AI subscriptions are not just services — they are behavioral data pipelines. Know what you're trading for convenience.</p>
+                <p>Understand what you're renting. Cloud AI subscriptions are behavioral data pipelines. Know what you're trading for convenience.</p>
               </div>
               <div class="advocacy-point">
                 <span class="adv-num">3</span>
-                <p>Consider the hardware literacy gap. Most people interact with AI daily without understanding what runs it. This is the same problem as financial literacy — ignorance is not neutral.</p>
+                <p>Close the hardware literacy gap. Most people interact with AI daily without understanding what runs it. This ignorance is not neutral — it's the same problem as financial illiteracy.</p>
               </div>
             </div>
+            <p class="slide-body">The website I built for this project was itself created using AI — running on the very hardware I'm presenting about. The meta-narrative is the proof.</p>
           </div>
 
-          <div class="pres-slide pres-slide--final" data-slide="06">
-            <div class="slide-num">06 / 06</div>
-            <div class="slide-tag">CONCLUSION</div>
-            <h2>The Thesis</h2>
+          <!-- Section 8: Reflection & Q&A (10:30 – 12:00) -->
+          <div class="pres-slide pres-slide--final" data-slide="08">
+            <div class="slide-num">08 / 08</div>
+            <div class="slide-tag">REFLECTION &amp; Q&amp;A</div>
+            <h2>What I Learned</h2>
             <blockquote class="slide-thesis">
               "AI is not a service to be rented.<br>It is a tool to be owned."
             </blockquote>
-            <p class="slide-body">The cloud-first era of AI was a transitional phase, not the destination. The same convergence of forces that moved computing from mainframes to personal computers — miniaturization, open software, community development — is now moving AI from corporate servers to consumer hardware. By 2031, asking an AI will feel like using a calculator: a local tool you own, not a service you rent.</p>
+            <div class="slide-reflections">
+              <div class="reflection-item">
+                <span class="ref-label">Biggest Takeaway</span>
+                <p>The most transformative technology of our generation runs on hardware designed for a completely different purpose. The accidental revolution is still unfolding.</p>
+              </div>
+              <div class="reflection-item">
+                <span class="ref-label">What I'd Explore Further</span>
+                <p>How specialized AI chips might affect who can afford to train AI models — the democratization question. Will local AI close the gap, or will frontier models remain cloud-only?</p>
+              </div>
+              <div class="reflection-item">
+                <span class="ref-label">What Surprised Me</span>
+                <p>How few people understand the hardware layer, even in tech. The gap between "I use ChatGPT" and "I understand what powers it" is enormous — and consequential.</p>
+              </div>
+            </div>
             <div class="slide-meta">
               <p>This website was built with AI running on consumer hardware.<br>The thesis is not theoretical. It is running right now.</p>
             </div>
