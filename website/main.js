@@ -113,9 +113,9 @@ loader.load('./assets/models/futuristic-room/scene.gltf', (gltf) => {
   const desk = positions['OfficeTable'] || { x: 1.5, y: 1.3, z: 0.6 };
   const chair = positions['OfficeChair'] || { x: -0.8, y: 0.2, z: 0.2 };
 
-  // End: at the chair, eye height, looking at desk
-  camEnd.set(chair.x, chair.y + 1.5, chair.z);
-  lookEnd.set(desk.x, desk.y + 0.5, desk.z);
+  // Hardcoded from user positioning
+  camEnd.set(-0.90, 4.01, 0.06);
+  lookEnd.set(1.80, 1.75, 0.54);
 
   // Start: pulled back from chair (away from desk)
   const dx = chair.x - desk.x;
@@ -127,32 +127,7 @@ loader.load('./assets/models/futuristic-room/scene.gltf', (gltf) => {
   console.log('Camera: chair→desk, start:', camStart.x.toFixed(1), camStart.y.toFixed(1), camStart.z.toFixed(1));
   camera.position.copy(camStart);
 
-  // DEBUG: WASD + QE to position camera, prints coords to console
-  // W/S = forward/back (toward/away from where you're looking)
-  // A/D = left/right
-  // Q/E = up/down
-  // R = rotate look left, T = rotate look right
-  window.addEventListener('keydown', (e) => {
-    if (state.phase !== 'desktop') return;
-    const step = 0.3;
-    const dir = new THREE.Vector3();
-    camera.getWorldDirection(dir);
-    const right = new THREE.Vector3().crossVectors(dir, new THREE.Vector3(0,1,0)).normalize();
-
-    if (e.key === 'w') { camEnd.add(dir.clone().multiplyScalar(step)); }
-    if (e.key === 's') { camEnd.add(dir.clone().multiplyScalar(-step)); }
-    if (e.key === 'a') { camEnd.add(right.clone().multiplyScalar(-step)); }
-    if (e.key === 'd') { camEnd.add(right.clone().multiplyScalar(step)); }
-    if (e.key === 'q') { camEnd.y += step; }
-    if (e.key === 'e') { camEnd.y -= step; }
-    if (e.key === 'r') { lookEnd.add(right.clone().multiplyScalar(-step)); }
-    if (e.key === 't') { lookEnd.add(right.clone().multiplyScalar(step)); }
-
-    camera.position.copy(camEnd);
-    camera.lookAt(lookEnd);
-    console.log('camEnd:', camEnd.x.toFixed(2), camEnd.y.toFixed(2), camEnd.z.toFixed(2),
-                'lookEnd:', lookEnd.x.toFixed(2), lookEnd.y.toFixed(2), lookEnd.z.toFixed(2));
-  });
+  // Debug controls removed — camera position locked in
 
   loaderFill.style.width = '100%';
   loaderPct.textContent = '100%';
@@ -161,11 +136,8 @@ loader.load('./assets/models/futuristic-room/scene.gltf', (gltf) => {
   setTimeout(() => {
     document.getElementById('loader').classList.add('done');
     state.loaded = true;
-    // DEBUG: skip zoom, go straight to free camera mode
-    state.phase = 'desktop';
-    camera.position.copy(camEnd);
-    camera.lookAt(lookEnd);
-    // Don't show desktop overlay — let user position camera with arrow keys
+    state.phase = 'zooming';
+    state.zoomStart = performance.now() / 1000;
   }, 600);
 }, (p) => {
   const pct = p.total > 0 ? Math.round(p.loaded / p.total * 100) : Math.min(99, Math.round(p.loaded / 580000000 * 100));
