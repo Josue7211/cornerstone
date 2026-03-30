@@ -96,11 +96,15 @@ Plans:
 **Goal:** Write 750+ word research documentation with 10+ sources.
 **Points:** 100
 **Due:** Apr 12
-**Status:** NOT STARTED
+**Status:** PLANNED
 **Depends on:** Phase 7 (research fully developed by this point)
+**Plans:** 1 plan
 **Deliverables:**
 - 750+ words documenting the research process
 - 10+ APA-cited sources
+
+Plans:
+- [ ] 09-01-PLAN.md — Write assignment-12-research-documentation.md (750-900 words, 13 APA sources, chronological process narrative)
 
 ### Phase 10: Revision & Reflection
 **Goal:** Write 500+ word revision and reflection essay with revised bibliography.
@@ -139,7 +143,7 @@ Plans:
 | 6 | Presentation Worksheet (#12) | 20 | Complete    | 2026-03-30 |
 | 7 | Research Presentation (#13) | 100 | Complete    | 2026-03-30 |
 | 8 | Co-Curricular Reflection (#14) | 100 | Apr 5 | NOT STARTED |
-| 9 | Research Documentation (#15) | 100 | Apr 12 | NOT STARTED |
+| 9 | Research Documentation (#15) | 100 | Apr 12 | PLANNED |
 | 10 | Revision & Reflection (#16) | 100 | Apr 19 | NOT STARTED |
 | 11 | Final Project — Website (#17) | 100 | Apr 19 | NOT STARTED |
 | **Total** | | **850** | | |
