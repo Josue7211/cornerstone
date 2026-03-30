@@ -214,6 +214,16 @@ loader.load('./assets/models/futuristic-room/scene.gltf', (gltf) => {
     if (c.isMesh) { c.castShadow = true; c.receiveShadow = true; state.colliders.push(c); }
   });
   scene.add(model);
+  // Log furniture positions to find the chair
+  model.traverse(c => {
+    if (c.isMesh && c.name) {
+      const wp = new THREE.Vector3();
+      c.getWorldPosition(wp);
+      if (c.name.toLowerCase().match(/chair|seat|desk|computer|screen|monitor/)) {
+        console.log('FURNITURE:', c.name, 'pos:', wp.x.toFixed(1), wp.y.toFixed(1), wp.z.toFixed(1));
+      }
+    }
+  });
   console.log('Room loaded, scale:', scale.toFixed(3));
   roomLoaded = true;
   checkAllLoaded();
@@ -227,7 +237,8 @@ loader.load('./assets/models/futuristic-room/scene.gltf', (gltf) => {
 // ─── Character ───
 loader.load('./assets/models/character.glb', (gltf) => {
   const model = gltf.scene;
-  model.scale.setScalar(1.0);
+  // Scale character to fit the room — measure and match
+  model.scale.setScalar(2.5);
   model.position.set(0, 0, 0);
   model.traverse(c => {
     if (c.isMesh) { c.castShadow = true; c.receiveShadow = true; }
@@ -289,13 +300,14 @@ function startCutscene() {
   orbitControls.enabled = false;
 
   if (state.character) {
-    state.character.position.set(0, 0, 0);
-    state.character.rotation.y = Math.PI; // facing away from camera
+    // Position on the chair — elevated to seat height
+    state.character.position.set(-2, 1.2, 0);
+    state.character.rotation.y = Math.PI * 0.5; // facing the desk
   }
 
-  // Camera looking at character from front
-  camera.position.set(0, 2, 4);
-  camera.lookAt(0, 1, 0);
+  // Camera looking at character from side
+  camera.position.set(1, 3.5, 3);
+  camera.lookAt(-2, 2, 0);
 
   // Start sitting
   playAction('SitIdle', { loop: true });
