@@ -58,9 +58,9 @@ camera.position.set(0, 3, 6);
 
 // Third-person camera — always behind the character
 const camState = {
-  distance: 4.5,
-  height: 2.5,
-  lookHeight: 1.3,
+  distance: 6,
+  height: 4,
+  lookHeight: 1.8,
   smoothing: 0.08
 };
 
