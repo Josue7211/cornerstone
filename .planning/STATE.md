@@ -3,12 +3,12 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-last_updated: "2026-03-30T21:29:09.237Z"
+last_updated: "2026-03-30T21:36:52.692Z"
 progress:
   total_phases: 11
-  completed_phases: 2
+  completed_phases: 3
   total_plans: 10
-  completed_plans: 7
+  completed_plans: 8
 ---
 
 # Project State — IDS2891 Cornerstone
@@ -19,7 +19,15 @@ Phase 11 — Final Project (interactive website)
 
 ## Last Action
 
-2026-03-30: Phase 11 Plan 04 COMPLETE — Win95 desktop OS shell built. BIOS boot sequence with GPU-themed text, Win95 desktop with 7 icons, WindowManager class (drag/minimize/maximize/close/z-stack), Web Audio synthesis (startup chime + click sounds), CRT scanline overlay, Press Start 2P pixel font. All 3 content panels wrapped in draggable Win95 windows. Commits: c70e49c, e8d3169. Ready for 11-05 (terminal commands + polish).
+2026-03-30: Phase 11 Plan 05 COMPLETE — Win95 Start menu (7 apps), terminal command parser (help/thesis/about/gpu/credits/clear), enhanced file explorer (two-panel), GSAP per-app window animations (pixel scatter, 3D flip, glitch, matrix rain, elastic bounce, typewriter, gravity drop). Commit: 968a323.
+
+2026-03-30: Phase 11 Plan 04 COMPLETE — Win95 desktop OS shell built. BIOS boot sequence with GPU-themed text, Win95 desktop with 7 icons, WindowManager class (drag/minimize/maximize/close/z-stack), Web Audio synthesis (startup chime + click sounds), CRT scanline overlay, Press Start 2P pixel font. All 3 content panels wrapped in draggable Win95 windows. Commits: c70e49c, e8d3169.
+
+## Phase 11 Plan 05 Decisions (2026-03-30)
+
+- animateWindowOpen placed before APP_CONFIG so all 7 open() methods can reference it
+- Tasks 1 and 2 combined in one commit — animateWindowOpen must coexist with APP_CONFIG edits
+- recycle fall-in animation uses querySelectorAll on nested divs without requiring class coupling
 
 ## Phase 11 Plan 04 Decisions (2026-03-30)
 

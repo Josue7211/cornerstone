@@ -122,14 +122,14 @@ Plans:
 **Due:** Apr 19
 **Status:** IN PROGRESS — plans 11-04 and 11-05 ready to execute
 **Depends on:** Phase 7 (presentation content) + Phase 10 (final research paper)
-**Plans:** 4/5 plans executed
+**Plans:** 5/5 plans complete
 
 Plans:
 - [x] 11-01-PLAN.md — Core 3D scene rebuild: GLTF load, HDRI, post-processing, camera zoom — DONE (commits: 8bd038b, a5cf71b)
 - [x] 11-02-PLAN.md — Content panels: Research Paper (5 sections), Presentation (8 slides), Experience (CPU vs GPU demo, pioneer photos, stat counters) — DONE (commits: ec4201b, 5a6e770) VERIFIED
 - [x] 11-03-PLAN.md — Polish + bug fixes from checkpoint feedback — DONE
 - [x] 11-04-PLAN.md — Desktop OS foundation: BIOS boot sequence, Win95 desktop shell (7 icons, taskbar, clock), WindowManager (drag/minimize/maximize/close/z-stack), CRT overlay, pixel font, Web Audio sounds
-- [ ] 11-05-PLAN.md — Extra apps + polish: interactive Terminal (help/thesis/about/gpu/credits), File Explorer (research tree), Start menu, GSAP per-app window animations (7 unique effects)
+- [x] 11-05-PLAN.md — Extra apps + polish: interactive Terminal (help/thesis/about/gpu/credits), File Explorer (research tree), Start menu, GSAP per-app window animations (7 unique effects)
 
 ---
 
@@ -148,5 +148,5 @@ Plans:
 | 8 | Co-Curricular Reflection (#14) | 100 | Apr 5 | NOT STARTED |
 | 9 | Research Documentation (#15) | 1/1 | Complete   | 2026-03-30 |
 | 10 | Revision & Reflection (#16) | 1/1 | Complete    | 2026-03-30 |
-| 11 | Final Project — Website (#17) | 4/5 | In Progress|  |
+| 11 | Final Project — Website (#17) | 5/5 | Complete   | 2026-03-30 |
 | **Total** | | **850** | | |
