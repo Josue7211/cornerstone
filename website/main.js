@@ -108,16 +108,23 @@ loader.load('./assets/models/futuristic-room/scene.gltf', (gltf) => {
     Object.entries(positions).map(([k, v]) => [k, [v.x.toFixed(1), v.y.toFixed(1), v.z.toFixed(1)]])
   )));
 
-  // Use Monitor.001 (main center monitor) if found
-  const mon = positions['Monitor.001'];
-  if (mon) {
-    camEnd.set(mon.x, mon.y, mon.z + 1.5);
-    lookEnd.set(mon.x, mon.y, mon.z);
-    camStart.set(mon.x, mon.y + 2.5, mon.z + 8);
-    lookStart.set(mon.x, mon.y, mon.z + 2);
-    console.log('Camera targeting Monitor.001 at', mon.x.toFixed(1), mon.y.toFixed(1), mon.z.toFixed(1));
-  }
+  // Chair is at (-0.8, 0.2, 0.2), desk at (1.5, 1.3, 0.6)
+  // Camera sits at chair, looks at desk/monitors
+  const desk = positions['OfficeTable'] || { x: 1.5, y: 1.3, z: 0.6 };
+  const chair = positions['OfficeChair'] || { x: -0.8, y: 0.2, z: 0.2 };
 
+  // End: at the chair, eye height, looking at desk
+  camEnd.set(chair.x, chair.y + 1.5, chair.z);
+  lookEnd.set(desk.x, desk.y + 0.5, desk.z);
+
+  // Start: pulled back from chair (away from desk)
+  const dx = chair.x - desk.x;
+  const dz = chair.z - desk.z;
+  const len = Math.sqrt(dx*dx + dz*dz) || 1;
+  camStart.set(chair.x + (dx/len)*5, chair.y + 3, chair.z + (dz/len)*5);
+  lookStart.set(desk.x, desk.y, desk.z);
+
+  console.log('Camera: chair→desk, start:', camStart.x.toFixed(1), camStart.y.toFixed(1), camStart.z.toFixed(1));
   camera.position.copy(camStart);
 
   loaderFill.style.width = '100%';
