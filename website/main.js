@@ -150,8 +150,11 @@ loader.load('./assets/models/futuristic-room/scene.gltf', (gltf) => {
   setTimeout(() => {
     document.getElementById('loader').classList.add('done');
     state.loaded = true;
-    state.phase = 'zooming';
-    state.zoomStart = performance.now() / 1000;
+    // DEBUG: skip zoom, go straight to free camera mode
+    state.phase = 'desktop';
+    camera.position.copy(camEnd);
+    camera.lookAt(lookEnd);
+    // Don't show desktop overlay — let user position camera with arrow keys
   }, 600);
 }, (p) => {
   const pct = p.total > 0 ? Math.round(p.loaded / p.total * 100) : Math.min(99, Math.round(p.loaded / 580000000 * 100));
