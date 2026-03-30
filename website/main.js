@@ -66,12 +66,12 @@ const loaderFill = document.getElementById('loaderFill');
 const loaderText = document.getElementById('loaderText');
 const loaderPct = document.getElementById('loaderPct');
 
-// Camera targets — will be set after room loads based on where the monitor is
-let monitorPos = new THREE.Vector3(0, 2, -2); // default, updated after load
-let camStart = new THREE.Vector3(3, 3, 8);
-let camEnd = new THREE.Vector3(0, 2.2, 0.5); // close to the monitor
-let lookStart = new THREE.Vector3(0, 1.5, 0);
-let lookEnd = new THREE.Vector3(0, 2.2, -2);
+// Camera targets — hardcoded after inspecting the room
+// These get recalculated after the room loads and we know actual positions
+let camStart = new THREE.Vector3(0, 4, 6);
+let camEnd = new THREE.Vector3(0, 2.5, 1);
+let lookStart = new THREE.Vector3(0, 2, 0);
+let lookEnd = new THREE.Vector3(0, 2.5, -3);
 
 loader.load('./assets/models/futuristic-room/scene.gltf', (gltf) => {
   const model = gltf.scene;
@@ -88,35 +88,36 @@ loader.load('./assets/models/futuristic-room/scene.gltf', (gltf) => {
   });
   scene.add(model);
 
-  // Find monitor, office chair, and desk to position camera
-  let foundMonitor = false;
+  // Force update world matrices so getWorldPosition works
+  model.updateMatrixWorld(true);
+
+  // Find the main monitor and log ALL positions
+  const positions = {};
   model.traverse(c => {
     if (!c.name) return;
-    const n = c.name.toLowerCase();
-    const wp = new THREE.Vector3();
-    c.getWorldPosition(wp);
-
-    if (n.includes('monitor') || n.includes('officechair') || n.includes('officetable')) {
-      window._debugPositions = window._debugPositions || [];
-      window._debugPositions.push({ name: c.name, x: wp.x.toFixed(2), y: wp.y.toFixed(2), z: wp.z.toFixed(2) });
-    }
-    if (n.includes('monitor') && !foundMonitor) {
-      monitorPos.copy(wp);
-      foundMonitor = true;
+    const n = c.name;
+    if (n.match(/^Monitor\.|^OfficeTable$|^OfficeChair$/)) {
+      const wp = new THREE.Vector3();
+      c.getWorldPosition(wp);
+      positions[n] = { x: wp.x, y: wp.y, z: wp.z };
     }
   });
 
-  if (foundMonitor) {
-    // Camera ends directly in FRONT of the monitor (same X, higher Z = closer to viewer)
-    camEnd.set(monitorPos.x, monitorPos.y, monitorPos.z + 1.5);
-    lookEnd.set(monitorPos.x, monitorPos.y, monitorPos.z);
+  window._roomPositions = positions;
+  console.log('Room positions:', JSON.stringify(Object.fromEntries(
+    Object.entries(positions).map(([k, v]) => [k, [v.x.toFixed(1), v.y.toFixed(1), v.z.toFixed(1)]])
+  )));
+
+  // Use Monitor.001 (main center monitor) if found
+  const mon = positions['Monitor.001'];
+  if (mon) {
+    camEnd.set(mon.x, mon.y, mon.z + 1.5);
+    lookEnd.set(mon.x, mon.y, mon.z);
+    camStart.set(mon.x, mon.y + 2.5, mon.z + 8);
+    lookStart.set(mon.x, mon.y, mon.z + 2);
+    console.log('Camera targeting Monitor.001 at', mon.x.toFixed(1), mon.y.toFixed(1), mon.z.toFixed(1));
   }
 
-  console.log('Room loaded, scale:', scale.toFixed(3), 'monitor:', monitorPos.x.toFixed(1), monitorPos.y.toFixed(1), monitorPos.z.toFixed(1));
-
-  // Camera starts behind the office chair area, looking toward the desk
-  camStart.set(monitorPos.x, monitorPos.y + 2, monitorPos.z + 8);
-  lookStart.set(monitorPos.x, monitorPos.y, monitorPos.z);
   camera.position.copy(camStart);
 
   loaderFill.style.width = '100%';
