@@ -135,7 +135,7 @@ Plans:
 | 2 | Crafting Research Questions (#5) | 100 | Feb 15 | NOT STARTED |
 | 3 | Short Proposal (#8) | 20 | Complete    | 2026-03-30 |
 | 4 | Brainstorm Discussion (#7) | 20 | Complete    | 2026-03-30 |
-| 5 | Check-ins 1, 2, 3 (#9, #10, #11) | 120 | Mar 1–15 | NOT STARTED |
+| 5 | Check-ins 1, 2, 3 (#9, #10, #11) | 120 | Complete    | 2026-03-30 |
 | 6 | Presentation Worksheet (#12) | 20 | Mar 22 | NOT STARTED |
 | 7 | Research Presentation (#13) | 100 | TBD Sunday | NOT STARTED |
 | 8 | Co-Curricular Reflection (#14) | 100 | Apr 5 | NOT STARTED |
