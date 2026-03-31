@@ -133,20 +133,171 @@ Plans:
 
 ---
 
-## Phase Summary
+## Milestone 2: Final Project — Win95 App Experiences
 
-| Phase | Assignment(s) | Points | Due | Status |
-|-------|--------------|--------|-----|--------|
-| — | Lightning Talks Discussion (#4) | ~20 | Feb 2 | DONE |
-| 1 | Discussion Post (#1) + Library #1 (#2) + Credo Sources (#3) + Library #3 (#6) | 50 | Jan–Feb | IN PROGRESS |
-| 2 | Crafting Research Questions (#5) | 100 | Feb 15 | NOT STARTED |
-| 3 | Short Proposal (#8) | 20 | Complete    | 2026-03-30 |
-| 4 | Brainstorm Discussion (#7) | 20 | Complete    | 2026-03-30 |
-| 5 | Check-ins 1, 2, 3 (#9, #10, #11) | 120 | Complete    | 2026-03-30 |
-| 6 | Presentation Worksheet (#12) | 20 | Complete    | 2026-03-30 |
-| 7 | Research Presentation (#13) | 100 | Complete    | 2026-03-30 |
-| 8 | Co-Curricular Reflection (#14) | 100 | Apr 5 | NOT STARTED |
-| 9 | Research Documentation (#15) | 1/1 | Complete   | 2026-03-30 |
-| 10 | Revision & Reflection (#16) | 1/1 | Complete    | 2026-03-30 |
-| 11 | Final Project — Website (#17) | 5/5 | Complete   | 2026-03-30 |
-| **Total** | | **850** | | |
+**Deadline:** Apr 19 11:59 PM (19 days)
+**Goal:** Polish every Win95 desktop app to hit Capstone on all 5 rubric criteria (Design, Prepare, Create, Communicate, Reflect), with hardware evolution as the central narrative. Presentation must be Awwwards-level.
+
+## Phases
+
+- [ ] **Phase 12: Infrastructure Cleanup + Hosting** — Remove dead code, split JS into modules, add CDN imports, kill invisible Three.js loop, verify GitHub Pages deployability
+- [ ] **Phase 13: Presentation.exe — Awwwards-Level Fullscreen** — 9-slide fullscreen scene-per-slide experience with GSAP animations, progress indicator, keyboard/click navigation
+- [ ] **Phase 14: Window Management + Boot Sequence + Navigation** — Resizable/snapping windows, minimize animations, maximize fix, Login→BIOS→Splash→Desktop boot order, start menu reorganization, desktop icon layout
+- [ ] **Phase 15: File Explorer + Steam App** — Assignment tree with markdown rendering, Steam game launcher with Snake, Silicon Runner, CPU vs GPU Race, Experience demos
+- [ ] **Phase 16: Bonzi Buddy** — Animated desktop character (clippy.js), GSAP walking, Ollama chat with fallback, TTS, BSOD easter egg
+- [ ] **Phase 17: Win95 Extras Batch 1** — Minesweeper, Paint, Internet Explorer (dial-up sound), MSN Messenger, Shutdown sequence, BSOD, System Properties, Screensaver
+- [ ] **Phase 18: Win95 Extras Batch 2 + Audio + Performance + Polish** — Clippy in Notepad, Winamp, Disk Defragmenter, context menu, icon drag-and-drop, Recycle Bin states, shutdown/Winamp audio, localStorage persistence, reflection content, zero console errors
+
+## Phase Details
+
+### Phase 12: Infrastructure Cleanup + Hosting
+**Goal**: The codebase is clean, modular, and deployable — a solid foundation for all subsequent work
+**Depends on**: Nothing (first phase of milestone)
+**Requirements**: INFRA-01, INFRA-02, INFRA-03, INFRA-04, HOST-01, HOST-02, HOST-03
+**Success Criteria** (what must be TRUE):
+  1. main.js is split into at least 4 module files (presentation.js, steam.js, bonzi.js, extras.js) loaded via script tags with no runtime errors
+  2. Dead code is removed — the ~410 lines of loader CSS, old cyberpunk desktop, HUD/minimap, and unused panel markup no longer exist in any file
+  3. Three.js requestAnimationFrame loop stops executing once the Win95 desktop is visible (GPU no longer burns cycles on invisible particles)
+  4. CDN imports for marked.js, DOMPurify, and clippy.js are present in index.html and resolve without 404 errors
+  5. The site opens correctly as a local file:// AND deploys to GitHub Pages static hosting with no broken assets
+**Plans**: 3 plans
+
+Plans:
+- [ ] 12-01-PLAN.md — Kill Three.js rAF loop, remove dead HTML/JS (INFRA-03, INFRA-04 partial)
+- [ ] 12-02-PLAN.md — Remove dead CSS ~160 lines (INFRA-04)
+- [ ] 12-03-PLAN.md — CDN imports, module stubs, .gitignore, hosting verification (INFRA-01, INFRA-02, HOST-01-03)
+
+### Phase 13: Presentation.exe — Awwwards-Level Fullscreen
+**Goal**: Users can experience an Awwwards-level 9-slide fullscreen immersive presentation that covers the hardware evolution narrative
+**Depends on**: Phase 12
+**Requirements**: PRES-01, PRES-02, PRES-03, PRES-04, PRES-05, PRES-06, PRES-07, PRES-08
+**Success Criteria** (what must be TRUE):
+  1. Clicking Presentation.exe fills the entire viewport (z-index 9999, bypasses WindowManager) — no window chrome visible
+  2. All 9 slides are present with their existing research content; arrow keys and mouse clicks advance/retreat between them
+  3. A visible progress indicator at the bottom updates as the user navigates through slides
+  4. Pressing ESC returns the user to the Win95 desktop cleanly — taskbar and windows reappear
+  5. Each slide has a unique visual treatment with GSAP clip-path reveals, parallax effects, and/or typography animations that feel cinematic, not like a slide deck
+**Plans**: 3 plans
+
+Plans:
+- [ ] 12-01-PLAN.md — Kill Three.js rAF loop, remove dead HTML/JS (INFRA-03, INFRA-04 partial)
+- [ ] 12-02-PLAN.md — Remove dead CSS ~160 lines (INFRA-04)
+- [ ] 12-03-PLAN.md — CDN imports, module stubs, .gitignore, hosting verification (INFRA-01, INFRA-02, HOST-01-03)
+**UI hint**: yes
+
+### Phase 14: Window Management + Boot Sequence + Navigation
+**Goal**: Windows behave like a real OS and the boot sequence flows Login → BIOS → Splash → Desktop with a coherent navigation structure
+**Depends on**: Phase 12
+**Requirements**: WM-01, WM-02, WM-03, WM-04, WM-05, BOOT-01, BOOT-02, BOOT-03, NAV-01, NAV-02, NAV-03
+**Success Criteria** (what must be TRUE):
+  1. Any window can be resized by dragging its edges or corners; dragging near a screen edge snaps the window to fill that half of the screen
+  2. Clicking minimize plays an animation where the window visibly shrinks toward its taskbar pill
+  3. Maximize fills the screen fully below the taskbar with no overlap or overflow
+  4. The boot sequence shows Login screen first, then BIOS, then Win95 splash, then desktop — in that order, with no way to skip to desktop directly
+  5. The taskbar shows a pill for every open window, and clicking a pill focuses that window (or restores it from minimized state)
+  6. Desktop icons are limited to the 6 core apps; all other apps are organized in Start menu submenus (Programs > Games, Programs > Accessories, Programs > Research)
+**Plans**: 3 plans
+
+Plans:
+- [ ] 12-01-PLAN.md — Kill Three.js rAF loop, remove dead HTML/JS (INFRA-03, INFRA-04 partial)
+- [ ] 12-02-PLAN.md — Remove dead CSS ~160 lines (INFRA-04)
+- [ ] 12-03-PLAN.md — CDN imports, module stubs, .gitignore, hosting verification (INFRA-01, INFRA-02, HOST-01-03)
+**UI hint**: yes
+
+### Phase 15: File Explorer + Steam App
+**Goal**: Users can browse all 14 semester assignments in a Win95 file explorer and launch playable mini-games from a Steam-style launcher
+**Depends on**: Phase 12
+**Requirements**: FILE-01, FILE-02, FILE-03, FILE-04, STEAM-01, STEAM-02, STEAM-03, STEAM-04, STEAM-05
+**Success Criteria** (what must be TRUE):
+  1. File Explorer shows a tree of 6 folders containing all 14 semester assignments; clicking any assignment renders its markdown content in the right pane using marked.js and DOMPurify
+  2. A hidden "definitely_not_homework" easter egg folder exists and is discoverable
+  3. Steam app opens with the dark olive two-pane layout showing at least 5 entries (Snake, Silicon Runner, CPU vs GPU Race, + 2 Experience demos)
+  4. Clicking PLAY on any game opens a new Win95 window with the playable game running; Snake is completable, Silicon Runner has at least 1 playable level, CPU vs GPU Race shows the parallel processing demo with an explanation panel
+  5. Each Steam game entry shows install/play state that persists across page refresh (localStorage)
+**Plans**: 3 plans
+
+Plans:
+- [ ] 12-01-PLAN.md — Kill Three.js rAF loop, remove dead HTML/JS (INFRA-03, INFRA-04 partial)
+- [ ] 12-02-PLAN.md — Remove dead CSS ~160 lines (INFRA-04)
+- [ ] 12-03-PLAN.md — CDN imports, module stubs, .gitignore, hosting verification (INFRA-01, INFRA-02, HOST-01-03)
+**UI hint**: yes
+
+### Phase 16: Bonzi Buddy
+**Goal**: A Bonzi Buddy character lives on the desktop, walks around, and can answer questions about AI hardware using Ollama or canned fallback responses
+**Depends on**: Phase 12
+**Requirements**: BONZI-01, BONZI-02, BONZI-03, BONZI-04, BONZI-05, BONZI-06
+**Success Criteria** (what must be TRUE):
+  1. A Bonzi character is visible on the desktop and periodically walks/bounces to random positions using GSAP animations
+  2. Clicking Bonzi opens a chat bubble; typing a question and submitting sends it to Ollama (localhost:11434) and the response streams into the bubble
+  3. When Ollama is unavailable (fetch fails), Bonzi responds with a canned response from a pre-written set — no console errors, no broken UI
+  4. Bonzi speaks responses aloud via the Web Speech API (TTS)
+  5. Typing "download more RAM" or clicking the easter egg trigger launches the BSOD screen (W95-07)
+**Plans**: 3 plans
+
+Plans:
+- [ ] 12-01-PLAN.md — Kill Three.js rAF loop, remove dead HTML/JS (INFRA-03, INFRA-04 partial)
+- [ ] 12-02-PLAN.md — Remove dead CSS ~160 lines (INFRA-04)
+- [ ] 12-03-PLAN.md — CDN imports, module stubs, .gitignore, hosting verification (INFRA-01, INFRA-02, HOST-01-03)
+**UI hint**: yes
+
+### Phase 17: Win95 Extras Batch 1
+**Goal**: Eight authentic Win95 apps are playable and functional, with Internet Explorer playing a dial-up sound and the shutdown sequence completing the boot lifecycle
+**Depends on**: Phase 14 (WindowManager improvements needed), Phase 16 (BSOD used by Bonzi)
+**Requirements**: W95-01, W95-02, W95-03, W95-04, W95-05, W95-06, W95-07, W95-08, W95-09, AUDIO-01, AUDIO-02, AUDIO-03
+**Success Criteria** (what must be TRUE):
+  1. Minesweeper is playable — 9x9 grid, first click never a mine, flag with right-click, win/lose states, timer counts up
+  2. Paint opens with a pre-loaded GPU architecture diagram; user can draw with pencil, eraser, and fill tools; color palette is functional
+  3. Internet Explorer opens with an address bar and iframe; a dial-up modem sound plays on open
+  4. MSN Messenger shows a buddy list with Jensen Huang, Hinton, and Fei-Fei Li online; clicking a buddy auto-plays a pre-scripted conversation about AI hardware history
+  5. Selecting Shut Down from the Start menu shows the shutdown dialog, plays a shutdown sound, animates to the "safe to turn off" screen, and clicking returns to the boot sequence
+  6. The screensaver activates after 30 seconds of idle and shows an animated starfield; any input dismisses it
+  7. Winamp plays a lo-fi or chiptune track with a visualizer
+**Plans**: 3 plans
+
+Plans:
+- [ ] 12-01-PLAN.md — Kill Three.js rAF loop, remove dead HTML/JS (INFRA-03, INFRA-04 partial)
+- [ ] 12-02-PLAN.md — Remove dead CSS ~160 lines (INFRA-04)
+- [ ] 12-03-PLAN.md — CDN imports, module stubs, .gitignore, hosting verification (INFRA-01, INFRA-02, HOST-01-03)
+**UI hint**: yes
+
+### Phase 18: Win95 Extras Batch 2 + Audio + Performance + Polish
+**Goal**: All remaining Win95 apps work, performance is optimized, reflection content is real, and the site is deployable with zero console errors
+**Depends on**: Phase 17
+**Requirements**: W95-10, W95-11, W95-12, W95-14, W95-15, NAV-03, PERF-01, PERF-02, QA-01, QA-02, QA-04
+**Success Criteria** (what must be TRUE):
+  1. Clippy appears in Notepad and says "It looks like you're writing a research paper!" — Notepad contains real reflection content covering intellectual growth, what surprised the user, and limitations of the research
+  2. Disk Defragmenter opens with research topics represented as colored blocks that animate to completion
+  3. Desktop icons can be dragged and dropped to any position with grid snapping; positions survive page refresh (localStorage)
+  4. Recycle Bin icon visually changes when it has items versus when it is empty; the bin contains real revision process content showing how the project evolved
+  5. Heavy apps (Paint, games, Bonzi) do not initialize until their window is first opened — page load time is not impacted by unloaded app code
+  6. Zero console errors across all apps — opening, interacting with, and closing every app produces no JS exceptions, 404s, or unhandled rejections
+**Plans**: 3 plans
+
+Plans:
+- [ ] 12-01-PLAN.md — Kill Three.js rAF loop, remove dead HTML/JS (INFRA-03, INFRA-04 partial)
+- [ ] 12-02-PLAN.md — Remove dead CSS ~160 lines (INFRA-04)
+- [ ] 12-03-PLAN.md — CDN imports, module stubs, .gitignore, hosting verification (INFRA-01, INFRA-02, HOST-01-03)
+**UI hint**: yes
+
+## Progress Table
+
+| Phase | Plans Complete | Status | Completed |
+|-------|----------------|--------|-----------|
+| 1. Library Assignments | 1/3 | In Progress | - |
+| 2. Crafting Research Questions | 0/1 | Complete | 2026-03-30 |
+| 3. Short Proposal | 0/1 | Complete | 2026-03-30 |
+| 4. Brainstorm Discussion | 0/1 | Complete | 2026-03-30 |
+| 5. Project Check-ins | 0/3 | Complete | 2026-03-30 |
+| 6. Presentation Worksheet | 0/1 | Complete | 2026-03-30 |
+| 7. Research Presentation | 0/1 | Complete | 2026-03-30 |
+| 8. Co-Curricular Reflection | 0/1 | Blocked | - |
+| 9. Research Documentation | 1/1 | Complete | 2026-03-30 |
+| 10. Revision & Reflection | 1/1 | Complete | 2026-03-30 |
+| 11. Final Project — Website | 5/5 | Complete | 2026-03-30 |
+| 12. Infrastructure Cleanup + Hosting | 0/TBD | Not started | - |
+| 13. Presentation.exe Fullscreen | 0/TBD | Not started | - |
+| 14. Window Management + Boot + Nav | 0/TBD | Not started | - |
+| 15. File Explorer + Steam App | 0/TBD | Not started | - |
+| 16. Bonzi Buddy | 0/TBD | Not started | - |
+| 17. Win95 Extras Batch 1 | 0/TBD | Not started | - |
+| 18. Win95 Extras Batch 2 + Polish | 0/TBD | Not started | - |
