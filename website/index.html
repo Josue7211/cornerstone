@@ -496,5 +496,14 @@
   <canvas id="scene"></canvas>
 
   <script type="module" src="main.js"></script>
+
+  <!-- Module files — each phase team owns one file -->
+  <!-- Load order: games before steam (steam depends on games) -->
+  <script src="games.js"></script>
+  <script src="explorer.js"></script>
+  <script src="presentation.js"></script>
+  <script src="steam.js"></script>
+  <script src="bonzi.js"></script>
+  <script src="extras.js"></script>
 </body>
 </html>
