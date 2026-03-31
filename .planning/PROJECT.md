@@ -32,6 +32,46 @@ APA (standard for tech/engineering — user can change)
 
 ## Course Info
 - **Course:** IDS2891 903 — Interdisciplinary Studies Cornerstone
+- **Instructor:** Dr. Deborah McCabe (dmccabe@fsw.edu)
 - **Term:** Spring 2026 (Jan 6 – Apr 21)
 - **Platform:** Canvas (fsw.instructure.com)
 - **Libraries:** FSW Libraries, Credo Reference, NoodleTools
+
+## Current Milestone: v2.0 Final Project — Win95 App Experiences
+
+**Goal:** Polish every Win95 desktop app to hit Capstone on all 5 rubric criteria (Design, Prepare, Create, Communicate, Reflect), with hardware evolution as the central narrative. Presentation must be Awwwards-level.
+
+**Deadline:** Apr 19 11:59 PM
+
+**Target features:**
+- Presentation.exe → Fullscreen immersive scene-per-slide experience (Awwwards-level, PRIORITY 1)
+- My Computer → File explorer with all semester assignment MDs organized and browsable
+- Experience.exe → Interactive hardware evolution demos (CPU→GPU→TPU→NPU journey)
+- Terminal/Notepad/Recycle → Research content, reflection, easter eggs
+- Final polish → BIOS boot, overall QA, zero console errors
+
+**Rubric mapping:**
+| Criteria | Apps |
+|----------|------|
+| Design | Presentation, Experience |
+| Prepare | Research Paper (PDF), My Computer (assignments) |
+| Create | Experience, Terminal, whole website |
+| Communicate | Presentation, Experience |
+| Reflect | Notepad, Recycle Bin, My Computer |
+
+## Evolution
+
+This document evolves at phase transitions and milestone boundaries.
+
+**After each phase transition** (via `/gsd:transition`):
+1. Requirements invalidated? → Move to Out of Scope with reason
+2. Requirements validated? → Move to Validated with phase reference
+3. New requirements emerged? → Add to Active
+4. Decisions to log? → Add to Key Decisions
+5. "What This Is" still accurate? → Update if drifted
+
+**After each milestone** (via `/gsd:complete-milestone`):
+1. Full review of all sections
+2. Core Value check — still the right priority?
+3. Audit Out of Scope — reasons still valid?
+4. Update Context with current state
