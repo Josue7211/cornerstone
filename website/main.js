@@ -35,6 +35,7 @@ scene.add(particles);
 // STATE
 // ═══════════════════════════════════════════════════
 const state = { phase: 'boot' };
+let desktopActive = false;
 
 // ═══════════════════════════════════════════════════
 // BOOT — Real 90s Award BIOS POST (youtube.com/watch?v=692Z_adAsMQ)
@@ -67,9 +68,52 @@ bootAudio.volume = 1.0;
 
   prompt.addEventListener('click', () => {
     prompt.remove();
-    bootAudio.play().catch(() => {});
-    runBoot();
+    // Show Login screen FIRST, then BIOS on "OK"
+    showLoginScreen(() => {
+      bootAudio.play().catch(() => {});
+      runBoot();
+    });
   }, { once: true });
+
+  function showLoginScreen(onComplete) {
+    // Hide BIOS while login is showing
+    bios.classList.remove('active');
+    const loginScreen = document.getElementById('loginScreen');
+    const loginStatus = document.getElementById('loginStatus');
+    loginScreen.classList.add('active');
+    const okBtn = document.getElementById('loginOkBtn');
+    const loginInput = document.getElementById('loginUser');
+    if (loginInput) setTimeout(() => loginInput.focus(), 200);
+    if (loginStatus) {
+      loginStatus.textContent = '';
+      loginStatus.classList.remove('is-active');
+    }
+
+    function doLogin() {
+      okBtn.disabled = true;
+      if (loginStatus) {
+        const username = (loginInput && loginInput.value.trim()) || 'User';
+        loginStatus.textContent = 'Welcome, ' + username + '...';
+        loginStatus.classList.add('is-active');
+      }
+      setTimeout(() => {
+        loginScreen.classList.remove('active');
+        bios.classList.add('active');
+        okBtn.disabled = false;
+        onComplete();
+      }, 700);
+    }
+
+    okBtn.addEventListener('click', doLogin, { once: true });
+    if (loginInput) {
+      loginInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          doLogin();
+        }
+      }, { once: true });
+    }
+  }
 
   function runBoot() {
     // ─── SCREEN 1: Award BIOS header + Energy Star + memory count + drives ───
@@ -326,6 +370,103 @@ function playWindowSound(type) {
 // ─── WIN95 DESKTOP ────────────────────────────────
 function buildStartMenu() {
   if (document.getElementById('startMenu')) return;
+
+  const menuTree = [
+    {
+      label: 'Programs',
+      icon: '📁',
+      children: [
+        {
+          label: 'Research',
+          icon: '📚',
+          children: [
+            { id: 'paper', icon: '📄', label: 'Research Paper.exe' },
+            { id: 'pres', icon: '🎬', label: 'Presentation.exe' },
+            { id: 'exp', icon: '🔬', label: 'Experience.exe' },
+            { id: 'explorer', icon: '💾', label: 'My Computer' }
+          ]
+        },
+        {
+          label: 'Games',
+          icon: '🎮',
+          children: [
+            { id: 'steam', icon: '🎮', label: 'Steam95' },
+            { id: 'minesweeper', icon: '💣', label: 'Minesweeper' }
+          ]
+        },
+        {
+          label: 'Accessories',
+          icon: '🧰',
+          children: [
+            { id: 'terminal', icon: '⌨️', label: 'Terminal.exe' },
+            { id: 'notepad', icon: '📝', label: 'Notepad.exe' },
+            { id: 'recycle', icon: '🗑️', label: 'Recycle Bin' },
+            { id: 'defrag', icon: '🖾', label: 'Disk Defragmenter' },
+            { id: 'paint', icon: '🎨', label: 'Paint' },
+            { id: 'ie', icon: '🌐', label: 'Internet Explorer' },
+            { id: 'msn', icon: '🦋', label: 'MSN Messenger' },
+            { id: 'winamp', icon: '🎵', label: 'Winamp' },
+            { id: 'sysprops', icon: '⚙️', label: 'System Properties' }
+          ]
+        }
+      ]
+    },
+    { id: 'shutdown', icon: '🔌', label: 'Shut Down...' }
+  ];
+
+  function launchMenuItem(appId) {
+    if (appId === 'shutdown') {
+      if (window.Win95Extras) window.Win95Extras.triggerShutdown();
+      return;
+    }
+    const app = APP_CONFIG[appId];
+    if (app) app.open();
+  }
+
+  function buildMenuEntry(entry) {
+    const item = document.createElement('div');
+    item.className = 'start-menu-item';
+
+    const main = document.createElement('div');
+    main.className = 'start-menu-item-main';
+
+    const iconSpan = document.createElement('span');
+    iconSpan.className = 'start-menu-icon';
+    iconSpan.textContent = entry.icon;
+
+    const labelSpan = document.createElement('span');
+    labelSpan.className = 'start-menu-label';
+    labelSpan.textContent = entry.label;
+
+    main.appendChild(iconSpan);
+    main.appendChild(labelSpan);
+    item.appendChild(main);
+
+    if (entry.children) {
+      item.classList.add('has-submenu');
+      const caret = document.createElement('span');
+      caret.className = 'start-menu-caret';
+      caret.textContent = '▶';
+      item.appendChild(caret);
+
+      const submenu = document.createElement('div');
+      submenu.className = 'start-submenu';
+      entry.children.forEach(child => submenu.appendChild(buildMenuEntry(child)));
+      item.appendChild(submenu);
+      return item;
+    }
+
+    item.dataset.app = entry.id;
+    item.addEventListener('click', (e) => {
+      e.stopPropagation();
+      launchMenuItem(entry.id);
+      const startMenu = document.getElementById('startMenu');
+      if (startMenu) startMenu.classList.remove('visible');
+    });
+
+    return item;
+  }
+
   const menu = document.createElement('div');
   menu.id = 'startMenu';
   menu.className = 'start-menu';
@@ -342,34 +483,7 @@ function buildStartMenu() {
   // Items list
   const itemsDiv = document.createElement('div');
   itemsDiv.className = 'start-menu-items';
-
-  const appList = [
-    { id: 'paper',    icon: '📄', label: 'Research Paper.exe' },
-    { id: 'pres',     icon: '🎬', label: 'Presentation.exe' },
-    { id: 'exp',      icon: '🔬', label: 'Experience.exe' },
-    { id: 'explorer', icon: '💾', label: 'My Computer' },
-    { id: 'terminal', icon: '⌨️', label: 'Terminal.exe' },
-    { id: 'notepad',  icon: '📝', label: 'Notepad.exe' },
-    { id: 'recycle',  icon: '🗑️', label: 'Recycle Bin' },
-  ];
-
-  appList.forEach(app => {
-    const item = document.createElement('div');
-    item.className = 'start-menu-item';
-    item.dataset.app = app.id;
-
-    const iconSpan = document.createElement('span');
-    iconSpan.className = 'start-menu-icon';
-    iconSpan.textContent = app.icon;
-
-    const labelSpan = document.createElement('span');
-    labelSpan.className = 'start-menu-label';
-    labelSpan.textContent = app.label;
-
-    item.appendChild(iconSpan);
-    item.appendChild(labelSpan);
-    itemsDiv.appendChild(item);
-  });
+  menuTree.forEach(entry => itemsDiv.appendChild(buildMenuEntry(entry)));
   menu.appendChild(itemsDiv);
 
   // Footer
@@ -381,16 +495,6 @@ function buildStartMenu() {
   menu.appendChild(footer);
 
   document.getElementById('desktop').appendChild(menu);
-
-  // Start menu item click — open app and close menu
-  itemsDiv.addEventListener('click', (e) => {
-    const item = e.target.closest('.start-menu-item');
-    if (!item) return;
-    const appId = item.dataset.app;
-    const app = APP_CONFIG[appId];
-    if (app) app.open();
-    menu.classList.remove('visible');
-  });
 }
 
 function showWin95Desktop() {
@@ -417,6 +521,16 @@ function showWin95Desktop() {
 
   updateClock();
   setInterval(updateClock, 1000);
+
+  // Initialize BonziBuddy desktop companion (Phase 16)
+  if (window.BonziBuddy && window.BonziBuddy.init) {
+    window.BonziBuddy.init();
+  }
+
+  // Initialize screensaver (Phase 17)
+  if (window.Win95Extras && window.Win95Extras.initScreensaver) {
+    window.Win95Extras.initScreensaver();
+  }
 }
 
 function updateClock() {
@@ -438,6 +552,7 @@ class WindowManager {
     this.zCounter = 300;
     this.layer = document.getElementById('windowLayer');
     this.pillsContainer = document.getElementById('taskbarPills');
+    this.snapThreshold = 36;
   }
 
   createWindow(appId, title, icon, contentEl, opts = {}) {
@@ -460,6 +575,7 @@ class WindowManager {
     win.style.height = h + 'px';
     win.style.zIndex = ++this.zCounter;
     win.dataset.appId = appId;
+    win.dataset.maximized = 'false';
 
     // Titlebar
     const titlebar = document.createElement('div');
@@ -515,15 +631,23 @@ class WindowManager {
     win.appendChild(content);
     win.appendChild(statusbar);
 
+    ['n', 's', 'e', 'w', 'ne', 'nw', 'se', 'sw'].forEach((dir) => {
+      const handleEl = document.createElement('div');
+      handleEl.className = 'win95-resize-handle win95-resize-handle--' + dir;
+      handleEl.dataset.resize = dir;
+      win.appendChild(handleEl);
+    });
+
     if (contentEl) content.appendChild(contentEl);
 
     this.layer.appendChild(win);
-    this.windows.set(appId, { el: win, minimized: false, title, icon });
+    this.windows.set(appId, { el: win, minimized: false, title, icon, snapState: null });
 
     this._addPill(appId, title, icon);
 
     win.addEventListener('mousedown', () => this.focusWindow(appId));
     this._makeDraggable(win, titlebar);
+    this._makeResizable(win);
 
     minBtn.addEventListener('click', (e) => {
       e.stopPropagation();
@@ -557,7 +681,7 @@ class WindowManager {
       if (entry.minimized) {
         this.restoreWindow(appId);
       } else {
-        this.minimizeWindow(appId);
+        this.focusWindow(appId);
       }
     });
     this.pillsContainer.appendChild(pill);
@@ -578,8 +702,10 @@ class WindowManager {
   minimizeWindow(appId) {
     const entry = this.windows.get(appId);
     if (!entry) return;
-    entry.minimized = true;
-    entry.el.classList.add('minimized');
+    this._animateToTaskbar(entry.el, appId, () => {
+      entry.minimized = true;
+      entry.el.classList.add('minimized');
+    });
     const pill = document.getElementById('pill-' + appId);
     if (pill) pill.classList.remove('active');
   }
@@ -589,6 +715,7 @@ class WindowManager {
     if (!entry) return;
     entry.minimized = false;
     entry.el.classList.remove('minimized');
+    entry.el.style.visibility = '';
     this.focusWindow(appId);
   }
 
@@ -608,6 +735,8 @@ class WindowManager {
     this.windows.delete(appId);
     const pill = document.getElementById('pill-' + appId);
     if (pill) pill.remove();
+    const remaining = Array.from(this.windows.keys()).pop();
+    if (remaining) this.focusWindow(remaining);
   }
 
   _toggleMaximize(appId) {
@@ -615,23 +744,28 @@ class WindowManager {
     if (!entry) return;
     const win = entry.el;
     if (win.dataset.maximized === 'true') {
-      win.style.cssText = win.dataset.prevStyle;
+      this._applySavedGeometry(win, win.dataset.prevGeometry);
       win.dataset.maximized = 'false';
+      entry.snapState = null;
     } else {
-      win.dataset.prevStyle = win.style.cssText;
-      win.style.left = '0';
-      win.style.top = '0';
-      win.style.width = '100%';
-      win.style.height = 'calc(100% - 28px)';
-      win.style.zIndex = ++this.zCounter;
+      win.dataset.prevGeometry = this._captureGeometry(win);
+      this._applyGeometry(win, this._getMaximizedBounds());
+      entry.snapState = 'maximized';
       win.dataset.maximized = 'true';
     }
+    win.style.zIndex = ++this.zCounter;
   }
 
   _makeDraggable(win, handle) {
     handle.addEventListener('mousedown', (e) => {
       if (e.target.classList.contains('win95-btn')) return;
       e.preventDefault();
+      const appId = win.dataset.appId;
+      const entry = this.windows.get(appId);
+      this.focusWindow(appId);
+      if (win.dataset.maximized === 'true') {
+        this._toggleMaximize(appId);
+      }
       const startX = e.clientX;
       const startY = e.clientY;
       const startL = parseInt(win.style.left) || 0;
@@ -639,18 +773,234 @@ class WindowManager {
       const onMove = (e) => {
         win.style.left = (startL + e.clientX - startX) + 'px';
         win.style.top = (startT + e.clientY - startY) + 'px';
+        this._updateSnapPreview(win);
       };
       const onUp = () => {
         document.removeEventListener('mousemove', onMove);
         document.removeEventListener('mouseup', onUp);
+        this._commitSnap(win, entry);
       };
       document.addEventListener('mousemove', onMove);
       document.addEventListener('mouseup', onUp);
     });
   }
+
+  _makeResizable(win) {
+    win.querySelectorAll('.win95-resize-handle').forEach((handle) => {
+      handle.addEventListener('mousedown', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        const appId = win.dataset.appId;
+        const entry = this.windows.get(appId);
+        if (!entry) return;
+        this.focusWindow(appId);
+        const dir = handle.dataset.resize;
+        const startX = e.clientX;
+        const startY = e.clientY;
+        const startRect = {
+          left: parseInt(win.style.left, 10) || 0,
+          top: parseInt(win.style.top, 10) || 0,
+          width: parseInt(win.style.width, 10) || win.offsetWidth,
+          height: parseInt(win.style.height, 10) || win.offsetHeight
+        };
+        const minWidth = 320;
+        const minHeight = 200;
+        const bounds = this._getDesktopBounds();
+
+        const onMove = (event) => {
+          const dx = event.clientX - startX;
+          const dy = event.clientY - startY;
+          let next = { ...startRect };
+
+          if (dir.includes('e')) next.width = Math.max(minWidth, startRect.width + dx);
+          if (dir.includes('s')) next.height = Math.max(minHeight, startRect.height + dy);
+          if (dir.includes('w')) {
+            next.width = Math.max(minWidth, startRect.width - dx);
+            next.left = startRect.left + (startRect.width - next.width);
+          }
+          if (dir.includes('n')) {
+            next.height = Math.max(minHeight, startRect.height - dy);
+            next.top = startRect.top + (startRect.height - next.height);
+          }
+
+          next.left = Math.max(0, Math.min(next.left, bounds.width - minWidth));
+          next.top = Math.max(0, Math.min(next.top, bounds.height - bounds.taskbarHeight - 40));
+          next.width = Math.min(next.width, bounds.width - next.left);
+          next.height = Math.min(next.height, bounds.height - bounds.taskbarHeight - next.top);
+          this._applyGeometry(win, next);
+        };
+
+        const onUp = () => {
+          document.removeEventListener('mousemove', onMove);
+          document.removeEventListener('mouseup', onUp);
+          win.dataset.maximized = 'false';
+          entry.snapState = null;
+        };
+
+        document.addEventListener('mousemove', onMove);
+        document.addEventListener('mouseup', onUp);
+      });
+    });
+  }
+
+  _captureGeometry(win) {
+    return JSON.stringify({
+      left: parseInt(win.style.left, 10) || 0,
+      top: parseInt(win.style.top, 10) || 0,
+      width: parseInt(win.style.width, 10) || win.offsetWidth,
+      height: parseInt(win.style.height, 10) || win.offsetHeight
+    });
+  }
+
+  _applySavedGeometry(win, saved) {
+    if (!saved) return;
+    try {
+      this._applyGeometry(win, JSON.parse(saved));
+    } catch (err) {}
+  }
+
+  _applyGeometry(win, rect) {
+    win.style.left = rect.left + 'px';
+    win.style.top = rect.top + 'px';
+    win.style.width = rect.width + 'px';
+    win.style.height = rect.height + 'px';
+  }
+
+  _getDesktopBounds() {
+    const taskbar = document.getElementById('win95Taskbar');
+    return {
+      width: desktop.clientWidth || window.innerWidth,
+      height: desktop.clientHeight || window.innerHeight,
+      taskbarHeight: taskbar ? taskbar.offsetHeight : 28
+    };
+  }
+
+  _getMaximizedBounds() {
+    const bounds = this._getDesktopBounds();
+    return {
+      left: 0,
+      top: 0,
+      width: bounds.width,
+      height: bounds.height - bounds.taskbarHeight
+    };
+  }
+
+  _updateSnapPreview(win) {
+    const bounds = this._getDesktopBounds();
+    const left = parseInt(win.style.left, 10) || 0;
+    const rightGap = bounds.width - (left + win.offsetWidth);
+    const top = parseInt(win.style.top, 10) || 0;
+    win.classList.remove('snap-preview');
+    win.dataset.snapTarget = '';
+    if (left <= this.snapThreshold) {
+      win.dataset.snapTarget = 'left';
+      win.classList.add('snap-preview');
+    } else if (rightGap <= this.snapThreshold) {
+      win.dataset.snapTarget = 'right';
+      win.classList.add('snap-preview');
+    } else if (top <= this.snapThreshold) {
+      win.dataset.snapTarget = 'max';
+      win.classList.add('snap-preview');
+    }
+  }
+
+  _commitSnap(win, entry) {
+    const target = win.dataset.snapTarget;
+    win.classList.remove('snap-preview');
+    if (!target || !entry) return;
+    if (!win.dataset.prevGeometry) {
+      win.dataset.prevGeometry = this._captureGeometry(win);
+    }
+    const bounds = this._getDesktopBounds();
+    if (target === 'left') {
+      this._applyGeometry(win, {
+        left: 0,
+        top: 0,
+        width: Math.floor(bounds.width / 2),
+        height: bounds.height - bounds.taskbarHeight
+      });
+      win.dataset.maximized = 'false';
+      entry.snapState = 'left';
+    } else if (target === 'right') {
+      const width = Math.floor(bounds.width / 2);
+      this._applyGeometry(win, {
+        left: bounds.width - width,
+        top: 0,
+        width,
+        height: bounds.height - bounds.taskbarHeight
+      });
+      win.dataset.maximized = 'false';
+      entry.snapState = 'right';
+    } else if (target === 'max') {
+      this._applyGeometry(win, this._getMaximizedBounds());
+      win.dataset.maximized = 'true';
+      entry.snapState = 'maximized';
+    }
+    win.dataset.snapTarget = '';
+  }
+
+  _animateToTaskbar(win, appId, onComplete) {
+    const pill = document.getElementById('pill-' + appId);
+    if (!pill || typeof gsap === 'undefined') {
+      onComplete();
+      return;
+    }
+    const source = win.getBoundingClientRect();
+    const target = pill.getBoundingClientRect();
+    const ghost = win.cloneNode(true);
+    ghost.classList.remove('focused');
+    ghost.classList.add('minimize-ghost');
+    ghost.style.position = 'fixed';
+    ghost.style.left = source.left + 'px';
+    ghost.style.top = source.top + 'px';
+    ghost.style.width = source.width + 'px';
+    ghost.style.height = source.height + 'px';
+    ghost.style.margin = '0';
+    ghost.style.zIndex = '12000';
+    ghost.style.pointerEvents = 'none';
+    document.body.appendChild(ghost);
+    win.style.visibility = 'hidden';
+
+    gsap.to(ghost, {
+      left: target.left,
+      top: target.top,
+      width: Math.max(target.width, 10),
+      height: Math.max(target.height, 10),
+      opacity: 0.15,
+      scale: 0.25,
+      duration: 0.22,
+      ease: 'power2.in',
+      onComplete: () => {
+        ghost.remove();
+        win.style.visibility = '';
+        onComplete();
+      }
+    });
+  }
+
+  reflowWindows() {
+    this.windows.forEach((entry) => {
+      if (entry.el.dataset.maximized === 'true') {
+        this._applyGeometry(entry.el, this._getMaximizedBounds());
+      } else if (entry.snapState === 'left' || entry.snapState === 'right') {
+        const bounds = this._getDesktopBounds();
+        const width = Math.floor(bounds.width / 2);
+        this._applyGeometry(entry.el, {
+          left: entry.snapState === 'left' ? 0 : bounds.width - width,
+          top: 0,
+          width,
+          height: bounds.height - bounds.taskbarHeight
+        });
+      }
+    });
+  }
 }
 
 const wm = new WindowManager();
+window.__wm = wm;
+window.wm = wm; // expose to extras.js
+window._win95AudioCtx = getAudioCtx;
+window._win95AnimateOpen = animateWindowOpen;
 
 // ─── GSAP WINDOW ANIMATIONS ──────────────────────
 function animateWindowOpen(appId, el) {
@@ -900,6 +1250,8 @@ function runTerminalCommand(cmd, output) {
   }, 15);
 }
 
+window.__animateWindowOpen = animateWindowOpen;
+
 // ─── APP CONFIG ──────────────────────────────────
 // ─── PRESENTATION SCROLL ANIMATIONS ─────────────────
 function animatePresSlides(panel) {
@@ -1023,6 +1375,12 @@ const APP_CONFIG = {
     width: 900,
     height: 640,
     open() {
+      // Phase 13: Launch fullscreen presentation if available
+      if (window.PresentationMode && typeof window.PresentationMode.launch === 'function') {
+        window.PresentationMode.launch();
+        return;
+      }
+      // Fallback: open in WindowManager (scroll-based)
       const panel = document.getElementById('panelPres');
       const winEl = wm.createWindow('pres', this.title, this.icon, panel, { width: 900, height: 640 });
       if (panel) panel.classList.add('open');
@@ -1046,50 +1404,32 @@ const APP_CONFIG = {
   explorer: {
     title: 'My Computer',
     icon: '\uD83D\uDCBE',
-    width: 520,
-    height: 380,
+    width: 780,
+    height: 520,
     open() {
-      const container = document.createElement('div');
-      container.style.cssText = 'display:flex;height:100%;background:#fff;';
-
-      // Left panel — tree
-      const treePanel = document.createElement('div');
-      treePanel.style.cssText = 'width:140px;border-right:2px solid #808080;overflow-y:auto;flex-shrink:0;';
-
-      const treeItems = [
-        { icon: '\uD83D\uDCC1', label: 'Research Paper', key: 'paper' },
-        { icon: '\uD83D\uDCC1', label: 'Presentation', key: 'pres' },
-        { icon: '\uD83D\uDCC1', label: '/Sources', key: 'sources' },
-        { icon: '\uD83D\uDCC1', label: 'About Me', key: 'about' },
-      ];
-
-      const folderContents = {
-        paper: 'research-paper.md -- 13,455 words, 35 APA sources\nTopics: GPU history, local AI, democratization, cloud disruption',
-        pres: 'presentation.html -- 8 sections\nRubric: Design, Prepare, Create, Communicate, Reflect',
-        sources: '35 APA sources including:\n- Krizhevsky et al. (2012) AlexNet\n- Vaswani et al. (2017) Attention Is All You Need\n- Dettmers et al. (2022) LLM.int8()\n- Hu et al. (2021) LoRA\n- ... and 31 more',
-        about: 'Josue Aparcedo Gonzalez\nIDS2891 Cornerstone\nFSW College, Spring 2026\nInterests: Local AI, hardware democratization\nHardware: RTX 4070 Ti SUPER, Ollama',
-      };
-
-      // Right panel — content viewer
-      const contentPanel = document.createElement('div');
-      contentPanel.id = 'explorerContent';
-      contentPanel.textContent = 'Select a folder to view files.';
-
-      treeItems.forEach(item => {
-        const row = document.createElement('div');
-        row.className = 'tree-item';
-        row.textContent = item.icon + ' ' + item.label;
-        row.addEventListener('click', () => {
-          contentPanel.textContent = folderContents[item.key] || 'No content available.';
-        });
-        treePanel.appendChild(row);
-      });
-
-      container.appendChild(treePanel);
-      container.appendChild(contentPanel);
-
-      const winEl = wm.createWindow('explorer', this.title, this.icon, container, { width: 520, height: 380 });
-      animateWindowOpen('explorer', winEl);
+      if (window.ExplorerApp) {
+        window.ExplorerApp.launch(wm, animateWindowOpen);
+      } else {
+        // Fallback if explorer.js hasn't loaded
+        const div = document.createElement('div');
+        div.textContent = 'File Explorer loading...';
+        wm.createWindow('explorer', this.title, this.icon, div, { width: 520, height: 380 });
+      }
+    }
+  },
+  steam: {
+    title: 'Steam95',
+    icon: '\uD83C\uDFAE',
+    width: 820,
+    height: 560,
+    open() {
+      if (window.SteamApp) {
+        window.SteamApp.launch(wm, animateWindowOpen);
+      } else {
+        const div = document.createElement('div');
+        div.textContent = 'Steam95 loading...';
+        wm.createWindow('steam', this.title, this.icon, div, { width: 820, height: 560 });
+      }
     }
   },
   terminal: {
@@ -1145,13 +1485,15 @@ const APP_CONFIG = {
   notepad: {
     title: 'Notepad.exe',
     icon: '\uD83D\uDCDD',
-    width: 480,
-    height: 380,
+    width: 520,
+    height: 440,
     open() {
+      try {
       const div = document.createElement('div');
       div.style.height = '100%';
       div.style.display = 'flex';
       div.style.flexDirection = 'column';
+      div.style.position = 'relative';
 
       const ta = document.createElement('textarea');
       ta.style.flex = '1';
@@ -1163,71 +1505,394 @@ const APP_CONFIG = {
       ta.style.padding = '8px';
       ta.style.background = '#fff';
       ta.style.color = '#000';
-      ta.textContent = 'FROM PIXELS TO INTELLIGENCE\n============================\nBy Josue Aparcedo Gonzalez\nIDS2891 Cornerstone, Spring 2026\n\nThanks for exploring this project.\nThis entire website was built with\nLocal AI + Three.js + GSAP.\n\nResearch: 13,455 words, 35 APA sources\nTopic: Local AI democratization\n\nFun fact: The GPU rendering this\nretro OS is the same type of hardware\nthis paper argues will obsolete the cloud.\n\n-- J.A.G.';
+      ta.value = [
+        'reflection.txt - Josue Aparcedo Gonzalez',
+        '============================================',
+        '',
+        'When I started this project, I had a simple question:',
+        'why does a gaming GPU power artificial intelligence?',
+        'I build PCs as a hobby. I knew my RTX 4070 Ti SUPER',
+        'was fast at rendering games, but watching it run a',
+        '70-billion parameter language model locally felt',
+        'like discovering a secret the industry had been',
+        'keeping from consumers.',
+        '',
+        'The CUDA/AlexNet connection was the first revelation.',
+        'Jensen Huang bet hundreds of millions on a software',
+        'platform with no guaranteed return, and a grad student',
+        'named Alex Krizhevsky proved the bet right by training',
+        'a neural network on two $500 gaming GPUs from Best Buy.',
+        'That moment in 2012 redirected the entire field of AI.',
+        '',
+        'What surprised me most was the speed of convergence.',
+        'Three years ago, running a large language model required',
+        'a data center. Today I run Llama 3.1 70B in my apartment',
+        'for $0/month. The gap between cloud and local AI did not',
+        'close gradually -- it collapsed. Quantization, Flash',
+        'Attention, and open-source models created a compounding',
+        'effect that no one predicted would move this fast.',
+        '',
+        'Building this website became proof of the thesis itself.',
+        'I used local AI tools running on the same GPU this paper',
+        'describes to assist with research, drafting, and coding.',
+        'The meta-narrative is real: consumer hardware is powerful',
+        'enough to replace expensive cloud workflows right now.',
+        '',
+        'If I had more time, I would explore federated training --',
+        'whether consumer GPUs could collectively train models,',
+        'not just run them. I would dig deeper into UBI policy:',
+        'when AI automates 40% of jobs, who captures the wealth?',
+        'And I would study multimodal models (video, robotics)',
+        'which have different hardware constraints than text.',
+        '',
+        'The thesis is not theoretical. It is running right now,',
+        'on consumer hardware, in open-source ecosystems, on',
+        'devices people already own.',
+        '',
+        '-- J.A.G., Spring 2026'
+      ].join('\n');
       div.appendChild(ta);
 
-      const noteWinEl = wm.createWindow('notepad', this.title, this.icon, div, { width: 480, height: 380 });
+      const noteWinEl = wm.createWindow('notepad', this.title, this.icon, div, { width: 520, height: 440 });
       animateWindowOpen('notepad', noteWinEl);
+
+      // Clippy popup after 2 seconds
+      setTimeout(() => {
+        try {
+          const contentArea = noteWinEl ? noteWinEl.querySelector('.win95-content') : null;
+          if (!contentArea) return;
+          const clippy = document.createElement('div');
+          clippy.className = 'clippy-popup';
+
+          const character = document.createElement('div');
+          character.className = 'clippy-character';
+          character.textContent = '\uD83D\uDCCE';
+
+          const bubble = document.createElement('div');
+          bubble.className = 'clippy-bubble';
+          const p1 = document.createElement('p');
+          p1.textContent = 'It looks like you\'re writing a research paper!';
+          const p2 = document.createElement('p');
+          p2.className = 'clippy-sub';
+          p2.textContent = 'Would you like help with that?';
+          const dismissBtn = document.createElement('button');
+          dismissBtn.className = 'clippy-dismiss';
+          dismissBtn.textContent = 'Don\'t show me this tip again';
+          bubble.appendChild(p1);
+          bubble.appendChild(p2);
+          bubble.appendChild(dismissBtn);
+
+          clippy.appendChild(character);
+          clippy.appendChild(bubble);
+          contentArea.appendChild(clippy);
+
+          dismissBtn.addEventListener('click', () => {
+            clippy.classList.add('clippy-hiding');
+            setTimeout(() => { if (clippy.parentNode) clippy.remove(); }, 300);
+          });
+          // Auto-dismiss after 8 seconds
+          setTimeout(() => {
+            if (clippy.parentNode) {
+              clippy.classList.add('clippy-hiding');
+              setTimeout(() => { if (clippy.parentNode) clippy.remove(); }, 300);
+            }
+          }, 8000);
+        } catch(e) {}
+      }, 2000);
+      } catch(e) { console.warn('Notepad open error:', e); }
     }
   },
   recycle: {
     title: 'Recycle Bin',
     icon: '\uD83D\uDDD1\uFE0F',
-    width: 440,
-    height: 340,
+    width: 480,
+    height: 400,
+    _hasItems: true,
     open() {
+      try {
+      const self = this;
       const div = document.createElement('div');
-      div.style.background = '#fff';
-      div.style.padding = '12px';
-      div.style.fontFamily = 'var(--font-pixel)';
-      div.style.fontSize = '8px';
-      div.style.color = '#000';
+      div.style.cssText = 'background:#fff;padding:12px;font-family:var(--font-pixel);font-size:8px;color:#000;height:100%;overflow-y:auto;';
 
+      const toolbar = document.createElement('div');
+      toolbar.style.cssText = 'display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;';
       const heading = document.createElement('p');
-      heading.textContent = 'Deleted Items (3 items)';
-      heading.style.marginBottom = '12px';
       heading.style.fontSize = '9px';
-      div.appendChild(heading);
+      heading.textContent = 'Deleted Items (5 items) - Revision History';
+      const emptyBtn = document.createElement('button');
+      emptyBtn.textContent = 'Empty Recycle Bin';
+      emptyBtn.style.cssText = 'font-family:var(--font-pixel);font-size:7px;padding:3px 8px;cursor:pointer;border:2px outset #c0c0c0;background:#c0c0c0;';
+      toolbar.appendChild(heading);
+      toolbar.appendChild(emptyBtn);
+      div.appendChild(toolbar);
 
       const items = [
-        { name: 'Draft_v1_too_boring.docx', date: '2026-02-14' },
-        { name: 'Proposal_with_fake_sources.docx', date: '2026-02-28' },
-        { name: 'Essay_about_ChatGPT_only.docx', date: '2026-03-01' },
+        { name: 'Draft_v1_too_boring.docx', date: '2026-02-14', reason: 'First draft was a generic summary of AI. No thesis, no argument, no personal stake.' },
+        { name: 'Proposal_with_fake_sources.docx', date: '2026-02-28', reason: 'Used sources I hadn\'t actually read. Professor caught it. Lesson: cite what you know.' },
+        { name: 'Essay_about_ChatGPT_only.docx', date: '2026-03-01', reason: 'Focused only on ChatGPT instead of the hardware layer. Missed the real story.' },
+        { name: 'Draft_v3_no_personal_voice.docx', date: '2026-03-10', reason: 'Technically solid but read like a Wikipedia article. Added homelab experience to fix this.' },
+        { name: 'Website_v1_basic_slideshow.html', date: '2026-03-18', reason: 'Original website was just a slideshow. Rebuilt as Win95 desktop to match the thesis.' },
       ];
+
+      const itemContainer = document.createElement('div');
+      itemContainer.id = 'recycleItems';
       items.forEach(item => {
         const row = document.createElement('div');
-        row.style.display = 'flex';
-        row.style.gap = '8px';
-        row.style.padding = '4px';
-        row.style.borderBottom = '1px solid #ccc';
-        row.style.alignItems = 'center';
+        row.style.cssText = 'padding:6px 4px;border-bottom:1px solid #ccc;';
 
+        const topRow = document.createElement('div');
+        topRow.style.cssText = 'display:flex;gap:8px;align-items:center;';
         const ico = document.createElement('span');
         ico.textContent = '\uD83D\uDCC4';
+        const nameEl = document.createElement('span');
+        nameEl.textContent = item.name;
+        nameEl.style.flex = '1';
+        const dateEl = document.createElement('span');
+        dateEl.textContent = item.date;
+        dateEl.style.color = '#808080';
+        topRow.appendChild(ico);
+        topRow.appendChild(nameEl);
+        topRow.appendChild(dateEl);
 
-        const name = document.createElement('span');
-        name.textContent = item.name;
-        name.style.flex = '1';
+        const reasonEl = document.createElement('p');
+        reasonEl.textContent = 'Why deleted: ' + item.reason;
+        reasonEl.style.cssText = 'margin-top:4px;color:#666;font-size:7px;font-style:italic;';
 
-        const date = document.createElement('span');
-        date.textContent = item.date;
-        date.style.color = '#808080';
-
-        row.appendChild(ico);
-        row.appendChild(name);
-        row.appendChild(date);
-        div.appendChild(row);
+        row.appendChild(topRow);
+        row.appendChild(reasonEl);
+        itemContainer.appendChild(row);
       });
+      div.appendChild(itemContainer);
 
       const note = document.createElement('p');
-      note.textContent = 'These drafts were deleted during the research process.';
-      note.style.marginTop = '12px';
-      note.style.color = '#808080';
-      note.style.fontSize = '7px';
+      note.textContent = 'Every deleted draft taught something. The final paper exists because these versions failed.';
+      note.style.cssText = 'margin-top:12px;color:#808080;font-size:7px;';
       div.appendChild(note);
 
-      const recycleWinEl = wm.createWindow('recycle', this.title, this.icon, div, { width: 440, height: 340 });
+      // Empty Recycle Bin button
+      emptyBtn.addEventListener('click', () => {
+        if (!self._hasItems) return;
+        itemContainer.textContent = '';
+        heading.textContent = 'Deleted Items (0 items)';
+        note.textContent = 'The Recycle Bin is empty.';
+        self._hasItems = false;
+        // Update desktop icon to empty
+        const iconEl = document.querySelector('.desktop-icon[data-app="recycle"] .icon-emoji');
+        if (iconEl) iconEl.textContent = '\uD83D\uDDD1\uFE0F';
+      });
+
+      const recycleWinEl = wm.createWindow('recycle', this.title, this.icon, div, { width: 480, height: 400 });
       animateWindowOpen('recycle', recycleWinEl);
+      } catch(e) { console.warn('Recycle Bin open error:', e); }
+    }
+  },
+  defrag: {
+    title: 'Disk Defragmenter',
+    icon: '\uD83D\uDDBE',
+    width: 560,
+    height: 420,
+    open() {
+      try {
+      const div = document.createElement('div');
+      div.style.cssText = 'background:#c0c0c0;height:100%;display:flex;flex-direction:column;padding:8px;font-family:var(--font-pixel);font-size:8px;color:#000;';
+
+      const header = document.createElement('div');
+      header.style.cssText = 'margin-bottom:8px;';
+      const titleEl = document.createElement('p');
+      titleEl.textContent = 'Microsoft Disk Defragmenter - Drive C: [Research Topics]';
+      titleEl.style.fontWeight = 'bold';
+      header.appendChild(titleEl);
+      div.appendChild(header);
+
+      // Grid of colored blocks
+      const gridWrap = document.createElement('div');
+      gridWrap.style.cssText = 'flex:1;background:#000;border:2px inset #808080;padding:4px;overflow:hidden;display:flex;flex-wrap:wrap;align-content:flex-start;gap:1px;';
+
+      const topics = [
+        { color: '#ff4444', label: 'GPU History' },
+        { color: '#44ff44', label: 'Software' },
+        { color: '#4488ff', label: 'Economics' },
+        { color: '#ffaa00', label: 'Psychology' },
+        { color: '#ff44ff', label: 'Politics' },
+        { color: '#44ffff', label: 'Ethics' },
+        { color: '#ffff44', label: 'Hardware' },
+        { color: '#ffffff', label: 'Free Space' },
+      ];
+
+      const TOTAL_BLOCKS = 200;
+      const blocks = [];
+      for (let i = 0; i < TOTAL_BLOCKS; i++) {
+        const block = document.createElement('div');
+        const topicIdx = i < TOTAL_BLOCKS - 30 ? Math.floor(Math.random() * (topics.length - 1)) : topics.length - 1;
+        block.style.cssText = 'width:10px;height:10px;background:' + topics[topicIdx].color + ';';
+        block.dataset.topic = String(topicIdx);
+        gridWrap.appendChild(block);
+        blocks.push(block);
+      }
+      div.appendChild(gridWrap);
+
+      // Legend
+      const legend = document.createElement('div');
+      legend.style.cssText = 'display:flex;flex-wrap:wrap;gap:8px;margin:6px 0;';
+      topics.forEach(function(t) {
+        const item = document.createElement('span');
+        item.style.cssText = 'display:flex;align-items:center;gap:3px;';
+        const swatch = document.createElement('span');
+        swatch.style.cssText = 'display:inline-block;width:8px;height:8px;background:' + t.color + ';border:1px solid #000;';
+        const lbl = document.createElement('span');
+        lbl.textContent = t.label;
+        item.appendChild(swatch);
+        item.appendChild(lbl);
+        legend.appendChild(item);
+      });
+      div.appendChild(legend);
+
+      // Progress bar area
+      const progWrap = document.createElement('div');
+      progWrap.style.cssText = 'display:flex;align-items:center;gap:8px;margin-top:4px;';
+      const progBarOuter = document.createElement('div');
+      progBarOuter.style.cssText = 'flex:1;height:16px;border:2px inset #808080;background:#fff;';
+      const progBar = document.createElement('div');
+      progBar.style.cssText = 'height:100%;width:0%;background:#000080;transition:width 0.3s;';
+      progBarOuter.appendChild(progBar);
+      const progText = document.createElement('span');
+      progText.textContent = '0% Complete';
+      progText.style.whiteSpace = 'nowrap';
+      progWrap.appendChild(progBarOuter);
+      progWrap.appendChild(progText);
+      div.appendChild(progWrap);
+
+      // Buttons
+      const btnRow = document.createElement('div');
+      btnRow.style.cssText = 'display:flex;gap:8px;margin-top:6px;justify-content:center;';
+      const startDefragBtn = document.createElement('button');
+      startDefragBtn.textContent = 'Start';
+      startDefragBtn.style.cssText = 'font-family:var(--font-pixel);font-size:7px;padding:3px 16px;cursor:pointer;border:2px outset #c0c0c0;background:#c0c0c0;';
+      const stopBtn = document.createElement('button');
+      stopBtn.textContent = 'Stop';
+      stopBtn.style.cssText = 'font-family:var(--font-pixel);font-size:7px;padding:3px 16px;cursor:pointer;border:2px outset #c0c0c0;background:#c0c0c0;';
+      stopBtn.disabled = true;
+      btnRow.appendChild(startDefragBtn);
+      btnRow.appendChild(stopBtn);
+      div.appendChild(btnRow);
+
+      let running = false;
+      let defragInterval = null;
+
+      startDefragBtn.addEventListener('click', () => {
+        if (running) return;
+        running = true;
+        startDefragBtn.disabled = true;
+        stopBtn.disabled = false;
+        let step = 0;
+        const totalSteps = TOTAL_BLOCKS;
+
+        // Sort blocks by topic index to simulate defragmentation
+        const sortedOrder = blocks.slice().sort((a, b) => parseInt(a.dataset.topic) - parseInt(b.dataset.topic));
+
+        defragInterval = setInterval(() => {
+          if (step >= totalSteps) {
+            clearInterval(defragInterval);
+            progBar.style.width = '100%';
+            progText.textContent = 'Defragmentation Complete!';
+            running = false;
+            stopBtn.disabled = true;
+            return;
+          }
+          // Swap current block color with the sorted position color
+          const target = sortedOrder[step];
+          const current = blocks[step];
+          if (current && target) {
+            const tmpColor = current.style.background;
+            const tmpTopic = current.dataset.topic;
+            current.style.background = target.style.background;
+            current.dataset.topic = target.dataset.topic;
+            target.style.background = tmpColor;
+            target.dataset.topic = tmpTopic;
+
+            // Flash the moved block
+            current.style.outline = '1px solid #fff';
+            setTimeout(() => { current.style.outline = 'none'; }, 150);
+          }
+
+          step++;
+          const pct = Math.round((step / totalSteps) * 100);
+          progBar.style.width = pct + '%';
+          progText.textContent = pct + '% Complete';
+        }, 50);
+      });
+
+      stopBtn.addEventListener('click', () => {
+        if (defragInterval) clearInterval(defragInterval);
+        running = false;
+        startDefragBtn.disabled = false;
+        stopBtn.disabled = true;
+      });
+
+      const winEl = wm.createWindow('defrag', this.title, this.icon, div, { width: 560, height: 420 });
+      animateWindowOpen('defrag', winEl);
+      } catch(e) { console.warn('Defrag open error:', e); }
+    }
+  },
+  // ─── PHASE 17: Win95 Extra Apps ───────────────────
+  minesweeper: {
+    title: 'Minesweeper',
+    icon: '💣',
+    open() {
+      if (!window.Win95Extras) return;
+      const content = window.Win95Extras.createMinesweeper();
+      const winEl = wm.createWindow('minesweeper', this.title, this.icon, content, { width: 320, height: 400 });
+      animateWindowOpen('minesweeper', winEl);
+    }
+  },
+  paint: {
+    title: 'Paint',
+    icon: '🎨',
+    open() {
+      if (!window.Win95Extras) return;
+      const content = window.Win95Extras.createPaint();
+      const winEl = wm.createWindow('paint', this.title, this.icon, content, { width: 540, height: 440 });
+      animateWindowOpen('paint', winEl);
+    }
+  },
+  ie: {
+    title: 'Internet Explorer',
+    icon: '🌐',
+    open() {
+      if (!window.Win95Extras) return;
+      const content = window.Win95Extras.createInternetExplorer();
+      const winEl = wm.createWindow('ie', this.title, this.icon, content, { width: 600, height: 460 });
+      animateWindowOpen('ie', winEl);
+    }
+  },
+  msn: {
+    title: 'MSN Messenger',
+    icon: '🦋',
+    open() {
+      if (!window.Win95Extras) return;
+      const content = window.Win95Extras.createMSNMessenger();
+      const winEl = wm.createWindow('msn', this.title, this.icon, content, { width: 360, height: 460 });
+      animateWindowOpen('msn', winEl);
+    }
+  },
+  sysprops: {
+    title: 'System Properties',
+    icon: '⚙️',
+    open() {
+      if (!window.Win95Extras) return;
+      const content = window.Win95Extras.createSystemProperties();
+      const winEl = wm.createWindow('sysprops', this.title, this.icon, content, { width: 400, height: 440 });
+      animateWindowOpen('sysprops', winEl);
+    }
+  },
+  winamp: {
+    title: 'Winamp',
+    icon: '🎵',
+    open() {
+      if (!window.Win95Extras) return;
+      const content = window.Win95Extras.createWinamp();
+      const winEl = wm.createWindow('winamp', this.title, this.icon, content, { width: 300, height: 400 });
+      animateWindowOpen('winamp', winEl);
     }
   }
 };
@@ -1323,6 +1988,7 @@ window.addEventListener('resize', () => {
   camera.aspect = window.innerWidth / window.innerHeight;
   camera.updateProjectionMatrix();
   renderer.setSize(window.innerWidth, window.innerHeight);
+  wm.reflowWindows();
 });
 
 function animate() {
@@ -1345,3 +2011,210 @@ function animate() {
 }
 
 animate();
+
+// ═══════════════════════════════════════════════════
+// PHASE 18: DESKTOP ICON DRAG + GRID SNAP
+// ═══════════════════════════════════════════════════
+(function initIconDrag() {
+  var GRID_SIZE = 88;
+  var STORAGE_KEY = 'win95-icon-positions';
+
+  function savePositions() {
+    try {
+      var positions = {};
+      document.querySelectorAll('.desktop-icon').forEach(function(icon) {
+        var app = icon.dataset.app;
+        if (app && icon.style.left) {
+          positions[app] = { left: icon.style.left, top: icon.style.top };
+        }
+      });
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(positions));
+    } catch(e) {}
+  }
+
+  function restorePositions() {
+    try {
+      var raw = localStorage.getItem(STORAGE_KEY);
+      if (!raw) return;
+      var positions = JSON.parse(raw);
+      document.querySelectorAll('.desktop-icon').forEach(function(icon) {
+        var app = icon.dataset.app;
+        if (app && positions[app]) {
+          icon.style.position = 'absolute';
+          icon.style.left = positions[app].left;
+          icon.style.top = positions[app].top;
+        }
+      });
+    } catch(e) {}
+  }
+
+  document.querySelectorAll('.desktop-icon').forEach(function(icon) {
+    icon.addEventListener('mousedown', function(e) {
+      if (e.button !== 0) return;
+      var startX = e.clientX;
+      var startY = e.clientY;
+      var iconGrid = document.getElementById('iconGrid');
+      if (!iconGrid) return;
+      var gridRect = iconGrid.getBoundingClientRect();
+      var iconRect = icon.getBoundingClientRect();
+      var startL = iconRect.left - gridRect.left;
+      var startT = iconRect.top - gridRect.top;
+      var moved = false;
+
+      function onMove(ev) {
+        var dx = ev.clientX - startX;
+        var dy = ev.clientY - startY;
+        if (!moved && Math.abs(dx) < 5 && Math.abs(dy) < 5) return;
+        moved = true;
+        icon.style.position = 'absolute';
+        icon.style.left = (startL + dx) + 'px';
+        icon.style.top = (startT + dy) + 'px';
+        icon.style.zIndex = '250';
+      }
+
+      function onUp() {
+        document.removeEventListener('mousemove', onMove);
+        document.removeEventListener('mouseup', onUp);
+        if (!moved) return;
+        icon.style.zIndex = '';
+        var curLeft = parseInt(icon.style.left) || 0;
+        var curTop = parseInt(icon.style.top) || 0;
+        icon.style.left = Math.max(0, Math.round(curLeft / GRID_SIZE) * GRID_SIZE) + 'px';
+        icon.style.top = Math.max(0, Math.round(curTop / GRID_SIZE) * GRID_SIZE) + 'px';
+        savePositions();
+      }
+
+      document.addEventListener('mousemove', onMove);
+      document.addEventListener('mouseup', onUp);
+    });
+  });
+
+  restorePositions();
+})();
+
+// ═══════════════════════════════════════════════════
+// PHASE 18: RIGHT-CLICK CONTEXT MENU
+// ═══════════════════════════════════════════════════
+(function initContextMenu() {
+  var activeMenu = null;
+
+  function removeMenu() {
+    if (activeMenu && activeMenu.parentNode) {
+      activeMenu.remove();
+      activeMenu = null;
+    }
+  }
+
+  function createMenuItem(label, onClick) {
+    var item = document.createElement('div');
+    item.className = 'ctx-menu-item';
+    item.textContent = label;
+    item.addEventListener('click', function(e) {
+      e.stopPropagation();
+      removeMenu();
+      if (onClick) onClick();
+    });
+    return item;
+  }
+
+  function createSeparator() {
+    var sep = document.createElement('div');
+    sep.className = 'ctx-menu-sep';
+    return sep;
+  }
+
+  function showAboutDialog() {
+    var div = document.createElement('div');
+    div.style.cssText = 'background:#c0c0c0;padding:16px;font-family:var(--font-pixel);font-size:8px;color:#000;text-align:center;';
+
+    var logo = document.createElement('div');
+    logo.textContent = '\u229E';
+    logo.style.cssText = 'font-size:48px;margin-bottom:8px;';
+    div.appendChild(logo);
+
+    var titleEl = document.createElement('p');
+    titleEl.textContent = 'From Pixels to Intelligence';
+    titleEl.style.cssText = 'font-size:10px;font-weight:bold;margin-bottom:4px;';
+    div.appendChild(titleEl);
+
+    var lines = [
+      'Josue Aparcedo Gonzalez',
+      'IDS2891 Cornerstone - Spring 2026',
+      'Florida SouthWestern State College',
+      '',
+      'Built with Three.js, GSAP, and Vanilla JS',
+      'Research: 13,455 words - 35 APA sources',
+      '',
+      'This website is itself proof of the thesis:',
+      'consumer hardware powers real AI workflows.'
+    ];
+    lines.forEach(function(line) {
+      var p = document.createElement('p');
+      p.textContent = line;
+      p.style.cssText = 'margin:2px 0;color:' + (line === '' ? 'transparent' : '#000') + ';';
+      div.appendChild(p);
+    });
+
+    var okBtn = document.createElement('button');
+    okBtn.textContent = 'OK';
+    okBtn.style.cssText = 'margin-top:12px;font-family:var(--font-pixel);font-size:8px;padding:4px 24px;cursor:pointer;border:2px outset #c0c0c0;background:#c0c0c0;';
+    div.appendChild(okBtn);
+
+    var winEl = wm.createWindow('about', 'About This Project', '\u229E', div, { width: 340, height: 320 });
+    if (winEl) animateWindowOpen('about', winEl);
+
+    okBtn.addEventListener('click', function() {
+      wm.closeWindow('about');
+    });
+  }
+
+  var wallpaper = document.getElementById('win95Wallpaper');
+  if (!wallpaper) return;
+
+  wallpaper.addEventListener('contextmenu', function(e) {
+    if (e.target.closest('.win95-window') || e.target.closest('.desktop-icon')) return;
+    e.preventDefault();
+    removeMenu();
+
+    var menu = document.createElement('div');
+    menu.className = 'ctx-menu';
+    menu.style.left = e.clientX + 'px';
+    menu.style.top = e.clientY + 'px';
+
+    menu.appendChild(createMenuItem('New Text Document', function() {
+      if (APP_CONFIG.notepad) APP_CONFIG.notepad.open();
+    }));
+    menu.appendChild(createSeparator());
+    menu.appendChild(createMenuItem('Refresh', function() {
+      window.location.reload();
+    }));
+    menu.appendChild(createMenuItem('Properties', function() {
+      if (APP_CONFIG.sysprops && window.Win95Extras) {
+        APP_CONFIG.sysprops.open();
+      } else {
+        showAboutDialog();
+      }
+    }));
+    menu.appendChild(createSeparator());
+    menu.appendChild(createMenuItem('About This Project', function() {
+      showAboutDialog();
+    }));
+
+    document.body.appendChild(menu);
+    activeMenu = menu;
+
+    // Keep menu in viewport
+    var menuRect = menu.getBoundingClientRect();
+    if (menuRect.right > window.innerWidth) {
+      menu.style.left = (window.innerWidth - menuRect.width - 4) + 'px';
+    }
+    if (menuRect.bottom > window.innerHeight) {
+      menu.style.top = (window.innerHeight - menuRect.height - 4) + 'px';
+    }
+  });
+
+  document.addEventListener('click', removeMenu);
+  document.addEventListener('contextmenu', function(e) {
+    if (!e.target.closest('.ctx-menu')) removeMenu();
+  });
+})();

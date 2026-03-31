@@ -516,6 +516,33 @@
     </div>
   </div>
 
+  <!-- LOGIN SCREEN (Win95 style — before BIOS) -->
+  <div id="loginScreen" class="login-screen">
+    <div class="login-dialog">
+      <div class="login-titlebar">
+        <span class="login-titlebar-icon">🔑</span>
+        <span class="login-titlebar-text">Welcome to Windows</span>
+      </div>
+      <div class="login-body">
+        <div class="login-icon-area">
+          <div class="login-key-icon">🔑</div>
+        </div>
+        <div class="login-form-area">
+          <p class="login-prompt">Type a user name to log on to Windows.</p>
+          <div class="login-field">
+            <label class="login-label" for="loginUser">User name:</label>
+            <input type="text" id="loginUser" class="login-input" value="Josue" autocomplete="off" spellcheck="false">
+          </div>
+          <p class="login-status" id="loginStatus" aria-live="polite"></p>
+        </div>
+      </div>
+      <div class="login-buttons">
+        <button class="login-ok-btn" id="loginOkBtn">OK</button>
+        <button class="login-cancel-btn" disabled>Cancel</button>
+      </div>
+    </div>
+  </div>
+
   <!-- BIOS SCREEN -->
   <div id="biosScreen">
     <div id="biosEnergyStarLogo" class="bios-energy-star">
@@ -577,10 +604,6 @@
           <span class="icon-emoji">🎬</span>
           <span class="icon-label">Presentation</span>
         </div>
-        <div class="desktop-icon" data-app="exp" data-label="Experience">
-          <span class="icon-emoji">🔬</span>
-          <span class="icon-label">Experience</span>
-        </div>
         <div class="desktop-icon" data-app="explorer" data-label="My Computer">
           <span class="icon-emoji">💾</span>
           <span class="icon-label">My Computer</span>
@@ -589,9 +612,9 @@
           <span class="icon-emoji">⌨️</span>
           <span class="icon-label">Terminal</span>
         </div>
-        <div class="desktop-icon" data-app="notepad" data-label="Notepad">
-          <span class="icon-emoji">📝</span>
-          <span class="icon-label">Notepad</span>
+        <div class="desktop-icon" data-app="steam" data-label="Steam95">
+          <span class="icon-emoji">🎮</span>
+          <span class="icon-label">Steam95</span>
         </div>
         <div class="desktop-icon" data-app="recycle" data-label="Recycle Bin">
           <span class="icon-emoji">🗑️</span>
