@@ -17,6 +17,10 @@
       }
     }
   </script>
+  <!-- Markdown parsing (used by File Explorer in Phase 15) -->
+  <script src="https://cdn.jsdelivr.net/npm/marked@13.1.0/lib/marked.umd.js"></script>
+  <!-- HTML sanitization — required when inserting parsed markdown into DOM (XSS prevention) -->
+  <script src="https://cdn.jsdelivr.net/npm/dompurify@3.3.3/dist/purify.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
 </head>
 <body>
