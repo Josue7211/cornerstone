@@ -73,7 +73,7 @@
 - [ ] **INFRA-01**: Split main.js into modules (presentation.js, steam.js, bonzi.js, games.js, extras.js) loaded via script tags
 - [ ] **INFRA-02**: Add CDN imports: marked.js, DOMPurify, clippy.js
 - [ ] **INFRA-03**: Kill Three.js requestAnimationFrame loop (invisible behind desktop, wasting GPU)
-- [ ] **INFRA-04**: Remove 410 lines dead code (old HUD, portals, minimap, unused CSS)
+- [x] **INFRA-04**: Remove 410 lines dead code (old HUD, portals, minimap, unused CSS)
 
 ### Bonzi Fallback & Audio
 
