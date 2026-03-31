@@ -257,7 +257,7 @@ const biosLines = [
 function showBios() {
   const biosScreen = document.getElementById('biosScreen');
   const biosOutput = document.getElementById('biosOutput');
-  document.getElementById('hud').classList.remove('visible');
+  // HUD removed (dead code per INFRA-04)
   biosScreen.classList.add('active');
   biosOutput.textContent = '';
   const fullText = biosLines.join('\n');
@@ -348,7 +348,6 @@ function buildStartMenu() {
 
 function showWin95Desktop() {
   desktopActive = true; // Stop Three.js render work — desktop is now visible
-  state.phase = 'desktop';
   desktop.classList.add('visible');
   playStartupChime();
   buildStartMenu();
@@ -1115,18 +1114,6 @@ function animateCounters() {
     });
   });
 }
-
-// Close panel (legacy — harmless)
-window.closePanel = function() {
-  document.querySelectorAll('.panel.open').forEach(p => p.classList.remove('open'));
-};
-
-document.getElementById('closePanelBtn').addEventListener('click', window.closePanel);
-document.getElementById('closePanelPres').addEventListener('click', window.closePanel);
-document.getElementById('closePanelExp').addEventListener('click', window.closePanel);
-document.addEventListener('keydown', e => {
-  if (e.key === 'Escape') window.closePanel();
-});
 
 // Pioneer + arch demo handlers
 document.querySelectorAll('.pioneer').forEach(el => {
