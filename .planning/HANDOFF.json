@@ -1,38 +1,30 @@
 {
   "version": "1.0",
-  "timestamp": "2026-03-30T23:48:17.091Z",
-  "phase": "11",
-  "phase_name": "final-project-interactive-website",
-  "phase_dir": ".planning/phases/11-final-project-interactive-website",
-  "plan": 6,
-  "task": 1,
+  "timestamp": "2026-03-31T01:30:00.000Z",
+  "phase": "12",
+  "phase_name": "infrastructure-cleanup-hosting",
+  "phase_dir": ".planning/phases/12-infrastructure-cleanup-hosting",
+  "plan": 0,
+  "task": 0,
   "total_tasks": 3,
-  "status": "paused",
-  "completed_tasks": [
-    {"id": 1, "name": "BIOS Screen 1 visual redesign (YouTube reference match)", "status": "done"},
-    {"id": 2, "name": "Energy Star + Award ribbon inline SVGs", "status": "done"},
-    {"id": 3, "name": "Wallpaper swap to wallpaper.jpg", "status": "done"},
-    {"id": 4, "name": "Remove dead showBios/biosCursor code", "status": "done"},
-    {"id": 5, "name": "Hide desktop/CRT during splash", "status": "done"}
-  ],
+  "status": "planned_not_started",
+  "completed_tasks": [],
   "remaining_tasks": [
-    {"id": 6, "name": "Verify splash blinking bug is fixed", "status": "not_started"},
-    {"id": 7, "name": "Commit all changes", "status": "not_started"},
-    {"id": 8, "name": "Delete unused wallpaper.png", "status": "not_started"}
+    {"id": 1, "name": "Kill Three.js rAF + remove dead HTML/JS", "status": "not_started"},
+    {"id": 2, "name": "Remove ~160 lines dead CSS", "status": "not_started"},
+    {"id": 3, "name": "CDN imports, 6 module stubs, hosting verify", "status": "not_started"}
   ],
-  "blockers": [
-    {"description": "Win95 splash blinking bug — last fix (hide desktop/CRT) untested by user", "type": "human_action", "workaround": "User needs to hard-refresh and verify"}
-  ],
+  "blockers": [],
   "human_actions_pending": [
-    {"action": "Hard-refresh browser and check if blinking on Win95 splash is gone", "context": "6+ fix attempts, last one hides CRT overlay z:9000 during splash", "blocking": true}
+    {"action": "Source .zshrc or restart shell for claudepeers alias", "context": "alias added but shell not reloaded", "blocking": false}
   ],
   "decisions": [
-    {"decision": "Inline SVG for Energy Star logo", "rationale": "External PNG was corrupted HTML file", "phase": "11"},
-    {"decision": "Removed Screen 3 from boot sequence", "rationale": "Was causing visible flash during transition to splash", "phase": "11"},
-    {"decision": "Win95 splash z-index 2001", "rationale": "Must be above biosScreen z:2000", "phase": "11"},
-    {"decision": "Hide desktop+CRT during splash", "rationale": "eval dump showed crtOverlay z:9000 and desktop elements bleeding through", "phase": "11"}
+    {"decision": "Presentation bypasses WindowManager (fullscreen z:9999)", "rationale": "Awwwards-level experience needs viewport takeover", "phase": "13"},
+    {"decision": "Each app gets own JS module file", "rationale": "Enables parallel agent teams in worktrees", "phase": "12"},
+    {"decision": "Bonzi uses clippy.js + Ollama", "rationale": "clippy.js has Bonzi sprites + speakStream, Ollama for local AI", "phase": "16"},
+    {"decision": "Steam has real playable games", "rationale": "Snake, platformer, CPU vs GPU Race", "phase": "15"}
   ],
-  "uncommitted_files": ["website/index.html", "website/main.js", "website/style.css", "website/wallpaper.jpg", "website/boot.mp3"],
-  "next_action": "Ask user to hard-refresh and verify splash blinking is gone, then commit",
-  "context_notes": "User was extremely frustrated after 6+ failed fix rounds. The eval showing crtOverlay at z:9000 during splash was the breakthrough. agent-browser at ~/.npm-global/bin. Dev server port 8090."
+  "uncommitted_files": ["website/main.js", "website/style.css", "website/index.html", "website/wallpaper.jpg", "website/research-paper.pdf"],
+  "next_action": "source ~/.zshrc, then /gsd:execute-phase 12, then launch parallel phases 13-17",
+  "context_notes": "13 research docs in .planning/research/. 59 requirements. 7 phases (12-18). Phase 12 blocks everything. After 12, phases 13-17 can run in parallel via claudepeers in separate terminals + git worktrees."
 }
