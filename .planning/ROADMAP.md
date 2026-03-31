@@ -163,7 +163,7 @@ Plans:
 **Plans**: 3 plans
 
 Plans:
-- [ ] 12-01-PLAN.md — Kill Three.js rAF loop, remove dead HTML/JS (INFRA-03, INFRA-04 partial)
+- [x] 12-01-PLAN.md — Kill Three.js rAF loop, remove dead HTML/JS (INFRA-03, INFRA-04 partial)
 - [ ] 12-02-PLAN.md — Remove dead CSS ~160 lines (INFRA-04)
 - [ ] 12-03-PLAN.md — CDN imports, module stubs, .gitignore, hosting verification (INFRA-01, INFRA-02, HOST-01-03)
 
@@ -294,7 +294,7 @@ Plans:
 | 9. Research Documentation | 1/1 | Complete | 2026-03-30 |
 | 10. Revision & Reflection | 1/1 | Complete | 2026-03-30 |
 | 11. Final Project — Website | 5/5 | Complete | 2026-03-30 |
-| 12. Infrastructure Cleanup + Hosting | 0/TBD | Not started | - |
+| 12. Infrastructure Cleanup + Hosting | 1/3 | In Progress|  |
 | 13. Presentation.exe Fullscreen | 0/TBD | Not started | - |
 | 14. Window Management + Boot + Nav | 0/TBD | Not started | - |
 | 15. File Explorer + Steam App | 0/TBD | Not started | - |

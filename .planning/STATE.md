@@ -1,27 +1,35 @@
 ---
 gsd_state_version: 1.0
-milestone: v2.0
-milestone_name: "Final Project — Win95 App Experiences"
-status: defining_requirements
-last_updated: "2026-03-31T00:30:00.000Z"
+milestone: v1.0
+milestone_name: milestone
+status: executing
+last_updated: "2026-03-31T02:56:03Z"
 progress:
-  total_phases: 0
-  completed_phases: 0
-  total_plans: 0
-  completed_plans: 0
+  total_phases: 18
+  completed_phases: 3
+  total_plans: 11
+  completed_plans: 10
 ---
 
 # Project State — IDS2891 Cornerstone
 
 ## Current Phase
 
-Phase 11 — Final Project (interactive website)
+Phase 12 — Infrastructure Cleanup + Hosting
 
 ## Last Action
+
+2026-03-31: Phase 12 Plan 01 COMPLETE — Three.js rAF kill-switch (desktopActive flag), dead HTML removed (HUD/portals), dead JS removed (window.closePanel shim, legacy listeners, HUD null ref). Commits: 6492d9f, b779304, 87f724b.
 
 2026-03-30: Phase 11 Plan 05 COMPLETE — Win95 Start menu (7 apps), terminal command parser (help/thesis/about/gpu/credits/clear), enhanced file explorer (two-panel), GSAP per-app window animations (pixel scatter, 3D flip, glitch, matrix rain, elastic bounce, typewriter, gravity drop). Commit: 968a323.
 
 2026-03-30: Phase 11 Plan 04 COMPLETE — Win95 desktop OS shell built. BIOS boot sequence with GPU-themed text, Win95 desktop with 7 icons, WindowManager class (drag/minimize/maximize/close/z-stack), Web Audio synthesis (startup chime + click sounds), CRT scanline overlay, Press Start 2P pixel font. All 3 content panels wrapped in draggable Win95 windows. Commits: c70e49c, e8d3169.
+
+## Phase 12 Plan 01 Decisions (2026-03-31)
+
+- desktopActive boolean flag added to halt Three.js render work once Win95 desktop loads (rAF stays registered, skips all GPU work)
+- state object kept — plan's CODE-AUDIT assumed it was dead but it drives zoom animation (state.phase, state.zoomStart, state.zoomDuration read in animate())
+- Live loader div kept in index.html — GLTF load progress uses loaderFill/loaderText/loaderPct children
 
 ## Phase 11 Plan 05 Decisions (2026-03-30)
 
