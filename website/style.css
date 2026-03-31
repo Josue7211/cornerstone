@@ -218,33 +218,6 @@ canvas#scene {
   scrollbar-color: var(--text-muted) transparent;
 }
 
-.panel-header {
-  padding: 6rem 3rem 3rem;
-  text-align: center;
-  position: relative;
-  overflow: hidden;
-}
-.panel-header::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  opacity: 0.08;
-}
-.panel-header--paper::before { background: radial-gradient(ellipse at center, var(--cyan), transparent 70%); }
-.panel-header--pres::before { background: radial-gradient(ellipse at center, var(--magenta), transparent 70%); }
-.panel-header--exp::before { background: radial-gradient(ellipse at center, var(--green), transparent 70%); }
-
-.panel-eyebrow {
-  font-family: var(--font-mono);
-  font-size: 0.7rem;
-  letter-spacing: 0.2em;
-  text-transform: uppercase;
-  margin-bottom: 1rem;
-}
-.panel-header--paper .panel-eyebrow { color: var(--cyan); }
-.panel-header--pres .panel-eyebrow { color: var(--magenta); }
-.panel-header--exp .panel-eyebrow { color: var(--green); }
-
 .panel-header h1 {
   font-family: var(--font-display);
   font-size: clamp(2rem, 5vw, 3.5rem);
@@ -281,71 +254,11 @@ canvas#scene {
   font-size: 0.95rem;
 }
 
-/* Panel placeholder */
-.panel-placeholder {
-  padding: 4rem;
-  text-align: center;
-  color: var(--text-dim);
-  font-family: var(--font-mono);
-  font-size: 0.75rem;
-  letter-spacing: 0.15em;
-  border: 1px dashed var(--border);
-  border-radius: 8px;
-  margin: 2rem 0;
-}
-
-/* Paper cards */
-.paper-cards { display: grid; gap: 1rem; }
-.paper-card {
-  background: var(--card-bg);
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  padding: 1.5rem 2rem;
-  transition: border-color 0.3s;
-}
-.paper-card:hover { border-color: var(--cyan); }
-.paper-card-num {
-  font-family: var(--font-display);
-  font-size: 0.7rem;
-  color: var(--cyan);
-  letter-spacing: 0.1em;
-}
-.paper-card h3 {
-  font-family: var(--font-display);
-  font-size: 1rem;
-  font-weight: 700;
-  margin: 0.5rem 0;
-}
-.paper-card p { font-size: 0.9rem; margin: 0; }
-
-/* Paper table */
-.paper-table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 0.85rem;
-  margin: 1rem 0;
-}
-.paper-table th, .paper-table td {
-  padding: 0.75rem 1rem;
-  text-align: left;
-  border-bottom: 1px solid var(--border);
-}
-.paper-table th {
-  font-family: var(--font-mono);
-  font-size: 0.7rem;
-  color: var(--cyan);
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
-}
-.paper-table td { color: var(--text-dim); }
-.paper-table .highlight td { color: var(--cyan); font-weight: 600; }
-
 /* Sources */
 .sources-compact p { font-family: var(--font-mono); font-size: 0.75rem; color: var(--text-dim); line-height: 2; }
 .sources-note { font-style: italic; font-size: 0.8rem !important; color: var(--text-muted) !important; }
 
 /* Presentation */
-.pres-outline { display: grid; gap: 0.75rem; }
 .pres-slide {
   display: flex;
   gap: 1.25rem;
@@ -357,14 +270,6 @@ canvas#scene {
   transition: border-color 0.3s;
 }
 .pres-slide:hover { border-color: var(--magenta); }
-.pres-num {
-  font-family: var(--font-display);
-  font-size: 0.7rem;
-  color: var(--magenta);
-  font-weight: 700;
-  min-width: 28px;
-  padding-top: 2px;
-}
 .pres-slide h3 { font-size: 0.95rem; font-weight: 600; margin-bottom: 0.3rem; }
 .pres-slide p { font-size: 0.85rem; margin: 0; }
 
