@@ -53,15 +53,58 @@
 - [ ] **W95-10**: Clippy in Notepad ("Writing a research paper?")
 - [ ] **W95-11**: Winamp/LoseAmp music player with visualizer
 - [ ] **W95-12**: Disk Defragmenter (research topics as blocks)
-- [ ] **W95-13**: Login screen (any password works, shows "Welcome")
 - [ ] **W95-14**: Desktop icon drag-and-drop with grid snap
 - [ ] **W95-15**: Recycle Bin icon changes when full
+
+### Boot Sequence
+
+- [ ] **BOOT-01**: Login screen before BIOS (any password works, shows "Welcome")
+- [ ] **BOOT-02**: Boot order: Login → BIOS → Win95 Splash → Desktop
+- [ ] **BOOT-03**: Login screen removed from W95-13 (moved here as BOOT-01)
+
+### Start Menu & Desktop Organization
+
+- [ ] **NAV-01**: Start menu updated with all new apps organized in submenus (Programs → Games, Programs → Accessories, Programs → Research)
+- [ ] **NAV-02**: Desktop icons limited to core apps (Research Paper, Presentation, My Computer, Terminal, Recycle Bin, Steam). Others in Start menu.
+- [ ] **NAV-03**: Taskbar shows running apps with click-to-focus
+
+### Infrastructure
+
+- [ ] **INFRA-01**: Split main.js into modules (presentation.js, steam.js, bonzi.js, games.js, extras.js) loaded via script tags
+- [ ] **INFRA-02**: Add CDN imports: marked.js, DOMPurify, clippy.js
+- [ ] **INFRA-03**: Kill Three.js requestAnimationFrame loop (invisible behind desktop, wasting GPU)
+- [ ] **INFRA-04**: Remove 410 lines dead code (old HUD, portals, minimap, unused CSS)
+
+### Bonzi Fallback & Audio
+
+- [ ] **AUDIO-01**: Dial-up modem sound when IE opens (Web Audio synthesis or MP3)
+- [ ] **AUDIO-02**: Shutdown sound (reverse startup chime)
+- [ ] **AUDIO-03**: Winamp plays lo-fi/chiptune track (source a CC0 audio file)
+- [ ] **BONZI-06**: Fallback canned responses when Ollama is not running (fetch fails gracefully)
+
+### Hosting & Submission
+
+- [ ] **HOST-01**: Deployable to GitHub Pages or any static host
+- [ ] **HOST-02**: All assets self-contained (no external API dependencies except optional Ollama)
+- [ ] **HOST-03**: Works as local file:// or deployed URL
+
+### Window Management
+
+- [ ] **WM-01**: Windows are resizable (drag edges/corners)
+- [ ] **WM-02**: Windows snap to edges when dragged near screen border
+- [ ] **WM-03**: Minimize animation (shrink to taskbar)
+- [ ] **WM-04**: Maximize fills screen properly (minus taskbar)
+- [ ] **WM-05**: Taskbar shows all open windows with click-to-focus
+
+### Performance & Persistence
+
+- [ ] **PERF-01**: Heavy apps (Paint, games, Bonzi) lazy-init on open, not on page load
+- [ ] **PERF-02**: localStorage saves icon positions, game high scores, Winamp volume between sessions
 
 ### Polish
 
 - [ ] **QA-01**: Zero console errors across all apps
-- [ ] **QA-02**: Remove 410 lines dead code (Three.js loop, old HUD, unused CSS)
-- [ ] **QA-03**: Notepad has real reflection content (Reflect rubric criterion)
+- [ ] **QA-02**: Notepad has real reflection content (Reflect rubric criterion)
 - [ ] **QA-04**: Recycle Bin has real revision process content
 
 ## v2.1 Requirements (Future / If Time Permits)
@@ -93,9 +136,9 @@
 | QA-01 – QA-04 | TBD | Pending |
 
 **Coverage:**
-- v2.0 requirements: 41 total
+- v2.0 requirements: 57 total
 - Mapped to phases: 0
-- Unmapped: 41 ⚠️
+- Unmapped: 57 ⚠️
 
 ---
 *Requirements defined: 2026-03-31*
