@@ -33,6 +33,9 @@ html, body {
   color: var(--text);
   font-family: var(--font-body);
   cursor: default;
+  caret-color: transparent;
+  -webkit-user-select: none;
+  user-select: none;
 }
 
 ::selection { background: var(--cyan); color: var(--bg); }
@@ -828,6 +831,36 @@ canvas#scene {
 .slide-meta { margin: 2rem 0; color: var(--text-dim); line-height: 1.8; font-style: italic; }
 .slide-sources { font-family: var(--font-mono); font-size: 0.65rem; color: var(--text-muted); line-height: 1.9; margin-top: 2rem; padding-top: 2rem; border-top: 1px solid var(--border); }
 
+/* Slide 1: Title */
+.slide-subtitle-big { font-size: 1.4rem; color: var(--magenta); font-weight: 300; margin: 0.5rem 0 1.5rem; }
+.slide-meta-info { margin: 1.5rem 0; line-height: 1.8; color: var(--text-muted); }
+.slide-meta-info p { margin: 0.2rem 0; }
+.slide-preview { margin-top: 1.5rem; padding: 1.2rem; border-left: 3px solid var(--magenta); background: rgba(255,0,255,0.03); border-radius: 0 8px 8px 0; }
+
+/* Slide 3: Research Questions */
+.slide-rqs { display: flex; flex-direction: column; gap: 1rem; margin: 1.5rem 0; }
+.rq-item { display: flex; gap: 1rem; align-items: flex-start; padding: 1rem; background: rgba(255,0,255,0.04); border-radius: 8px; border: 1px solid rgba(255,0,255,0.1); }
+.rq-num { font-family: var(--font-mono); font-weight: 700; color: var(--magenta); font-size: 0.75rem; flex-shrink: 0; padding: 0.3rem 0.6rem; background: rgba(255,0,255,0.1); border-radius: 4px; }
+.rq-item p { margin: 0; font-size: 0.9rem; line-height: 1.6; }
+.slide-methods { margin-top: 1.5rem; }
+.slide-methods h3 { font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--magenta); margin-bottom: 0.8rem; }
+
+/* Slide 4: Perspective */
+.slide-perspective { display: flex; flex-direction: column; gap: 1.2rem; }
+.persp-item { padding: 1.2rem; border-radius: 8px; border: 1px solid var(--border); }
+.persp-label { display: inline-block; font-family: var(--font-mono); font-weight: 700; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--magenta); margin-bottom: 0.6rem; padding: 0.2rem 0.6rem; background: rgba(255,0,255,0.08); border-radius: 4px; }
+.persp-item p { margin: 0.4rem 0 0; font-size: 0.9rem; line-height: 1.6; }
+
+/* Slide 8: Preparing */
+.slide-prep { display: flex; flex-direction: column; gap: 1.2rem; }
+.prep-item { padding: 1.2rem; border-radius: 8px; border: 1px solid var(--border); background: rgba(255,255,255,0.02); }
+.prep-label { display: inline-block; font-family: var(--font-mono); font-weight: 700; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--magenta); margin-bottom: 0.6rem; padding: 0.2rem 0.6rem; background: rgba(255,0,255,0.08); border-radius: 4px; }
+.prep-item p { margin: 0.4rem 0 0; font-size: 0.9rem; line-height: 1.6; }
+
+/* Slide 9: Q&A */
+.slide-qa { margin-top: 2rem; padding: 1.5rem; border-radius: 8px; border: 1px solid var(--magenta); background: rgba(255,0,255,0.03); }
+.slide-qa h3 { font-size: 1.2rem; color: var(--magenta); margin: 0 0 0.8rem; }
+
 /* ═══ EXPERIENCE PANEL ADDITIONS ═══ */
 .section-title { font-family: var(--font-display); font-size: 1.1rem; font-weight: 700; color: var(--text); letter-spacing: 0.1em; margin: 4rem 0 1rem; border-bottom: none !important; padding-bottom: 0 !important; }
 
@@ -855,21 +888,121 @@ canvas#scene {
   inset: 0;
   z-index: 2000;
   background: #000;
-  color: #aaa;
-  font-family: 'Courier New', monospace;
-  font-size: 13px;
+  color: #aaaaaa;
+  font-family: 'VT323', 'Courier New', monospace;
+  font-size: 22px;
   line-height: 1.6;
-  padding: 24px 32px;
+  padding: 60px 80px 80px;
   display: none;
-  overflow: hidden;
+  overflow-y: auto;
+  overflow-x: hidden;
 }
 #biosScreen.active { display: block; }
 #biosOutput { white-space: pre; }
-#biosCursor {
-  display: inline-block;
-  animation: biosBlink 0.7s step-end infinite;
-}
 @keyframes biosBlink { 50% { opacity: 0; } }
+/* Energy Star logo — top right corner like real BIOS — BIG like the real thing */
+.bios-energy-star {
+  position: absolute;
+  top: 50px;
+  right: 60px;
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+.bios-energy-star.visible { opacity: 1; }
+.energy-star-svg {
+  width: 220px;
+  height: auto;
+}
+/* Award ribbon — inline before BIOS header text */
+.bios-award-ribbon {
+  position: absolute;
+  top: 55px;
+  left: 48px;
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+.bios-award-ribbon.visible { opacity: 1; }
+.award-ribbon-svg {
+  width: 28px;
+  height: auto;
+}
+
+/* Win95 Splash Screen — the flag logo + progress bar */
+#win95Splash {
+  position: fixed;
+  inset: 0;
+  z-index: 2001;
+  background: #000;
+  display: none;
+  align-items: center;
+  justify-content: center;
+}
+#win95Splash.active { display: flex; }
+.win95-splash-inner { text-align: center; }
+.win95-flag-grid {
+  display: grid;
+  grid-template-columns: 50px 50px;
+  grid-template-rows: 50px 50px;
+  gap: 6px;
+  margin: 0 auto 24px;
+  width: fit-content;
+  transform: perspective(200px) rotateY(-8deg) skewY(2deg);
+}
+.flag-tile { border-radius: 2px; }
+.flag-red { background: #ff0000; }
+.flag-green { background: #00aa00; }
+.flag-blue { background: #0000ff; }
+.flag-yellow { background: #ffdd00; }
+.win95-splash-text {
+  font-family: 'Times New Roman', Georgia, serif;
+  font-size: 28px;
+  color: #fff;
+  margin-bottom: 30px;
+  letter-spacing: 0.05em;
+}
+.win95-splash-bar-wrap {
+  width: 200px;
+  height: 18px;
+  margin: 0 auto 15px;
+  background: #000;
+  border: 2px solid #808080;
+  border-top-color: #404040;
+  border-left-color: #404040;
+  padding: 2px;
+}
+.win95-splash-bar {
+  height: 100%;
+  width: 0%;
+  background: repeating-linear-gradient(90deg, #000080 0px, #000080 8px, #000 8px, #000 10px);
+}
+.win95-splash-status {
+  font-family: 'VT323', 'Courier New', monospace;
+  font-size: 14px;
+  color: #888;
+  margin-top: 10px;
+}
+/* BIOS footer — pinned to bottom like real BIOS */
+.bios-footer {
+  position: absolute;
+  bottom: 40px;
+  left: 80px;
+  right: 80px;
+  color: #aaaaaa;
+  font-size: 20px;
+  line-height: 1.6;
+  white-space: pre;
+}
+/* Screen 2 centered layout */
+#biosScreen.active.screen2-layout {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  padding-top: 40px;
+}
+#biosScreen.screen2-layout #biosOutput {
+  text-align: left;
+}
 
 /* ═══ WIN95 DESKTOP ═══ */
 .win95-desktop {
@@ -885,12 +1018,11 @@ canvas#scene {
   position: absolute;
   inset: 0;
   bottom: 28px;
-  background-color: #008080;
-  background-image: repeating-linear-gradient(
-    0deg, transparent, transparent 3px, rgba(0,0,0,0.03) 3px, rgba(0,0,0,0.03) 4px
-  ), repeating-linear-gradient(
-    90deg, transparent, transparent 3px, rgba(0,0,0,0.03) 3px, rgba(0,0,0,0.03) 4px
-  );
+  background-color: #001a1a;
+  background-image: url('./wallpaper.jpg');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
 }
 
 /* ═══ CRT OVERLAY ═══ */

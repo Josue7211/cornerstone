@@ -1,150 +1,242 @@
 import * as THREE from 'three';
-import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
-import { RGBELoader } from 'three/addons/loaders/RGBELoader.js';
-import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
-import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
-import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
 
 // ═══════════════════════════════════════════════════
-// RENDERER + SCENE
+// THREE.JS PARTICLE BACKGROUND (ambient behind desktop)
 // ═══════════════════════════════════════════════════
 const canvas = document.getElementById('scene');
-const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
+const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true });
 renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-renderer.setClearColor(0x020206);
-renderer.shadowMap.enabled = true;
-renderer.outputColorSpace = THREE.SRGBColorSpace;
-renderer.toneMapping = THREE.ACESFilmicToneMapping;
-renderer.toneMappingExposure = 1.0;
+renderer.setClearColor(0x000000, 0);
 
 const scene = new THREE.Scene();
-scene.fog = new THREE.FogExp2(0x020206, 0.015);
+const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 500);
+camera.position.set(0, 0, 80);
 
-const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 200);
-// Start pulled back, will animate into the screen
-camera.position.set(0, 3, 8);
-camera.lookAt(0, 2, 0);
-
-// Post-processing
-const composer = new EffectComposer(renderer);
-composer.addPass(new RenderPass(scene, camera));
-composer.addPass(new UnrealBloomPass(
-  new THREE.Vector2(window.innerWidth, window.innerHeight), 0.4, 0.4, 0.9
-));
-
-// Lights
-scene.add(new THREE.AmbientLight(0x445566, 0.5));
-const dirLight = new THREE.DirectionalLight(0x8888ff, 0.4);
-dirLight.position.set(5, 15, 5);
-scene.add(dirLight);
-
-// HDRI
-new RGBELoader().load('./assets/hdri/night_sky.hdr', (tex) => {
-  const pmrem = new THREE.PMREMGenerator(renderer);
-  pmrem.compileEquirectangularShader();
-  scene.environment = pmrem.fromEquirectangular(tex).texture;
-  tex.dispose();
-  pmrem.dispose();
-});
+// Floating particle field
+const PTC = 1500;
+const pGeo = new THREE.BufferGeometry();
+const pPos = new Float32Array(PTC * 3);
+const pVel = new Float32Array(PTC * 3);
+const pCol = new Float32Array(PTC * 3);
+const pal = [new THREE.Color(0x00ffaa), new THREE.Color(0xff00aa), new THREE.Color(0x00aaff), new THREE.Color(0xffaa00)];
+for (let i = 0; i < PTC; i++) {
+  pPos[i*3]=(Math.random()-0.5)*200; pPos[i*3+1]=(Math.random()-0.5)*200; pPos[i*3+2]=(Math.random()-0.5)*200;
+  pVel[i*3]=(Math.random()-0.5)*0.015; pVel[i*3+1]=(Math.random()-0.5)*0.015; pVel[i*3+2]=(Math.random()-0.5)*0.015;
+  const c=pal[Math.floor(Math.random()*pal.length)]; pCol[i*3]=c.r; pCol[i*3+1]=c.g; pCol[i*3+2]=c.b;
+}
+pGeo.setAttribute('position', new THREE.BufferAttribute(pPos, 3));
+pGeo.setAttribute('color', new THREE.BufferAttribute(pCol, 3));
+const pMat = new THREE.PointsMaterial({ size: 0.5, vertexColors: true, transparent: true, opacity: 0.35, blending: THREE.AdditiveBlending, depthWrite: false });
+const particles = new THREE.Points(pGeo, pMat);
+scene.add(particles);
 
 // ═══════════════════════════════════════════════════
 // STATE
 // ═══════════════════════════════════════════════════
-const state = {
-  phase: 'loading', // loading → zooming → desktop
-  loaded: false,
-  zoomStart: 0,
-  zoomDuration: 3.5, // seconds to zoom into screen
-};
+const state = { phase: 'boot' };
 
 // ═══════════════════════════════════════════════════
-// LOAD ROOM
+// BOOT — Real 90s Award BIOS POST (youtube.com/watch?v=692Z_adAsMQ)
+// Each phase CLEARS the screen like a real BIOS
 // ═══════════════════════════════════════════════════
-const loader = new GLTFLoader();
-const loaderFill = document.getElementById('loaderFill');
-const loaderText = document.getElementById('loaderText');
-const loaderPct = document.getElementById('loaderPct');
+const bootAudio = new Audio('./boot.mp3');
+bootAudio.volume = 1.0;
 
-// Camera targets — hardcoded after inspecting the room
-// These get recalculated after the room loads and we know actual positions
-let camStart = new THREE.Vector3(0, 4, 6);
-let camEnd = new THREE.Vector3(0, 2.5, 1);
-let lookStart = new THREE.Vector3(0, 2, 0);
-let lookEnd = new THREE.Vector3(0, 2.5, -3);
+(function startBoot() {
+  const loaderEl = document.getElementById('loader');
+  if (loaderEl) loaderEl.style.display = 'none';
+  document.getElementById('hud').style.display = 'none';
 
-loader.load('./assets/models/futuristic-room/scene.gltf', (gltf) => {
-  const model = gltf.scene;
-  const box = new THREE.Box3().setFromObject(model);
-  const size = box.getSize(new THREE.Vector3());
-  const maxDim = Math.max(size.x, size.y, size.z);
-  const scale = 25 / maxDim;
-  model.scale.setScalar(scale);
-  const sBox = new THREE.Box3().setFromObject(model);
-  const center = sBox.getCenter(new THREE.Vector3());
-  model.position.set(-center.x, -sBox.min.y, -center.z);
-  model.traverse(c => {
-    if (c.isMesh) { c.castShadow = true; c.receiveShadow = true; }
-  });
-  scene.add(model);
+  const bios = document.getElementById('biosScreen');
+  const out = document.getElementById('biosOutput');
+  const energyStar = document.getElementById('biosEnergyStarLogo');
+  const awardRibbon = document.getElementById('biosAwardRibbon');
+  const biosFooter = document.getElementById('biosFooter');
+  bios.classList.add('active');
+  out.textContent = '';
 
-  // Force update world matrices so getWorldPosition works
-  model.updateMatrixWorld(true);
+  // "Click to power on" — required for browser audio autoplay policy
+  const prompt = document.createElement('div');
+  prompt.style.cssText = 'position:absolute;inset:0;display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:10;';
+  const label = document.createElement('div');
+  label.textContent = 'CLICK TO POWER ON';
+  label.style.cssText = 'font-size:16px;color:#888;letter-spacing:0.3em;animation:biosBlink 1.2s step-end infinite;';
+  prompt.appendChild(label);
+  bios.appendChild(prompt);
 
-  // Find the main monitor and log ALL positions
-  const positions = {};
-  model.traverse(c => {
-    if (!c.name) return;
-    const n = c.name;
-    if (n.match(/^Monitor\.|^OfficeTable$|^OfficeChair$/)) {
-      const wp = new THREE.Vector3();
-      c.getWorldPosition(wp);
-      positions[n] = { x: wp.x, y: wp.y, z: wp.z };
+  prompt.addEventListener('click', () => {
+    prompt.remove();
+    bootAudio.play().catch(() => {});
+    runBoot();
+  }, { once: true });
+
+  function runBoot() {
+    // ─── SCREEN 1: Award BIOS header + Energy Star + memory count + drives ───
+    let text = '';
+    if (energyStar) energyStar.classList.add('visible');
+    if (awardRibbon) awardRibbon.classList.add('visible');
+
+    const screen1Lines = [
+      'Award Modular BIOS v4.51PG, An Energy Star Ally',
+      'Copyright (C) 1984-2026, Award Software, Inc.',
+      '',
+      '(7800X3DE) AMD X670E PCIset(TM)',
+      '',
+      'AMD Ryzen 7 7800X3D 8-Core Processor at 4674MHz',
+    ];
+
+    const screen1Drives = [
+      '',
+      '',
+      'Award Plug and Play BIOS Extension  v1.0A',
+      'Copyright (C) 2026, Award Software, Inc.',
+      '',
+      '    Detecting IDE Primary Master  ... Samsung 990 PRO 2TB',
+      '    Detecting IDE Primary Slave   ... PCemCD',
+      '    Detecting IDE Secondary Master... None',
+      '    Detecting IDE Secondary Slave ... None',
+    ];
+
+    function typeLines(lines, idx, cb) {
+      if (idx >= lines.length) { cb(); return; }
+      const line = lines[idx];
+      text += line + '\n';
+      out.textContent = text;
+      const delay = line === '' ? 80 : line.includes('Detecting') ? 250 : 40;
+      setTimeout(() => typeLines(lines, idx + 1, cb), delay);
     }
-  });
 
-  window._roomPositions = positions;
-  console.log('Room positions:', JSON.stringify(Object.fromEntries(
-    Object.entries(positions).map(([k, v]) => [k, [v.x.toFixed(1), v.y.toFixed(1), v.z.toFixed(1)]])
-  )));
+    function memoryCount(kb, cb) {
+      if (kb > 32768) {
+        text += 'Memory Test :    32768K OK\n';
+        out.textContent = text;
+        setTimeout(cb, 200);
+        return;
+      }
+      out.textContent = text + 'Memory Test :    ' + kb + 'K';
+      setTimeout(() => memoryCount(kb + 4096, cb), 30);
+    }
 
-  // Chair is at (-0.8, 0.2, 0.2), desk at (1.5, 1.3, 0.6)
-  // Camera sits at chair, looks at desk/monitors
-  const desk = positions['OfficeTable'] || { x: 1.5, y: 1.3, z: 0.6 };
-  const chair = positions['OfficeChair'] || { x: -0.8, y: 0.2, z: 0.2 };
+    // Run Screen 1
+    typeLines(screen1Lines, 0, () => {
+      memoryCount(0, () => {
+        typeLines(screen1Drives, 0, () => {
+          // Show bottom-pinned footer like real BIOS
+          biosFooter.textContent = '';
+          const footerLine1 = document.createElement('div');
+          footerLine1.append('Press ');
+          const del1 = document.createElement('span');
+          del1.textContent = 'DEL';
+          del1.style.cssText = 'color:#fff;font-weight:bold';
+          footerLine1.append(del1);
+          footerLine1.append(' to enter SETUP, ');
+          const esc1 = document.createElement('span');
+          esc1.textContent = 'ESC';
+          esc1.style.cssText = 'color:#fff;font-weight:bold';
+          footerLine1.append(esc1);
+          footerLine1.append(' to skip memory test');
+          biosFooter.appendChild(footerLine1);
+          const footerLine2 = document.createElement('div');
+          footerLine2.textContent = '03/30/2026-AMD-X670E-7800X3D-00';
+          biosFooter.appendChild(footerLine2);
+          // Pause then CLEAR for Screen 2
+          setTimeout(showScreen2, 800);
+        });
+      });
+    });
 
-  // Hardcoded from user positioning
-  camEnd.set(-0.90, 4.01, 0.06);
-  lookEnd.set(1.80, 1.75, 0.54);
+    // ─── SCREEN 2: System Configurations (CLEARS previous, shows boxes + PCI) ───
+    function showScreen2() {
+      if (energyStar) energyStar.classList.remove('visible');
+      if (awardRibbon) awardRibbon.classList.remove('visible');
+      biosFooter.textContent = '';
+      bios.classList.add('screen2-layout');
+      text = '';
+      out.textContent =
+        '                      System Configurations\n' +
+        '\u250C\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510\n' +
+        '\u2502 CPU Type     : Ryzen 7 7800X3D    Base Memory    :    640K \u2502\n' +
+        '\u2502 Co-Processor : Installed          Extended Memory : 32768K \u2502\n' +
+        '\u2502 CPU Clock    : 4674MHz            Cache Memory   :  96MB  \u2502\n' +
+        '\u2514\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2518\n' +
+        '\u250C\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510\n' +
+        '\u2502 Pri. Master Disk : NVMe, 1907729MB  Display Type  : EGA/VGA\u2502\n' +
+        '\u2502 Pri. Slave  Disk : None             Serial Port(s): 3F8    \u2502\n' +
+        '\u2502 Sec. Master Disk : None             DDR5 at Row(s): 0 1    \u2502\n' +
+        '\u2502 Sec. Slave  Disk : None             L2 Cache Type : 96MB   \u2502\n' +
+        '\u2514\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2518\n' +
+        '\n' +
+        'PCI device listing.....\n' +
+        'Bus No.  Device No.  Func No.  Vendor ID   Device ID   Device Class          IRQ\n' +
+        '\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\n' +
+        '  1        0           0        10DE        2705     VGA Controller          11\n' +
+        '  8        0           0        8086        15F3     Ethernet Controller     10\n' +
+        ' 12        0           1        1002        AB38     Multimedia Device        5\n';
 
-  // Start: pulled back from chair (away from desk)
-  const dx = chair.x - desk.x;
-  const dz = chair.z - desk.z;
-  const len = Math.sqrt(dx*dx + dz*dz) || 1;
-  camStart.set(chair.x + (dx/len)*5, chair.y + 3, chair.z + (dz/len)*5);
-  lookStart.set(desk.x, desk.y, desk.z);
+      // Go straight to splash — hide BIOS first
+      setTimeout(() => {
+        bios.classList.remove('active', 'screen2-layout');
+        bios.style.display = 'none';
+        out.textContent = '';
+        biosFooter.textContent = '';
+        showWin95Splash();
+      }, 1500);
+    }
 
-  console.log('Camera: chair→desk, start:', camStart.x.toFixed(1), camStart.y.toFixed(1), camStart.z.toFixed(1));
-  camera.position.copy(camStart);
+    // ─── SCREEN 4: Windows 95 splash (flag + progress bar) ───
+    function showWin95Splash() {
+      bios.classList.remove('active', 'screen2-layout');
+      bios.style.display = 'none';
+      out.textContent = '';
+      biosFooter.textContent = '';
 
-  // Debug controls removed — camera position locked in
+      if (energyStar) energyStar.classList.remove('visible');
+      if (awardRibbon) awardRibbon.classList.remove('visible');
 
-  loaderFill.style.width = '100%';
-  loaderPct.textContent = '100%';
-  loaderText.textContent = 'ENTERING THE GRID...';
+      const splash = document.getElementById('win95Splash');
+      splash.classList.add('active');
+      const bar = document.getElementById('win95SplashBar');
+      let pct = 0;
+      const barInterval = setInterval(() => {
+        pct += 2;
+        bar.style.width = pct + '%';
+        if (pct >= 100) {
+          clearInterval(barInterval);
+          setTimeout(transitionToDesktop, 400);
+        }
+      }, 50);
+    }
 
-  setTimeout(() => {
-    document.getElementById('loader').classList.add('done');
-    state.loaded = true;
-    state.phase = 'zooming';
-    state.zoomStart = performance.now() / 1000;
-  }, 600);
-}, (p) => {
-  const pct = p.total > 0 ? Math.round(p.loaded / p.total * 100) : Math.min(99, Math.round(p.loaded / 580000000 * 100));
-  loaderFill.style.width = pct + '%';
-  loaderPct.textContent = pct + '%';
-  loaderText.textContent = pct < 50 ? 'LOADING ENVIRONMENT...' : 'COMPILING SHADERS...';
-});
+    // ─── TRANSITION: CRT shutoff → desktop CRT power-on ───
+    function transitionToDesktop() {
+      const splash = document.getElementById('win95Splash');
+      if (typeof gsap !== 'undefined') {
+        const tl = gsap.timeline();
+        // CRT shutoff
+        tl.to(splash, { scaleY: 0.003, duration: 0.2, ease: 'power4.in' });
+        tl.to(splash, { scaleX: 0, opacity: 0, duration: 0.12, ease: 'power2.in' });
+        tl.call(() => { splash.classList.remove('active'); splash.style.cssText = ''; });
+        // Brief black
+        tl.set({}, {}, '+=0.3');
+        // Desktop CRT power-on
+        tl.call(() => {
+          const dt = document.getElementById('desktop');
+          dt.style.transform = 'scaleY(0.003)';
+          dt.classList.add('visible');
+          gsap.to(dt, { scaleY: 1, duration: 0.25, ease: 'power2.out', onComplete: () => {
+            dt.style.transform = '';
+            playStartupChime();
+            showWin95Desktop();
+          }});
+        });
+      } else {
+        splash.classList.remove('active');
+        showWin95Desktop();
+      }
+    }
+  }
+})();
 
 // ═══════════════════════════════════════════════════
 // DESKTOP UI
@@ -165,13 +257,13 @@ function playClickSound() {
     const gain = ctx.createGain();
     osc.connect(gain);
     gain.connect(ctx.destination);
-    osc.type = 'square';
-    osc.frequency.setValueAtTime(1200, ctx.currentTime);
-    osc.frequency.linearRampToValueAtTime(600, ctx.currentTime + 0.06);
-    gain.gain.setValueAtTime(0.15, ctx.currentTime);
-    gain.gain.linearRampToValueAtTime(0.001, ctx.currentTime + 0.08);
+    osc.type = 'triangle';
+    osc.frequency.setValueAtTime(800, ctx.currentTime);
+    osc.frequency.linearRampToValueAtTime(400, ctx.currentTime + 0.04);
+    gain.gain.setValueAtTime(0.3, ctx.currentTime);
+    gain.gain.linearRampToValueAtTime(0.01, ctx.currentTime + 0.05);
     osc.start(ctx.currentTime);
-    osc.stop(ctx.currentTime + 0.08);
+    osc.stop(ctx.currentTime + 0.05);
   } catch(e) {}
 }
 
@@ -185,13 +277,13 @@ function playStartupChime() {
       osc.connect(gain);
       gain.connect(ctx.destination);
       osc.type = 'sine';
-      const t = ctx.currentTime + i * 0.12;
+      const t = ctx.currentTime + i * 0.15;
       gain.gain.setValueAtTime(0, t);
-      gain.gain.linearRampToValueAtTime(0.18, t + 0.02);
-      gain.gain.linearRampToValueAtTime(0.001, t + 0.35);
+      gain.gain.linearRampToValueAtTime(0.4, t + 0.03);
+      gain.gain.linearRampToValueAtTime(0.01, t + 0.4);
       osc.frequency.setValueAtTime(freq, t);
       osc.start(t);
-      osc.stop(t + 0.4);
+      osc.stop(t + 0.45);
     });
   } catch(e) {}
 }
@@ -207,73 +299,29 @@ function playWindowSound(type) {
     const now = ctx.currentTime;
     if (type === 'open') {
       osc.frequency.setValueAtTime(440, now);
-      osc.frequency.linearRampToValueAtTime(880, now + 0.1);
-      gain.gain.setValueAtTime(0.12, now);
-      gain.gain.linearRampToValueAtTime(0.001, now + 0.15);
+      osc.frequency.linearRampToValueAtTime(660, now + 0.08);
+      gain.gain.setValueAtTime(0.25, now);
+      gain.gain.linearRampToValueAtTime(0.01, now + 0.1);
       osc.start(now);
-      osc.stop(now + 0.15);
+      osc.stop(now + 0.1);
     } else if (type === 'close') {
-      osc.frequency.setValueAtTime(880, now);
-      osc.frequency.linearRampToValueAtTime(220, now + 0.1);
-      gain.gain.setValueAtTime(0.1, now);
-      gain.gain.linearRampToValueAtTime(0.001, now + 0.12);
-      osc.start(now);
-      osc.stop(now + 0.12);
-    } else if (type === 'minimize') {
       osc.frequency.setValueAtTime(660, now);
-      gain.gain.setValueAtTime(0.08, now);
-      gain.gain.linearRampToValueAtTime(0.001, now + 0.06);
+      osc.frequency.linearRampToValueAtTime(330, now + 0.08);
+      gain.gain.setValueAtTime(0.25, now);
+      gain.gain.linearRampToValueAtTime(0.01, now + 0.1);
       osc.start(now);
-      osc.stop(now + 0.06);
+      osc.stop(now + 0.1);
+    } else if (type === 'minimize') {
+      osc.frequency.setValueAtTime(550, now);
+      gain.gain.setValueAtTime(0.2, now);
+      gain.gain.linearRampToValueAtTime(0.01, now + 0.04);
+      osc.start(now);
+      osc.stop(now + 0.04);
     }
   } catch(e) {}
 }
 
-// ─── BIOS SEQUENCE ─── showBios() called after camera zoom ──────────────────
-const biosLines = [
-  'NEURAL ARCHITECTURE BIOS v2.026.04',
-  'Copyright (C) 2026 Josue Aparcedo Gonzalez. All Rights Reserved.',
-  '',
-  'CPU: AMD Ryzen 9 7950X3D @ 4.2GHz ... OK',
-  'DRAM: 64GB DDR5-6000 ECC ... OK',
-  '',
-  'Detecting NVIDIA RTX 4070 Ti SUPER ...',
-  '  VRAM: 16GB GDDR6X ............... OK',
-  '  CUDA Cores: 8448 ................. OK',
-  '  Tensor Cores (4th Gen): 264 ...... OK',
-  '  TFLOPS FP16: 641.3 .............. OK',
-  '',
-  'Loading AI Acceleration Cores .... OK',
-  'Initializing Neural Pathways ...... OK',
-  'Calibrating Transformer Engine .... OK',
-  '',
-  'Boot Device: NVMe SSD Samsung 980 Pro 1TB',
-  'Loading FROM_PIXELS_TO_INTELLIGENCE.OS ...',
-  '',
-  'System Ready. Initializing Desktop Environment...',
-];
-
-function showBios() {
-  const biosScreen = document.getElementById('biosScreen');
-  const biosOutput = document.getElementById('biosOutput');
-  document.getElementById('hud').classList.remove('visible');
-  biosScreen.classList.add('active');
-  biosOutput.textContent = '';
-  const fullText = biosLines.join('\n');
-  let charIdx = 0;
-  const interval = setInterval(() => {
-    charIdx += 18;
-    biosOutput.textContent = fullText.slice(0, charIdx);
-    if (charIdx >= fullText.length) {
-      clearInterval(interval);
-      biosOutput.textContent = fullText;
-      setTimeout(() => {
-        biosScreen.classList.remove('active');
-        showWin95Desktop();
-      }, 800);
-    }
-  }, 50);
-}
+// (Old showBios removed — replaced by Award BIOS boot in startBoot)
 
 // ─── WIN95 DESKTOP ────────────────────────────────
 function buildStartMenu() {
@@ -348,7 +396,6 @@ function buildStartMenu() {
 function showWin95Desktop() {
   state.phase = 'desktop';
   desktop.classList.add('visible');
-  playStartupChime();
   buildStartMenu();
 
   // Start button click
@@ -785,7 +832,7 @@ function runTerminalCommand(cmd, output) {
       '  Vanilla JS    -- Everything else',
       '',
       'Interesting fact: This website was built',
-      'using Claude Code (AI assistant) to prove',
+      'using local AI tools to prove',
       'the thesis that consumer AI tools are',
       'now powerful enough to replace expensive',
       'cloud-only workflows.',
@@ -853,6 +900,108 @@ function runTerminalCommand(cmd, output) {
 }
 
 // ─── APP CONFIG ──────────────────────────────────
+// ─── PRESENTATION SCROLL ANIMATIONS ─────────────────
+function animatePresSlides(panel) {
+  if (typeof gsap === 'undefined') return;
+  const scrollContainer = panel.querySelector('.panel-scroll');
+  if (!scrollContainer) return;
+
+  // Header entrance
+  const header = panel.querySelector('.pres-header');
+  if (header) {
+    gsap.fromTo(header, { opacity: 0, y: -40, scale: 0.95 },
+      { opacity: 1, y: 0, scale: 1, duration: 0.8, ease: 'power3.out' });
+  }
+
+  // Each slide gets a unique entrance animation on scroll
+  const slides = panel.querySelectorAll('.pres-slide');
+  const animations = [
+    // Slide 1: Title — fade up with scale
+    (el) => { gsap.fromTo(el, { opacity: 0, y: 60, scale: 0.9 }, { opacity: 1, y: 0, scale: 1, duration: 0.7, ease: 'back.out(1.4)' }); },
+    // Slide 2: Intro — slide from left
+    (el) => { gsap.fromTo(el, { opacity: 0, x: -80 }, { opacity: 1, x: 0, duration: 0.6, ease: 'power3.out' }); },
+    // Slide 3: RQs — stagger children
+    (el) => {
+      gsap.fromTo(el, { opacity: 0 }, { opacity: 1, duration: 0.3 });
+      const items = el.querySelectorAll('.rq-item, .slide-methods');
+      gsap.fromTo(items, { opacity: 0, y: 30, rotateX: -15 }, { opacity: 1, y: 0, rotateX: 0, duration: 0.5, stagger: 0.12, ease: 'power2.out', delay: 0.2 });
+    },
+    // Slide 4: Perspective — slide from right
+    (el) => {
+      gsap.fromTo(el, { opacity: 0 }, { opacity: 1, duration: 0.3 });
+      const items = el.querySelectorAll('.persp-item');
+      gsap.fromTo(items, { opacity: 0, x: 60 }, { opacity: 1, x: 0, duration: 0.5, stagger: 0.15, ease: 'power3.out', delay: 0.1 });
+    },
+    // Slide 5: Transdisciplinary — tags pop in, connections slide up
+    (el) => {
+      gsap.fromTo(el, { opacity: 0 }, { opacity: 1, duration: 0.3 });
+      const tags = el.querySelectorAll('.discipline-tag');
+      gsap.fromTo(tags, { opacity: 0, scale: 0, rotation: -10 }, { opacity: 1, scale: 1, rotation: 0, duration: 0.4, stagger: 0.06, ease: 'back.out(2)', delay: 0.1 });
+      const conns = el.querySelectorAll('.connection-item');
+      gsap.fromTo(conns, { opacity: 0, y: 40 }, { opacity: 1, y: 0, duration: 0.5, stagger: 0.1, ease: 'power2.out', delay: 0.5 });
+    },
+    // Slide 6: Implications — cards flip in
+    (el) => {
+      gsap.fromTo(el, { opacity: 0 }, { opacity: 1, duration: 0.3 });
+      const items = el.querySelectorAll('.impl-item');
+      gsap.fromTo(items, { opacity: 0, rotateY: -30, x: -30 }, { opacity: 1, rotateY: 0, x: 0, duration: 0.6, stagger: 0.12, ease: 'power3.out', delay: 0.15 });
+      const thesis = el.querySelector('.slide-thesis');
+      if (thesis) gsap.fromTo(thesis, { opacity: 0, scale: 0.8 }, { opacity: 1, scale: 1, duration: 0.8, ease: 'elastic.out(1, 0.5)', delay: 0.8 });
+    },
+    // Slide 7: Advocacy — points count up
+    (el) => {
+      gsap.fromTo(el, { opacity: 0 }, { opacity: 1, duration: 0.3 });
+      const points = el.querySelectorAll('.advocacy-point');
+      gsap.fromTo(points, { opacity: 0, x: -40 }, { opacity: 1, x: 0, duration: 0.5, stagger: 0.15, ease: 'power2.out', delay: 0.15 });
+    },
+    // Slide 8: Preparing — cards cascade down
+    (el) => {
+      gsap.fromTo(el, { opacity: 0 }, { opacity: 1, duration: 0.3 });
+      const items = el.querySelectorAll('.prep-item');
+      gsap.fromTo(items, { opacity: 0, y: -30, scale: 0.95 }, { opacity: 1, y: 0, scale: 1, duration: 0.5, stagger: 0.12, ease: 'power2.out', delay: 0.1 });
+    },
+    // Slide 9: Reflection — thesis pulses, reflections fade in
+    (el) => {
+      gsap.fromTo(el, { opacity: 0 }, { opacity: 1, duration: 0.3 });
+      const thesis = el.querySelector('.slide-thesis');
+      if (thesis) {
+        gsap.fromTo(thesis, { opacity: 0, scale: 0.7, filter: 'blur(10px)' },
+          { opacity: 1, scale: 1, filter: 'blur(0px)', duration: 1, ease: 'power3.out', delay: 0.1 });
+      }
+      const refs = el.querySelectorAll('.reflection-item');
+      gsap.fromTo(refs, { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.5, stagger: 0.15, ease: 'power2.out', delay: 0.6 });
+      const qa = el.querySelector('.slide-qa');
+      if (qa) gsap.fromTo(qa, { opacity: 0, scale: 0.9 }, { opacity: 1, scale: 1, duration: 0.6, ease: 'back.out(1.4)', delay: 1.2 });
+    },
+  ];
+
+  // Set all slides to invisible initially
+  slides.forEach(s => { s.style.opacity = '0'; });
+
+  // Use IntersectionObserver to trigger animations on scroll
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (!entry.isIntersecting) return;
+      const slide = entry.target;
+      const idx = Array.from(slides).indexOf(slide);
+      if (idx >= 0 && idx < animations.length) {
+        animations[idx](slide);
+      } else {
+        gsap.fromTo(slide, { opacity: 0, y: 40 }, { opacity: 1, y: 0, duration: 0.6, ease: 'power2.out' });
+      }
+      observer.unobserve(slide);
+    });
+  }, { root: scrollContainer, threshold: 0.15 });
+
+  slides.forEach(s => observer.observe(s));
+
+  // Trigger first slide immediately (it's already in view)
+  if (slides[0]) {
+    setTimeout(() => animations[0](slides[0]), 100);
+    observer.unobserve(slides[0]);
+  }
+}
+
 const APP_CONFIG = {
   paper: {
     title: 'Research Paper.exe',
@@ -860,9 +1009,10 @@ const APP_CONFIG = {
     width: 900,
     height: 640,
     open() {
-      const panel = document.getElementById('panelPaper');
-      const winEl = wm.createWindow('paper', this.title, this.icon, panel, { width: 900, height: 640 });
-      if (panel) panel.classList.add('open');
+      const iframe = document.createElement('iframe');
+      iframe.src = './research-paper.pdf';
+      iframe.style.cssText = 'width:100%;height:100%;border:none;background:#fff;';
+      const winEl = wm.createWindow('paper', this.title, this.icon, iframe, { width: 900, height: 640 });
       animateWindowOpen('paper', winEl);
     }
   },
@@ -876,6 +1026,7 @@ const APP_CONFIG = {
       const winEl = wm.createWindow('pres', this.title, this.icon, panel, { width: 900, height: 640 });
       if (panel) panel.classList.add('open');
       animateWindowOpen('pres', winEl);
+      setTimeout(() => animatePresSlides(panel), 400);
     }
   },
   exp: {
@@ -1011,7 +1162,7 @@ const APP_CONFIG = {
       ta.style.padding = '8px';
       ta.style.background = '#fff';
       ta.style.color = '#000';
-      ta.textContent = 'FROM PIXELS TO INTELLIGENCE\n============================\nBy Josue Aparcedo Gonzalez\nIDS2891 Cornerstone, Spring 2026\n\nThanks for exploring this project.\nThis entire website was built with\nClaude Code + Three.js + GSAP.\n\nResearch: 13,455 words, 35 APA sources\nTopic: Local AI democratization\n\nFun fact: The GPU rendering this\nretro OS is the same type of hardware\nthis paper argues will obsolete the cloud.\n\n-- J.A.G.';
+      ta.textContent = 'FROM PIXELS TO INTELLIGENCE\n============================\nBy Josue Aparcedo Gonzalez\nIDS2891 Cornerstone, Spring 2026\n\nThanks for exploring this project.\nThis entire website was built with\nLocal AI + Three.js + GSAP.\n\nResearch: 13,455 words, 35 APA sources\nTopic: Local AI democratization\n\nFun fact: The GPU rendering this\nretro OS is the same type of hardware\nthis paper argues will obsolete the cloud.\n\n-- J.A.G.';
       div.appendChild(ta);
 
       const noteWinEl = wm.createWindow('notepad', this.title, this.icon, div, { width: 480, height: 380 });
@@ -1165,41 +1316,30 @@ document.getElementById('runBtn').addEventListener('click', function() {
 });
 
 // ═══════════════════════════════════════════════════
-// RESIZE
+// RESIZE + PARTICLE ANIMATION LOOP
 // ═══════════════════════════════════════════════════
 window.addEventListener('resize', () => {
   camera.aspect = window.innerWidth / window.innerHeight;
   camera.updateProjectionMatrix();
   renderer.setSize(window.innerWidth, window.innerHeight);
-  composer.setSize(window.innerWidth, window.innerHeight);
 });
-
-// ═══════════════════════════════════════════════════
-// ANIMATION LOOP
-// ═══════════════════════════════════════════════════
-const clock = new THREE.Clock();
 
 function animate() {
   requestAnimationFrame(animate);
-  const now = performance.now() / 1000;
-
-  // Zoom into screen
-  if (state.phase === 'zooming') {
-    const elapsed = now - state.zoomStart;
-    const t = Math.min(1, elapsed / state.zoomDuration);
-    // Smooth easing (ease-in-out cubic)
-    const ease = t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
-
-    camera.position.lerpVectors(camStart, camEnd, ease);
-    const lookTarget = new THREE.Vector3().lerpVectors(lookStart, lookEnd, ease);
-    camera.lookAt(lookTarget);
-
-    if (t >= 1) {
-      showBios();
-    }
+  // Drift particles
+  const pos = particles.geometry.attributes.position.array;
+  for (let i = 0; i < PTC; i++) {
+    pos[i*3]   += pVel[i*3];
+    pos[i*3+1] += pVel[i*3+1];
+    pos[i*3+2] += pVel[i*3+2];
+    // Wrap around
+    if (Math.abs(pos[i*3]) > 100) pos[i*3] *= -0.9;
+    if (Math.abs(pos[i*3+1]) > 100) pos[i*3+1] *= -0.9;
+    if (Math.abs(pos[i*3+2]) > 100) pos[i*3+2] *= -0.9;
   }
-
-  composer.render();
+  particles.geometry.attributes.position.needsUpdate = true;
+  particles.rotation.y += 0.0003;
+  renderer.render(scene, camera);
 }
 
 animate();
