@@ -38,6 +38,7 @@
 - [ ] **BONZI-03**: Click to chat — powered by local Qwen via Ollama (localhost:11434)
 - [ ] **BONZI-04**: Text-to-speech via Web Speech API
 - [ ] **BONZI-05**: "Download more RAM" easter egg triggers BSOD
+- [ ] **BONZI-06**: Fallback canned responses when Ollama is not running (fetch fails gracefully)
 
 ### Win95 Extras
 
@@ -80,7 +81,6 @@
 - [ ] **AUDIO-01**: Dial-up modem sound when IE opens (Web Audio synthesis or MP3)
 - [ ] **AUDIO-02**: Shutdown sound (reverse startup chime)
 - [ ] **AUDIO-03**: Winamp plays lo-fi/chiptune track (source a CC0 audio file)
-- [ ] **BONZI-06**: Fallback canned responses when Ollama is not running (fetch fails gracefully)
 
 ### Hosting & Submission
 
@@ -128,18 +128,75 @@
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| PRES-01 – PRES-08 | TBD | Pending |
-| STEAM-01 – STEAM-05 | TBD | Pending |
-| FILE-01 – FILE-04 | TBD | Pending |
-| BONZI-01 – BONZI-05 | TBD | Pending |
-| W95-01 – W95-15 | TBD | Pending |
-| QA-01 – QA-04 | TBD | Pending |
+| INFRA-01 | Phase 12 | Pending |
+| INFRA-02 | Phase 12 | Pending |
+| INFRA-03 | Phase 12 | Pending |
+| INFRA-04 | Phase 12 | Pending |
+| HOST-01 | Phase 12 | Pending |
+| HOST-02 | Phase 12 | Pending |
+| HOST-03 | Phase 12 | Pending |
+| PRES-01 | Phase 13 | In Progress |
+| PRES-02 | Phase 13 | In Progress |
+| PRES-03 | Phase 13 | In Progress |
+| PRES-04 | Phase 13 | In Progress |
+| PRES-05 | Phase 13 | In Progress |
+| PRES-06 | Phase 13 | In Progress |
+| PRES-07 | Phase 13 | In Progress |
+| PRES-08 | Phase 13 | In Progress |
+| WM-01 | Phase 14 | Awaiting Verify |
+| WM-02 | Phase 14 | Awaiting Verify |
+| WM-03 | Phase 14 | Awaiting Verify |
+| WM-04 | Phase 14 | Awaiting Verify |
+| WM-05 | Phase 14 | Awaiting Verify |
+| BOOT-01 | Phase 14 | Awaiting Verify |
+| BOOT-02 | Phase 14 | Awaiting Verify |
+| BOOT-03 | Phase 14 | Awaiting Verify |
+| NAV-01 | Phase 14 | Awaiting Verify |
+| NAV-02 | Phase 14 | Awaiting Verify |
+| FILE-01 | Phase 15 | Pending |
+| FILE-02 | Phase 15 | Pending |
+| FILE-03 | Phase 15 | Pending |
+| FILE-04 | Phase 15 | Pending |
+| STEAM-01 | Phase 15 | Pending |
+| STEAM-02 | Phase 15 | Pending |
+| STEAM-03 | Phase 15 | Pending |
+| STEAM-04 | Phase 15 | Pending |
+| STEAM-05 | Phase 15 | Pending |
+| BONZI-01 | Phase 16 | Pending |
+| BONZI-02 | Phase 16 | Pending |
+| BONZI-03 | Phase 16 | Pending |
+| BONZI-04 | Phase 16 | Pending |
+| BONZI-05 | Phase 16 | Pending |
+| BONZI-06 | Phase 16 | Pending |
+| W95-01 | Phase 17 | Pending |
+| W95-02 | Phase 17 | Pending |
+| W95-03 | Phase 17 | Pending |
+| W95-04 | Phase 17 | Pending |
+| W95-05 | Phase 17 | Pending |
+| W95-06 | Phase 17 | Pending |
+| W95-07 | Phase 17 | Pending |
+| W95-08 | Phase 17 | Pending |
+| W95-09 | Phase 17 | Pending |
+| AUDIO-01 | Phase 17 | Pending |
+| AUDIO-02 | Phase 17 | Pending |
+| AUDIO-03 | Phase 17 | Pending |
+| W95-10 | Phase 18 | Pending |
+| W95-11 | Phase 18 | Pending |
+| W95-12 | Phase 18 | Pending |
+| W95-14 | Phase 18 | Pending |
+| W95-15 | Phase 18 | Pending |
+| NAV-03 | Phase 14 | Awaiting Verify |
+| PERF-01 | Phase 18 | Pending |
+| PERF-02 | Phase 18 | Pending |
+| QA-01 | Phase 18 | Pending |
+| QA-02 | Phase 18 | Pending |
+| QA-04 | Phase 18 | Pending |
 
 **Coverage:**
-- v2.0 requirements: 57 total
-- Mapped to phases: 0
-- Unmapped: 57 ⚠️
+- v2.0 requirements: 63 total
+- Mapped to phases: 63
+- Unmapped: 0 ✓
 
 ---
 *Requirements defined: 2026-03-31*
-*Last updated: 2026-03-31 after initial definition*
+*Last updated: 2026-03-31 — traceability complete, 7 phases (12-18)*

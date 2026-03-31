@@ -3,11 +3,11 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-last_updated: "2026-03-31T03:02:45.764Z"
+last_updated: "2026-03-31T13:10:00.000Z"
 progress:
   total_phases: 18
-  completed_phases: 4
-  total_plans: 11
+  completed_phases: 11
+  total_plans: 14
   completed_plans: 11
 ---
 
@@ -15,10 +15,12 @@ progress:
 
 ## Current Phase
 
-Phase 12 — Infrastructure Cleanup + Hosting (COMPLETE)
-Next: Phase 13 — Presentation.exe Fullscreen
+Phase 13 — Presentation.exe Fullscreen (IN PROGRESS)
+Previous: Phase 12 — Infrastructure Cleanup + Hosting (COMPLETE)
 
 ## Last Action
+
+2026-03-31: Phase 14 Plan 01 IMPLEMENTED — six-icon desktop shell, Programs submenus, login welcome state, resizable/snapping windows, taskbar minimize/focus behavior. Pending human browser validation. Commit: 94cef2b.
 
 2026-03-31: Phase 12 Plan 03 COMPLETE — CDN imports for marked.js + DOMPurify added to index.html, 6 module stub files created (presentation, steam, bonzi, games, extras, explorer), node_modules excluded from git. Commits: cd0fbed, 4f86d3b.
 
@@ -32,6 +34,13 @@ Next: Phase 13 — Presentation.exe Fullscreen
 - UMD CDN builds for marked and DOMPurify — work as window globals without bundler
 - games.js loads before steam.js — steam depends on games, order established now
 - window.* globals pattern for stubs — compatible with non-module script loading
+
+## Phase 14 Plan 01 Decisions (2026-03-31)
+
+- Desktop icons reduced to the 6 roadmap core apps — Experience and other extras moved into Start submenus
+- Taskbar pills changed from toggle-minimize to focus/restore controls — matches the Phase 14 requirement
+- WindowManager extended in place with resize handles and snap logic — avoids a risky shell rewrite while Phase 15+ still depend on `main.js`
+- Phase 14 verification remains human-needed — interactive drag/resize/boot checks need a real browser pass
 
 ## Phase 11 Plan 05 Decisions (2026-03-30)
 
@@ -75,11 +84,21 @@ Next: Phase 13 — Presentation.exe Fullscreen
 
 Co-Curricular Reflection requires 2 FSW events. User hasn't attended yet, will this week. Skip for now, fill in later.
 
-### Remaining Phases
+### Recently Completed Phases
 
 - **Phase 9** — Research Documentation — COMPLETE (a33c792) — assignment-15-research-documentation.md written, 15 APA sources, ready for grubby.ai
 - **Phase 10** — Revision & Reflection — COMPLETE (4a65c2b) — assignment-16-revision-reflection.md written, 1,710 words, 18 APA sources, ready for grubby.ai
-- **Phase 11** — Final Project (interactive website) — WIP website exists, needs major redesign
+- **Phase 11** — Final Project (interactive website foundation) — COMPLETE — Win95 desktop shell, app windows, and interactive content scaffolding shipped
+- **Phase 12** — Infrastructure Cleanup + Hosting — COMPLETE — dead code removed, module stubs wired, static hosting path restored
+
+### Remaining Phases
+
+- **Phase 13** — Presentation.exe Fullscreen — next up
+- **Phase 14** — Window Management + Boot Sequence + Navigation
+- **Phase 15** — File Explorer + Steam App
+- **Phase 16** — Bonzi Buddy
+- **Phase 17** — Win95 Extras Batch 1
+- **Phase 18** — Win95 Extras Batch 2 + Audio + Performance + Polish
 
 ## Phase 10 Decisions (2026-03-30)
 
@@ -124,7 +143,7 @@ Co-Curricular Reflection requires 2 FSW events. User hasn't attended yet, will t
 
 ## Research Paper (Separate — Not a Class Assignment)
 
-- **Status:** Executing Phase 11
+- **Status:** Ready to plan
 - **Google Doc:** https://docs.google.com/document/d/1s3qM1qqWGbZKR1AQn1PhHX7fdGiKoPmv4-gpq7BMzc8/edit
 - **Stats:** 13,455 words, 35 APA sources, 2 tables, 10 sections
 - **Thesis:** Cloud-first AI is a temporary phase; open-source + consumer hardware make it obsolete
