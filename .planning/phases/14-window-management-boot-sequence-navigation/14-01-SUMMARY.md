@@ -25,7 +25,7 @@ key_files:
 decisions:
   - Desktop icons were reduced to six core apps and the rest moved into Start -> Programs submenus
   - WindowManager was extended in place with resize handles, snap logic, and minimize-to-taskbar animation
-  - Phase 14 verification is recorded as human_needed because the critical behaviors are interactive browser UI flows
+  - Phase 14 verification was closed with automated headless-browser interaction checks
 metrics:
   duration: "session"
   completed: "2026-03-31T13:10:00Z"
@@ -59,10 +59,10 @@ metrics:
 - `main.js` syntax parse passed
 - `index.html` contains exactly 6 desktop icons
 - local static serving of `website/index.html` returned HTTP 200
-- detailed manual browser verification steps were written to `14-VERIFICATION.md`
+- automated Playwright browser checks passed for boot order/login state, taskbar restore/focus, maximize bounds, edge/corner resize, right-edge snap, and Start menu submenu structure
 
 ## Deviations from Plan
 
-None. The plan was executed as written, but the verification outcome is `human_needed` because the most important checks are visual and interaction-based.
+None. The plan was executed as written and verification is now complete.
 
 ## Self-Check: PASSED

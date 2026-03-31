@@ -59,15 +59,15 @@
 
 ### Boot Sequence
 
-- [ ] **BOOT-01**: Login screen before BIOS (any password works, shows "Welcome")
-- [ ] **BOOT-02**: Boot order: Login → BIOS → Win95 Splash → Desktop
-- [ ] **BOOT-03**: Login screen removed from W95-13 (moved here as BOOT-01)
+- [x] **BOOT-01**: Login screen before BIOS (any password works, shows "Welcome")
+- [x] **BOOT-02**: Boot order: Login → BIOS → Win95 Splash → Desktop
+- [x] **BOOT-03**: Login screen removed from W95-13 (moved here as BOOT-01)
 
 ### Start Menu & Desktop Organization
 
-- [ ] **NAV-01**: Start menu updated with all new apps organized in submenus (Programs → Games, Programs → Accessories, Programs → Research)
-- [ ] **NAV-02**: Desktop icons limited to core apps (Research Paper, Presentation, My Computer, Terminal, Recycle Bin, Steam). Others in Start menu.
-- [ ] **NAV-03**: Taskbar shows running apps with click-to-focus
+- [x] **NAV-01**: Start menu updated with all new apps organized in submenus (Programs → Games, Programs → Accessories, Programs → Research)
+- [x] **NAV-02**: Desktop icons limited to core apps (Research Paper, Presentation, My Computer, Terminal, Recycle Bin, Steam). Others in Start menu.
+- [x] **NAV-03**: Taskbar shows running apps with click-to-focus
 
 ### Infrastructure
 
@@ -90,11 +90,11 @@
 
 ### Window Management
 
-- [ ] **WM-01**: Windows are resizable (drag edges/corners)
-- [ ] **WM-02**: Windows snap to edges when dragged near screen border
-- [ ] **WM-03**: Minimize animation (shrink to taskbar)
-- [ ] **WM-04**: Maximize fills screen properly (minus taskbar)
-- [ ] **WM-05**: Taskbar shows all open windows with click-to-focus
+- [x] **WM-01**: Windows are resizable (drag edges/corners)
+- [x] **WM-02**: Windows snap to edges when dragged near screen border
+- [x] **WM-03**: Minimize animation (shrink to taskbar)
+- [x] **WM-04**: Maximize fills screen properly (minus taskbar)
+- [x] **WM-05**: Taskbar shows all open windows with click-to-focus
 
 ### Performance & Persistence
 
@@ -143,16 +143,16 @@
 | PRES-06 | Phase 13 | In Progress |
 | PRES-07 | Phase 13 | In Progress |
 | PRES-08 | Phase 13 | In Progress |
-| WM-01 | Phase 14 | Awaiting Verify |
-| WM-02 | Phase 14 | Awaiting Verify |
-| WM-03 | Phase 14 | Awaiting Verify |
-| WM-04 | Phase 14 | Awaiting Verify |
-| WM-05 | Phase 14 | Awaiting Verify |
-| BOOT-01 | Phase 14 | Awaiting Verify |
-| BOOT-02 | Phase 14 | Awaiting Verify |
-| BOOT-03 | Phase 14 | Awaiting Verify |
-| NAV-01 | Phase 14 | Awaiting Verify |
-| NAV-02 | Phase 14 | Awaiting Verify |
+| WM-01 | Phase 14 | Complete |
+| WM-02 | Phase 14 | Complete |
+| WM-03 | Phase 14 | Complete |
+| WM-04 | Phase 14 | Complete |
+| WM-05 | Phase 14 | Complete |
+| BOOT-01 | Phase 14 | Complete |
+| BOOT-02 | Phase 14 | Complete |
+| BOOT-03 | Phase 14 | Complete |
+| NAV-01 | Phase 14 | Complete |
+| NAV-02 | Phase 14 | Complete |
 | FILE-01 | Phase 15 | Complete |
 | FILE-02 | Phase 15 | Complete |
 | FILE-03 | Phase 15 | Complete |
@@ -185,7 +185,7 @@
 | W95-12 | Phase 18 | Pending |
 | W95-14 | Phase 18 | Pending |
 | W95-15 | Phase 18 | Pending |
-| NAV-03 | Phase 14 | Awaiting Verify |
+| NAV-03 | Phase 14 | Complete |
 | PERF-01 | Phase 18 | Pending |
 | PERF-02 | Phase 18 | Pending |
 | QA-01 | Phase 18 | Pending |
