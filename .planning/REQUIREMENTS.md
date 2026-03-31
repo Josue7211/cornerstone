@@ -18,27 +18,27 @@
 
 ### Steam App
 
-- [ ] **STEAM-01**: Steam-style game launcher with dark UI, 2-pane layout (library + detail)
-- [ ] **STEAM-02**: Snake game (playable)
-- [ ] **STEAM-03**: Platformer mini-game ("Silicon Runner" themed)
-- [ ] **STEAM-04**: CPU vs GPU Race (educational, ties to research)
-- [ ] **STEAM-05**: Experience demos accessible as "games" in Steam library
+- [x] **STEAM-01**: Steam-style game launcher with dark UI, 2-pane layout (library + detail)
+- [x] **STEAM-02**: Snake game (playable)
+- [x] **STEAM-03**: Platformer mini-game ("Silicon Runner" themed)
+- [x] **STEAM-04**: CPU vs GPU Race (educational, ties to research)
+- [x] **STEAM-05**: Experience demos accessible as "games" in Steam library
 
 ### File Explorer
 
-- [ ] **FILE-01**: Organized tree of all 14 semester assignments in 6 folders
-- [ ] **FILE-02**: Click any assignment to view rendered markdown content
-- [ ] **FILE-03**: Content pulled from actual assignment MD files (marked.js + DOMPurify)
-- [ ] **FILE-04**: Hidden "definitely_not_homework" folder easter egg
+- [x] **FILE-01**: Organized tree of all 14 semester assignments in 6 folders
+- [x] **FILE-02**: Click any assignment to view rendered markdown content
+- [x] **FILE-03**: Content pulled from actual assignment MD files (marked.js + DOMPurify)
+- [x] **FILE-04**: Hidden "definitely_not_homework" folder easter egg
 
 ### Bonzi Buddy
 
-- [ ] **BONZI-01**: Animated Bonzi character on desktop (clippy.js or custom sprites)
-- [ ] **BONZI-02**: Walks/bounces around desktop with GSAP
-- [ ] **BONZI-03**: Click to chat — powered by local Qwen via Ollama (localhost:11434)
-- [ ] **BONZI-04**: Text-to-speech via Web Speech API
-- [ ] **BONZI-05**: "Download more RAM" easter egg triggers BSOD
-- [ ] **BONZI-06**: Fallback canned responses when Ollama is not running (fetch fails gracefully)
+- [x] **BONZI-01**: Animated Bonzi character on desktop (clippy.js or custom sprites)
+- [x] **BONZI-02**: Walks/bounces around desktop with GSAP
+- [x] **BONZI-03**: Click to chat — powered by local Qwen via Ollama (localhost:11434)
+- [x] **BONZI-04**: Text-to-speech via Web Speech API
+- [x] **BONZI-05**: "Download more RAM" easter egg triggers BSOD
+- [x] **BONZI-06**: Fallback canned responses when Ollama is not running (fetch fails gracefully)
 
 ### Win95 Extras
 
@@ -153,21 +153,21 @@
 | BOOT-03 | Phase 14 | Awaiting Verify |
 | NAV-01 | Phase 14 | Awaiting Verify |
 | NAV-02 | Phase 14 | Awaiting Verify |
-| FILE-01 | Phase 15 | Pending |
-| FILE-02 | Phase 15 | Pending |
-| FILE-03 | Phase 15 | Pending |
-| FILE-04 | Phase 15 | Pending |
-| STEAM-01 | Phase 15 | Pending |
-| STEAM-02 | Phase 15 | Pending |
-| STEAM-03 | Phase 15 | Pending |
-| STEAM-04 | Phase 15 | Pending |
-| STEAM-05 | Phase 15 | Pending |
-| BONZI-01 | Phase 16 | Pending |
-| BONZI-02 | Phase 16 | Pending |
-| BONZI-03 | Phase 16 | Pending |
-| BONZI-04 | Phase 16 | Pending |
-| BONZI-05 | Phase 16 | Pending |
-| BONZI-06 | Phase 16 | Pending |
+| FILE-01 | Phase 15 | Complete |
+| FILE-02 | Phase 15 | Complete |
+| FILE-03 | Phase 15 | Complete |
+| FILE-04 | Phase 15 | Complete |
+| STEAM-01 | Phase 15 | Complete |
+| STEAM-02 | Phase 15 | Complete |
+| STEAM-03 | Phase 15 | Complete |
+| STEAM-04 | Phase 15 | Complete |
+| STEAM-05 | Phase 15 | Complete |
+| BONZI-01 | Phase 16 | Complete |
+| BONZI-02 | Phase 16 | Complete |
+| BONZI-03 | Phase 16 | Complete |
+| BONZI-04 | Phase 16 | Complete |
+| BONZI-05 | Phase 16 | Complete |
+| BONZI-06 | Phase 16 | Complete |
 | W95-01 | Phase 17 | Pending |
 | W95-02 | Phase 17 | Pending |
 | W95-03 | Phase 17 | Pending |

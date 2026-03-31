@@ -155,8 +155,8 @@ Plans:
 - [x] **Phase 12: Infrastructure Cleanup + Hosting** — Remove dead code, split JS into modules, add CDN imports, kill invisible Three.js loop, verify GitHub Pages deployability (completed 2026-03-31)
 - [ ] **Phase 13: Presentation.exe — Awwwards-Level Fullscreen** — 9-slide fullscreen scene-per-slide experience with GSAP animations, progress indicator, keyboard/click navigation
 - [ ] **Phase 14: Window Management + Boot Sequence + Navigation** — implemented 2026-03-31, awaiting human verification
-- [ ] **Phase 15: File Explorer + Steam App** — Assignment tree with markdown rendering, Steam game launcher with Snake, Silicon Runner, CPU vs GPU Race, Experience demos
-- [ ] **Phase 16: Bonzi Buddy** — Animated desktop character (clippy.js), GSAP walking, Ollama chat with fallback, TTS, BSOD easter egg
+- [x] **Phase 15: File Explorer + Steam App** — Assignment tree with markdown rendering, Steam game launcher with Snake, Silicon Runner, CPU vs GPU Race, Experience demos (completed 2026-03-31)
+- [x] **Phase 16: Bonzi Buddy** — Animated desktop character (clippy.js), GSAP walking, Ollama chat with fallback, TTS, BSOD easter egg (completed 2026-03-31)
 - [ ] **Phase 17: Win95 Extras Batch 1** — Minesweeper, Paint, Internet Explorer (dial-up sound), MSN Messenger, Shutdown sequence, BSOD, System Properties, Screensaver
 - [ ] **Phase 18: Win95 Extras Batch 2 + Audio + Performance + Polish** — Clippy in Notepad, Winamp, Disk Defragmenter, context menu, icon drag-and-drop, Recycle Bin states, shutdown/Winamp audio, localStorage persistence, reflection content, zero console errors
 
@@ -298,7 +298,7 @@ Plans:
 | 12. Infrastructure Cleanup + Hosting | 3/3 | Complete   | 2026-03-31 |
 | 13. Presentation.exe Fullscreen | 1/1 | In Progress | - |
 | 14. Window Management + Boot + Nav | 0/TBD | Not started | - |
-| 15. File Explorer + Steam App | 0/TBD | Not started | - |
-| 16. Bonzi Buddy | 0/TBD | Not started | - |
+| 15. File Explorer + Steam App | 1/1 | Complete   | 2026-03-31 |
+| 16. Bonzi Buddy | 1/1 | Complete   | 2026-03-31 |
 | 17. Win95 Extras Batch 1 | 0/TBD | Not started | - |
 | 18. Win95 Extras Batch 2 + Polish | 0/TBD | Not started | - |
