@@ -17,10 +17,6 @@
       }
     }
   </script>
-  <!-- Markdown parsing (used by File Explorer in Phase 15) -->
-  <script src="https://cdn.jsdelivr.net/npm/marked@13.1.0/lib/marked.umd.js"></script>
-  <!-- HTML sanitization — required when inserting parsed markdown into DOM (XSS prevention) -->
-  <script src="https://cdn.jsdelivr.net/npm/dompurify@3.3.3/dist/purify.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
 </head>
 <body>
@@ -33,6 +29,37 @@
       <p class="loader-text" id="loaderText">INITIALIZING NEURAL PATHWAYS...</p>
       <p class="loader-pct" id="loaderPct">0%</p>
     </div>
+  </div>
+
+  <!-- HUD -->
+  <div class="hud" id="hud">
+    <div class="hud-top">
+      <span class="hud-title">FROM PIXELS TO INTELLIGENCE</span>
+      <span class="hud-author">Josue Aparcedo Gonzalez · IDS2891 · Spring 2026</span>
+    </div>
+    <div class="hud-controls" id="hudControls">
+      <span>CLICK TO START</span>
+    </div>
+    <div class="hud-minimap" id="minimap">
+      <div class="minimap-dot" id="minimapDot"></div>
+      <div class="minimap-portal minimap-portal--paper"></div>
+      <div class="minimap-portal minimap-portal--pres"></div>
+      <div class="minimap-portal minimap-portal--exp"></div>
+    </div>
+  </div>
+
+  <!-- PORTAL LABELS -->
+  <div class="portal-label portal-label--paper" id="labelPaper">
+    <span class="portal-icon">&#128196;</span>
+    <span>RESEARCH PAPER</span>
+  </div>
+  <div class="portal-label portal-label--pres" id="labelPres">
+    <span class="portal-icon">&#127916;</span>
+    <span>PRESENTATION</span>
+  </div>
+  <div class="portal-label portal-label--exp" id="labelExp">
+    <span class="portal-icon">&#128300;</span>
+    <span>EXPERIENCE</span>
   </div>
 
   <!-- CONTENT PANELS -->
@@ -496,14 +523,5 @@
   <canvas id="scene"></canvas>
 
   <script type="module" src="main.js"></script>
-
-  <!-- Module files — each phase team owns one file -->
-  <!-- Load order: games before steam (steam depends on games) -->
-  <script src="games.js"></script>
-  <script src="explorer.js"></script>
-  <script src="presentation.js"></script>
-  <script src="steam.js"></script>
-  <script src="bonzi.js"></script>
-  <script src="extras.js"></script>
 </body>
 </html>
