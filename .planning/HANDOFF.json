@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "timestamp": "2026-03-31T13:25:26.387Z",
+  "timestamp": "2026-03-31T13:57:56.783Z",
   "phase": "13",
   "phase_name": "presentation-exe-awwwards-level-fullscreen",
   "phase_dir": ".planning/phases/13-presentation-exe-awwwards-level-fullscreen",
@@ -11,73 +11,60 @@
   "completed_tasks": [
     {
       "id": 1,
-      "name": "Repair GSD planning state and capture the current fullscreen presentation baseline",
+      "name": "Route Presentation.exe to fullscreen mode",
       "status": "done"
     },
     {
       "id": 2,
-      "name": "Redesign Phase 13 motion/art direction to match the scraped reference quality bar",
+      "name": "Build fullscreen overlay and navigation foundation",
       "status": "done"
     }
   ],
   "remaining_tasks": [
     {
       "id": 3,
-      "name": "Verify the upgraded presentation against the Phase 13 success criteria and only then mark complete",
+      "name": "Ship Awwwards-level cinematic motion pass and finalize visual QA",
       "status": "in_progress"
     }
   ],
   "blockers": [
     {
-      "description": "Phase 13 quality bar is subjective and still user-driven. User requested further polish after seeing current transitions.",
+      "description": "Current transition pipeline still has quality issues (blur/angle artifacts, repetitive feel) and does not yet match the requested premium bar.",
       "type": "technical",
-      "workaround": "Iterate directly with user feedback from live localhost previews, then run final human validation pass."
+      "workaround": "Refactor to single-pass transition pipeline, remove pointer-follow parallax, add multi-directional and portal/world transitions with clean settle states."
     }
   ],
   "human_actions_pending": [
     {
-      "action": "Run visual acceptance check for Presentation.exe against scraped reference quality bar",
-      "context": "Verification status for Phase 13 remains human_needed until user signs off.",
+      "action": "Run visual acceptance review in browser after next motion pass",
+      "context": "User is final authority for whether cinematic quality matches reference expectation.",
       "blocking": true
     }
   ],
   "decisions": [
     {
-      "decision": "Phase 13 must remain open even though a fullscreen presentation implementation exists",
-      "rationale": "Working fullscreen behavior is not the same as meeting the intended Awwwards-level quality bar",
+      "decision": "Creative direction locked to hybrid transition language",
+      "rationale": "User selected hybrid approach: same world different zones + directional transitions + blade/sword mechanics.",
       "phase": "13"
     },
     {
-      "decision": "Keep the current fullscreen code and phase artifacts as the baseline instead of deleting them",
-      "rationale": "They provide a concrete starting point for the real completion pass",
+      "decision": "Mouse-follow parallax should be removed",
+      "rationale": "User explicitly rejected mouse-follow behavior and reported blur/tilt glitches linked to current interaction effects.",
       "phase": "13"
     },
     {
-      "decision": "Remove cursor-follow parallax from Presentation.exe",
-      "rationale": "User explicitly rejected mouse-follow movement as low-quality compared with reference sites",
-      "phase": "13"
-    },
-    {
-      "decision": "Keep ESC/navigation hint always visible in Presentation.exe",
-      "rationale": "Persistent on-screen wayfinding is required for users to know how to exit",
+      "decision": "Final flow should include dedicated Questions + Sources ending",
+      "rationale": "User requested Q&A and sources to be final destination instead of mixed reflection content.",
       "phase": "13"
     }
   ],
   "uncommitted_files": [
-    ".planning/PROJECT.md",
     ".planning/STATE.md",
-    "research-paper.md",
-    "website/bonzi.js",
-    "website/explorer.js",
-    "website/extras.js",
-    "website/games.js",
-    "website/steam.js",
-    ".planning/config.json",
+    ".planning/phases/13-presentation-exe-awwwards-level-fullscreen/.continue-here.md",
     "website/index.html",
-    "website/main.js",
     "website/presentation.js",
     "website/style.css"
   ],
-  "next_action": "Resume Phase 13 polish by improving transition choreography/interactivity (without cursor-follow effects), then validate slide-by-slide on localhost and update 13-VERIFICATION.",
-  "context_notes": "Local server is running on http://localhost:4173 (session id 49609). Recent completed changes: login sequence now after BIOS/splash, louder long boot sound, login UI/sounds polish, persistent Presentation ESC hint, slide 6 top-scroll fix, removed cursor-follow parallax, Bonzi text contrast fix, and partial cleanup of inaccurate 'Llama 3.1 70B locally' claims in website copy. User's latest direction before pause: continue making Presentation.exe more polished between slides and interactions."
+  "next_action": "In website/presentation.js, remove pointer-follow parallax and filter-heavy transitions, then implement multi-variant directional + portal transition set with stable settle states (no blur/tilt leftovers).",
+  "context_notes": "User feedback is direct and quality-bar focused: current result still feels like PowerPoint. Priority is cinematic originality and flawless transition stability before any additional polish. Local preview server has been used on http://localhost:4173/."
 }
