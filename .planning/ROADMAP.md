@@ -157,7 +157,7 @@ Plans:
 - [ ] **Phase 14: Window Management + Boot Sequence + Navigation** — implemented 2026-03-31, awaiting human verification
 - [x] **Phase 15: File Explorer + Steam App** — Assignment tree with markdown rendering, Steam game launcher with Snake, Silicon Runner, CPU vs GPU Race, Experience demos (completed 2026-03-31)
 - [x] **Phase 16: Bonzi Buddy** — Animated desktop character (clippy.js), GSAP walking, Ollama chat with fallback, TTS, BSOD easter egg (completed 2026-03-31)
-- [ ] **Phase 17: Win95 Extras Batch 1** — Minesweeper, Paint, Internet Explorer (dial-up sound), MSN Messenger, Shutdown sequence, BSOD, System Properties, Screensaver
+- [x] **Phase 17: Win95 Extras Batch 1** — Minesweeper, Paint, Internet Explorer (dial-up sound), MSN Messenger, Shutdown sequence, BSOD, System Properties, Screensaver (completed 2026-03-31)
 - [ ] **Phase 18: Win95 Extras Batch 2 + Audio + Performance + Polish** — Clippy in Notepad, Winamp, Disk Defragmenter, context menu, icon drag-and-drop, Recycle Bin states, shutdown/Winamp audio, localStorage persistence, reflection content, zero console errors
 
 ## Phase Details
@@ -223,10 +223,11 @@ Plans:
   3. Steam app opens with the dark olive two-pane layout showing at least 5 entries (Snake, Silicon Runner, CPU vs GPU Race, + 2 Experience demos)
   4. Clicking PLAY on any game opens a new Win95 window with the playable game running; Snake is completable, Silicon Runner has at least 1 playable level, CPU vs GPU Race shows the parallel processing demo with an explanation panel
   5. Each Steam game entry shows install/play state that persists across page refresh (localStorage)
-**Plans**: 0 planned yet
+**Status**: COMPLETE
+**Plans**: 1/1 plans executed
 
 Plans:
-- [ ] Plan set not created yet
+- [x] 15-01-PLAN.md — Requirement verification and formal phase closure for Explorer + Steam experiences
 **UI hint**: yes
 
 ### Phase 16: Bonzi Buddy
@@ -300,5 +301,5 @@ Plans:
 | 14. Window Management + Boot + Nav | 0/TBD | Not started | - |
 | 15. File Explorer + Steam App | 1/1 | Complete   | 2026-03-31 |
 | 16. Bonzi Buddy | 1/1 | Complete   | 2026-03-31 |
-| 17. Win95 Extras Batch 1 | 0/TBD | Not started | - |
+| 17. Win95 Extras Batch 1 | 1/1 | Complete   | 2026-03-31 |
 | 18. Win95 Extras Batch 2 + Polish | 0/TBD | Not started | - |

@@ -33,24 +33,24 @@
 
 ### Bonzi Buddy
 
-- [x] **BONZI-01**: Animated Bonzi character on desktop (clippy.js or custom sprites)
-- [x] **BONZI-02**: Walks/bounces around desktop with GSAP
-- [x] **BONZI-03**: Click to chat — powered by local Qwen via Ollama (localhost:11434)
-- [x] **BONZI-04**: Text-to-speech via Web Speech API
-- [x] **BONZI-05**: "Download more RAM" easter egg triggers BSOD
-- [x] **BONZI-06**: Fallback canned responses when Ollama is not running (fetch fails gracefully)
+- [ ] **BONZI-01**: Animated Bonzi character on desktop (clippy.js or custom sprites)
+- [ ] **BONZI-02**: Walks/bounces around desktop with GSAP
+- [ ] **BONZI-03**: Click to chat — powered by local Qwen via Ollama (localhost:11434)
+- [ ] **BONZI-04**: Text-to-speech via Web Speech API
+- [ ] **BONZI-05**: "Download more RAM" easter egg triggers BSOD
+- [ ] **BONZI-06**: Fallback canned responses when Ollama is not running (fetch fails gracefully)
 
 ### Win95 Extras
 
-- [ ] **W95-01**: Minesweeper (classic, playable)
-- [ ] **W95-02**: Paint (canvas drawing tool, pre-loaded GPU diagram)
-- [ ] **W95-03**: Internet Explorer (iframe, dial-up modem sound on open)
-- [ ] **W95-04**: MSN Messenger (fake chats with Jensen Huang, Hinton)
-- [ ] **W95-05**: Desktop right-click context menu (Refresh, Display Properties)
-- [ ] **W95-06**: Shutdown sequence (dialog + sound + "safe to turn off" screen)
-- [ ] **W95-07**: BSOD easter egg (GPU_OVERFLOW, triggered by Bonzi)
-- [ ] **W95-08**: System Properties (research stats in Win95 dialog)
-- [ ] **W95-09**: Screensaver (30s idle → starfield/GPU cores animation)
+- [x] **W95-01**: Minesweeper (classic, playable)
+- [x] **W95-02**: Paint (canvas drawing tool, pre-loaded GPU diagram)
+- [x] **W95-03**: Internet Explorer (iframe, dial-up modem sound on open)
+- [x] **W95-04**: MSN Messenger (fake chats with Jensen Huang, Hinton)
+- [x] **W95-05**: Desktop right-click context menu (Refresh, Display Properties)
+- [x] **W95-06**: Shutdown sequence (dialog + sound + "safe to turn off" screen)
+- [x] **W95-07**: BSOD easter egg (GPU_OVERFLOW, triggered by Bonzi)
+- [x] **W95-08**: System Properties (research stats in Win95 dialog)
+- [x] **W95-09**: Screensaver (30s idle → starfield/GPU cores animation)
 - [ ] **W95-10**: Clippy in Notepad ("Writing a research paper?")
 - [ ] **W95-11**: Winamp/LoseAmp music player with visualizer
 - [ ] **W95-12**: Disk Defragmenter (research topics as blocks)
@@ -78,9 +78,9 @@
 
 ### Bonzi Fallback & Audio
 
-- [ ] **AUDIO-01**: Dial-up modem sound when IE opens (Web Audio synthesis or MP3)
-- [ ] **AUDIO-02**: Shutdown sound (reverse startup chime)
-- [ ] **AUDIO-03**: Winamp plays lo-fi/chiptune track (source a CC0 audio file)
+- [x] **AUDIO-01**: Dial-up modem sound when IE opens (Web Audio synthesis or MP3)
+- [x] **AUDIO-02**: Shutdown sound (reverse startup chime)
+- [x] **AUDIO-03**: Winamp plays lo-fi/chiptune track (source a CC0 audio file)
 
 ### Hosting & Submission
 
@@ -162,24 +162,24 @@
 | STEAM-03 | Phase 15 | Complete |
 | STEAM-04 | Phase 15 | Complete |
 | STEAM-05 | Phase 15 | Complete |
-| BONZI-01 | Phase 16 | Complete |
-| BONZI-02 | Phase 16 | Complete |
-| BONZI-03 | Phase 16 | Complete |
-| BONZI-04 | Phase 16 | Complete |
-| BONZI-05 | Phase 16 | Complete |
-| BONZI-06 | Phase 16 | Complete |
-| W95-01 | Phase 17 | Pending |
-| W95-02 | Phase 17 | Pending |
-| W95-03 | Phase 17 | Pending |
-| W95-04 | Phase 17 | Pending |
-| W95-05 | Phase 17 | Pending |
-| W95-06 | Phase 17 | Pending |
-| W95-07 | Phase 17 | Pending |
-| W95-08 | Phase 17 | Pending |
-| W95-09 | Phase 17 | Pending |
-| AUDIO-01 | Phase 17 | Pending |
-| AUDIO-02 | Phase 17 | Pending |
-| AUDIO-03 | Phase 17 | Pending |
+| BONZI-01 | Phase 16 | Pending |
+| BONZI-02 | Phase 16 | Pending |
+| BONZI-03 | Phase 16 | Pending |
+| BONZI-04 | Phase 16 | Pending |
+| BONZI-05 | Phase 16 | Pending |
+| BONZI-06 | Phase 16 | Pending |
+| W95-01 | Phase 17 | Complete |
+| W95-02 | Phase 17 | Complete |
+| W95-03 | Phase 17 | Complete |
+| W95-04 | Phase 17 | Complete |
+| W95-05 | Phase 17 | Complete |
+| W95-06 | Phase 17 | Complete |
+| W95-07 | Phase 17 | Complete |
+| W95-08 | Phase 17 | Complete |
+| W95-09 | Phase 17 | Complete |
+| AUDIO-01 | Phase 17 | Complete |
+| AUDIO-02 | Phase 17 | Complete |
+| AUDIO-03 | Phase 17 | Complete |
 | W95-10 | Phase 18 | Pending |
 | W95-11 | Phase 18 | Pending |
 | W95-12 | Phase 18 | Pending |
