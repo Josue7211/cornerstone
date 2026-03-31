@@ -1,11 +1,11 @@
 {
   "version": "1.0",
-  "timestamp": "2026-03-31T07:10:04.522Z",
+  "timestamp": "2026-03-31T13:25:26.387Z",
   "phase": "13",
   "phase_name": "presentation-exe-awwwards-level-fullscreen",
   "phase_dir": ".planning/phases/13-presentation-exe-awwwards-level-fullscreen",
   "plan": 1,
-  "task": 1,
+  "task": 3,
   "total_tasks": 3,
   "status": "paused",
   "completed_tasks": [
@@ -13,31 +13,31 @@
       "id": 1,
       "name": "Repair GSD planning state and capture the current fullscreen presentation baseline",
       "status": "done"
+    },
+    {
+      "id": 2,
+      "name": "Redesign Phase 13 motion/art direction to match the scraped reference quality bar",
+      "status": "done"
     }
   ],
   "remaining_tasks": [
     {
-      "id": 2,
-      "name": "Redesign Phase 13 motion/art direction to match the scraped reference quality bar",
-      "status": "not_started"
-    },
-    {
       "id": 3,
       "name": "Verify the upgraded presentation against the Phase 13 success criteria and only then mark complete",
-      "status": "not_started"
+      "status": "in_progress"
     }
   ],
   "blockers": [
     {
-      "description": "Current Phase 13 implementation is only a working fullscreen baseline. User explicitly said the animations are nowhere near thorough enough or Awwwards-level enough.",
+      "description": "Phase 13 quality bar is subjective and still user-driven. User requested further polish after seeing current transitions.",
       "type": "technical",
-      "workaround": "Use the existing fullscreen implementation as a foundation, then push the motion system, scene composition, and reference fidelity much further before re-marking the phase complete."
+      "workaround": "Iterate directly with user feedback from live localhost previews, then run final human validation pass."
     }
   ],
   "human_actions_pending": [
     {
-      "action": "Use the scraped/reference websites as the acceptance bar for Phase 13 polish decisions",
-      "context": "The user explicitly rejected treating the current GSAP pass as finished.",
+      "action": "Run visual acceptance check for Presentation.exe against scraped reference quality bar",
+      "context": "Verification status for Phase 13 remains human_needed until user signs off.",
       "blocking": true
     }
   ],
@@ -51,23 +51,33 @@
       "decision": "Keep the current fullscreen code and phase artifacts as the baseline instead of deleting them",
       "rationale": "They provide a concrete starting point for the real completion pass",
       "phase": "13"
+    },
+    {
+      "decision": "Remove cursor-follow parallax from Presentation.exe",
+      "rationale": "User explicitly rejected mouse-follow movement as low-quality compared with reference sites",
+      "phase": "13"
+    },
+    {
+      "decision": "Keep ESC/navigation hint always visible in Presentation.exe",
+      "rationale": "Persistent on-screen wayfinding is required for users to know how to exit",
+      "phase": "13"
     }
   ],
   "uncommitted_files": [
     ".planning/PROJECT.md",
-    ".planning/REQUIREMENTS.md",
-    ".planning/ROADMAP.md",
     ".planning/STATE.md",
+    "research-paper.md",
+    "website/bonzi.js",
+    "website/explorer.js",
+    "website/extras.js",
+    "website/games.js",
+    "website/steam.js",
     ".planning/config.json",
-    ".planning/phases/13-presentation-exe-awwwards-level-fullscreen/13-CONTEXT.md",
-    ".planning/phases/13-presentation-exe-awwwards-level-fullscreen/13-01-PLAN.md",
-    ".planning/phases/13-presentation-exe-awwwards-level-fullscreen/13-01-SUMMARY.md",
-    ".planning/phases/13-presentation-exe-awwwards-level-fullscreen/13-VERIFICATION.md",
     "website/index.html",
     "website/main.js",
     "website/presentation.js",
     "website/style.css"
   ],
-  "next_action": "Resume on Phase 13 by reading website/presentation.js, website/style.css, and the phase 13 planning files, then upgrade the motion/art direction to the scraped-reference quality bar before touching phase completion metadata again.",
-  "context_notes": "This session repaired broken GSD roadmap/state metadata, briefly marked Phase 13 complete based on existing code, then reversed that after the user clarified that the current fullscreen implementation is far below the intended finish quality. The right mental model is: Phase 13 has a functional baseline, not a finished presentation. Do not treat fullscreen + navigation as success. The next session should stay focused on cinematic quality, scene treatment, and reference fidelity."
+  "next_action": "Resume Phase 13 polish by improving transition choreography/interactivity (without cursor-follow effects), then validate slide-by-slide on localhost and update 13-VERIFICATION.",
+  "context_notes": "Local server is running on http://localhost:4173 (session id 49609). Recent completed changes: login sequence now after BIOS/splash, louder long boot sound, login UI/sounds polish, persistent Presentation ESC hint, slide 6 top-scroll fix, removed cursor-follow parallax, Bonzi text contrast fix, and partial cleanup of inaccurate 'Llama 3.1 70B locally' claims in website copy. User's latest direction before pause: continue making Presentation.exe more polished between slides and interactions."
 }
