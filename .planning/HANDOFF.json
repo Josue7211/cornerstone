@@ -1,30 +1,73 @@
 {
   "version": "1.0",
-  "timestamp": "2026-03-31T01:30:00.000Z",
-  "phase": "12",
-  "phase_name": "infrastructure-cleanup-hosting",
-  "phase_dir": ".planning/phases/12-infrastructure-cleanup-hosting",
-  "plan": 0,
-  "task": 0,
+  "timestamp": "2026-03-31T07:10:04.522Z",
+  "phase": "13",
+  "phase_name": "presentation-exe-awwwards-level-fullscreen",
+  "phase_dir": ".planning/phases/13-presentation-exe-awwwards-level-fullscreen",
+  "plan": 1,
+  "task": 1,
   "total_tasks": 3,
-  "status": "planned_not_started",
-  "completed_tasks": [],
-  "remaining_tasks": [
-    {"id": 1, "name": "Kill Three.js rAF + remove dead HTML/JS", "status": "not_started"},
-    {"id": 2, "name": "Remove ~160 lines dead CSS", "status": "not_started"},
-    {"id": 3, "name": "CDN imports, 6 module stubs, hosting verify", "status": "not_started"}
+  "status": "paused",
+  "completed_tasks": [
+    {
+      "id": 1,
+      "name": "Repair GSD planning state and capture the current fullscreen presentation baseline",
+      "status": "done"
+    }
   ],
-  "blockers": [],
+  "remaining_tasks": [
+    {
+      "id": 2,
+      "name": "Redesign Phase 13 motion/art direction to match the scraped reference quality bar",
+      "status": "not_started"
+    },
+    {
+      "id": 3,
+      "name": "Verify the upgraded presentation against the Phase 13 success criteria and only then mark complete",
+      "status": "not_started"
+    }
+  ],
+  "blockers": [
+    {
+      "description": "Current Phase 13 implementation is only a working fullscreen baseline. User explicitly said the animations are nowhere near thorough enough or Awwwards-level enough.",
+      "type": "technical",
+      "workaround": "Use the existing fullscreen implementation as a foundation, then push the motion system, scene composition, and reference fidelity much further before re-marking the phase complete."
+    }
+  ],
   "human_actions_pending": [
-    {"action": "Source .zshrc or restart shell for claudepeers alias", "context": "alias added but shell not reloaded", "blocking": false}
+    {
+      "action": "Use the scraped/reference websites as the acceptance bar for Phase 13 polish decisions",
+      "context": "The user explicitly rejected treating the current GSAP pass as finished.",
+      "blocking": true
+    }
   ],
   "decisions": [
-    {"decision": "Presentation bypasses WindowManager (fullscreen z:9999)", "rationale": "Awwwards-level experience needs viewport takeover", "phase": "13"},
-    {"decision": "Each app gets own JS module file", "rationale": "Enables parallel agent teams in worktrees", "phase": "12"},
-    {"decision": "Bonzi uses clippy.js + Ollama", "rationale": "clippy.js has Bonzi sprites + speakStream, Ollama for local AI", "phase": "16"},
-    {"decision": "Steam has real playable games", "rationale": "Snake, platformer, CPU vs GPU Race", "phase": "15"}
+    {
+      "decision": "Phase 13 must remain open even though a fullscreen presentation implementation exists",
+      "rationale": "Working fullscreen behavior is not the same as meeting the intended Awwwards-level quality bar",
+      "phase": "13"
+    },
+    {
+      "decision": "Keep the current fullscreen code and phase artifacts as the baseline instead of deleting them",
+      "rationale": "They provide a concrete starting point for the real completion pass",
+      "phase": "13"
+    }
   ],
-  "uncommitted_files": ["website/main.js", "website/style.css", "website/index.html", "website/wallpaper.jpg", "website/research-paper.pdf"],
-  "next_action": "source ~/.zshrc, then /gsd:execute-phase 12, then launch parallel phases 13-17",
-  "context_notes": "13 research docs in .planning/research/. 59 requirements. 7 phases (12-18). Phase 12 blocks everything. After 12, phases 13-17 can run in parallel via claudepeers in separate terminals + git worktrees."
+  "uncommitted_files": [
+    ".planning/PROJECT.md",
+    ".planning/REQUIREMENTS.md",
+    ".planning/ROADMAP.md",
+    ".planning/STATE.md",
+    ".planning/config.json",
+    ".planning/phases/13-presentation-exe-awwwards-level-fullscreen/13-CONTEXT.md",
+    ".planning/phases/13-presentation-exe-awwwards-level-fullscreen/13-01-PLAN.md",
+    ".planning/phases/13-presentation-exe-awwwards-level-fullscreen/13-01-SUMMARY.md",
+    ".planning/phases/13-presentation-exe-awwwards-level-fullscreen/13-VERIFICATION.md",
+    "website/index.html",
+    "website/main.js",
+    "website/presentation.js",
+    "website/style.css"
+  ],
+  "next_action": "Resume on Phase 13 by reading website/presentation.js, website/style.css, and the phase 13 planning files, then upgrade the motion/art direction to the scraped-reference quality bar before touching phase completion metadata again.",
+  "context_notes": "This session repaired broken GSD roadmap/state metadata, briefly marked Phase 13 complete based on existing code, then reversed that after the user clarified that the current fullscreen implementation is far below the intended finish quality. The right mental model is: Phase 13 has a functional baseline, not a finished presentation. Do not treat fullscreen + navigation as success. The next session should stay focused on cinematic quality, scene treatment, and reference fidelity."
 }
