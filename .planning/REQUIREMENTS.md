@@ -1,214 +1,102 @@
-# Requirements — IDS2891 Cornerstone
+# Requirements: IDS2891 Cornerstone — Win95 App Experiences
 
-## Assignment Inventory
+**Defined:** 2026-03-31
+**Core Value:** Transform a Win95 desktop OS into an Awwwards-level interactive research artifact that hits Capstone on all 5 rubric criteria (Design, Prepare, Create, Communicate, Reflect)
 
-All assignments for the semester, ordered by due date. Today: 2026-03-29.
+## v2.0 Requirements
 
-### 1. Discussion Post — Introduce Yourself
-- **Due:** Jan 15 (post) / Jan 18 (peer responses)
-- **Points:** ~10-20
-- **Format:** Discussion board (300+ words or 2-min video)
-- **Requirements:** Answer 3+ questions from each category (interests + values). Respond to 2 peers (150+ words each).
-- **Status:** PAST DUE — check if submitted
+### Presentation
 
-### 2. Library Assignment #1 — Interest Web
-- **Due:** Jan 18
-- **Points:** 10
-- **Format:** File upload or website URL
-- **Requirements:** 1 central interest, 3-5 subtopics, identify 1-2 subtopics for research
-- **Status:** PAST DUE — excalidraw file created, not submitted. Needs PNG export.
+- [ ] **PRES-01**: Presentation opens fullscreen (bypasses WindowManager, z-index 9999)
+- [ ] **PRES-02**: 9 slides, each its own animated scene with unique visual treatment
+- [ ] **PRES-03**: Arrow keys + click navigation between scenes
+- [ ] **PRES-04**: Progress indicator at bottom
+- [ ] **PRES-05**: ESC closes back to desktop
+- [ ] **PRES-06**: Hardware evolution as visual spine across all scenes
+- [ ] **PRES-07**: Awwwards-level animation (GSAP, clip-path reveals, parallax, typography animation)
+- [ ] **PRES-08**: All 9 slides retain existing research content
 
-### 3. Library Assignment #2 — Credo Reference Sources
-- **Due:** Jan 25
-- **Points:** 10
-- **Format:** Text entry, URL, or file upload
-- **Requirements:** Search Credo Reference, list 3 sources in chosen citation style, take background research notes
-- **Status:** PAST DUE — NOT SUBMITTED (confirmed from Canvas)
+### Steam App
 
-### 4. Lightning Talks Discussion
-- **Due:** ~Feb 2
-- **Points:** ~20
-- **Format:** Discussion board post
-- **Requirements:** Subject of interest, project topic, background research, key concepts, expert sources, research questions, modes of analysis, intended audience, project type
-- **Status:** DONE — submitted Feb 2, 2026
+- [ ] **STEAM-01**: Steam-style game launcher with dark UI, 2-pane layout (library + detail)
+- [ ] **STEAM-02**: Snake game (playable)
+- [ ] **STEAM-03**: Platformer mini-game ("Silicon Runner" themed)
+- [ ] **STEAM-04**: CPU vs GPU Race (educational, ties to research)
+- [ ] **STEAM-05**: Experience demos accessible as "games" in Steam library
 
-### 5. Crafting Research Questions
-- **Due:** Feb 15
-- **Points:** 100
-- **Format:** Text entry or file upload
-- **Requirements:**
-  - 250-word synthesis of background research
-  - 1-3 sophisticated research questions
-  - Cite 5+ sources in chosen citation style
-- **Status:** PAST DUE — NOT SUBMITTED (confirmed: Grade Incomplete)
+### File Explorer
 
-### 6. Library Assignment #3 — Research Buckets & Experts
-- **Due:** Feb 15
-- **Points:** 10
-- **Format:** Text entry, URL, or file upload
-- **Requirements:**
-  - 2 "research buckets" for topic
-  - 2-3 experts per bucket
-  - 1 source from FSW Libraries (citation + link)
-  - 1 source from Google (citation + link)
-- **Status:** PAST DUE — check if submitted
+- [ ] **FILE-01**: Organized tree of all 14 semester assignments in 6 folders
+- [ ] **FILE-02**: Click any assignment to view rendered markdown content
+- [ ] **FILE-03**: Content pulled from actual assignment MD files (marked.js + DOMPurify)
+- [ ] **FILE-04**: Hidden "definitely_not_homework" folder easter egg
 
-### 7. Discuss It: Final Project Brainstorm
-- **Due:** Feb 19 (post) / Feb 22 (peer responses)
-- **Points:** 20
-- **Format:** Discussion board
-- **Requirements:**
-  - Identify & analyze target audience
-  - Analyze audience needs/preferences
-  - Propose 2+ creative modalities (NO essay/PowerPoint/Google Slides)
-  - Respond to 2 classmates
-- **Status:** PAST DUE — check if submitted
+### Bonzi Buddy
 
-### 8. Short Proposal
-- **Due:** Feb 22
-- **Points:** 20
-- **Format:** File upload (double-spaced, 500+ words)
-- **Requirements:**
-  - Section A: Background research summary
-  - Section B: Reflection (prior knowledge, importance, audience)
-  - Section C: Research question(s) with scope narrowing
-- **Status:** PAST DUE — check if submitted
+- [ ] **BONZI-01**: Animated Bonzi character on desktop (clippy.js or custom sprites)
+- [ ] **BONZI-02**: Walks/bounces around desktop with GSAP
+- [ ] **BONZI-03**: Click to chat — powered by local Qwen via Ollama (localhost:11434)
+- [ ] **BONZI-04**: Text-to-speech via Web Speech API
+- [ ] **BONZI-05**: "Download more RAM" easter egg triggers BSOD
 
-### 9. Project Check-in 1
-- **Due:** Mar 1
-- **Points:** 40
-- **Format:** Text entry or file upload (or consultation note)
-- **Requirements:** Project tracker (topic, audience, sources, RQs, modes of analysis, project type)
-- **Status:** PAST DUE — check if submitted
+### Win95 Extras
 
-### 10. Project Check-in 2
-- **Due:** Mar 8
-- **Points:** 20
-- **Format:** Text entry or file upload (or consultation note)
-- **Requirements:** Same project tracker format
-- **Status:** PAST DUE — check if submitted
+- [ ] **W95-01**: Minesweeper (classic, playable)
+- [ ] **W95-02**: Paint (canvas drawing tool, pre-loaded GPU diagram)
+- [ ] **W95-03**: Internet Explorer (iframe, dial-up modem sound on open)
+- [ ] **W95-04**: MSN Messenger (fake chats with Jensen Huang, Hinton)
+- [ ] **W95-05**: Desktop right-click context menu (Refresh, Display Properties)
+- [ ] **W95-06**: Shutdown sequence (dialog + sound + "safe to turn off" screen)
+- [ ] **W95-07**: BSOD easter egg (GPU_OVERFLOW, triggered by Bonzi)
+- [ ] **W95-08**: System Properties (research stats in Win95 dialog)
+- [ ] **W95-09**: Screensaver (30s idle → starfield/GPU cores animation)
+- [ ] **W95-10**: Clippy in Notepad ("Writing a research paper?")
+- [ ] **W95-11**: Winamp/LoseAmp music player with visualizer
+- [ ] **W95-12**: Disk Defragmenter (research topics as blocks)
+- [ ] **W95-13**: Login screen (any password works, shows "Welcome")
+- [ ] **W95-14**: Desktop icon drag-and-drop with grid snap
+- [ ] **W95-15**: Recycle Bin icon changes when full
 
-### 11. Project Check-in 3
-- **Due:** Mar 15
-- **Points:** 60
-- **Format:** Text entry or file upload
-- **Requirements:** Comprehensive — research question, scope, background, critical lens, modes of analysis, reflection, audience, scholarly conversation, GE connections, challenges, modality, 10+ sources bibliography
-- **Status:** PAST DUE — check if submitted
+### Polish
 
-### 12. Presentation Worksheet
-- **Due:** Mar 22
-- **Points:** 20
-- **Format:** Text entry or file upload
-- **Requirements:** Part I (Design & Prepare): goals, audience, topic, sub-topics, RQs, thesis, methods, sources, transdisciplinary connections, project type. Part II (Create): slide-by-slide structure with timing for 10-12 min presentation.
-- **Status:** PAST DUE — check if submitted
+- [ ] **QA-01**: Zero console errors across all apps
+- [ ] **QA-02**: Remove 410 lines dead code (Three.js loop, old HUD, unused CSS)
+- [ ] **QA-03**: Notepad has real reflection content (Reflect rubric criterion)
+- [ ] **QA-04**: Recycle Bin has real revision process content
 
-### 13. Research Artifact: Final Presentation
-- **Due:** Sunday (TBD — likely late March/April)
-- **Points:** 100
-- **Format:** Text, URL, media recording, or file upload
-- **Requirements:**
-  - 10-12 minutes
-  - Introduce/summarize project
-  - Explain methods, perspective, scope
-  - Transdisciplinary connections
-  - Implications and conclusions
-  - Advocate for importance
-  - Visual component (NOT just PowerPoint)
-  - Rubric: Design, Prepare, Create, Communicate, Reflect
-- **Status:** NOT SUBMITTED
+## v2.1 Requirements (Future / If Time Permits)
 
-## Point Distribution
-| Category | Points |
-|----------|--------|
-| Lightning Talks (DONE) | ~20 |
-| Crafting RQs | 100 |
-| Final Presentation | 100 |
-| Check-in 3 | 60 |
-| Check-in 1 | 40 |
-| Short Proposal | 20 |
-| Brainstorm Discussion | 20 |
-| Check-in 2 | 20 |
-| Presentation Worksheet | 20 |
-| Library Assignments (3x) | 30 |
-| Discussion Post | ~10-20 |
+- **FUTURE-01**: 3D character controller with Mixamo animations (character.glb ready)
+- **FUTURE-02**: Mobile responsive layout
+- **FUTURE-03**: Sound effects for all interactions (click, drag, open, close)
 
-### 14. Co-Curricular Reflection
-- **Due:** Apr 12
-- **Points:** 100
-- **Format:** File upload
-- **Requirements:**
-  - 500+ words short essay
-  - Summarize at least 2 co-curricular events attended (day/time, speaker, activity)
-  - Personal reaction, thoughts, perspectives, feelings
-  - Reflection on common intellectual/scholarly practices at the events
-  - How did the speaker approach the topic? What question/problem? What methods? How connected to broader issues?
-  - MLA, APA, or Chicago style
-- **Rubric:** Capstone Rubric (Design, Prepare, Create, Communicate, Reflect)
-- **MLOs:** 3.4 (Connect GE courses, background, research process), 3.5 (Evaluate commonalities in scholarly inquiry)
-- **Status:** BLOCKED — user hasn't attended events yet
+## Out of Scope
 
-### 15. Research Documentation
-- **Due:** Apr 12 (available until Apr 14)
-- **Points:** 100
-- **Format:** File upload
-- **Requirements:**
-  - **TWO parts:** (1) Research narrative 750+ words, (2) Bibliography of 10+ potential sources
-  - **Research narrative sections:**
-    - **Scope:** Define research project parameters, genre/medium. Background research using FSW libraries (primary/secondary/tertiary sources)
-    - **Approach/Perspective:** Critical lens, methods, philosophy, strategies, design. Reflect on knowledge, purposes, reasoning. What college courses shaped topic? Background knowledge? Why important to you/audience?
-    - **Process and plan:** Describe research process, overview of execution plan
-    - **Context:** Define audience, situate in scholarly conversation, connect to GE courses, background reflection
-  - 10+ potential sources in bibliography
-  - APA style (locked from Phase 1)
-- **Rubric:** Capstone Rubric (Design, Prepare, Create, Communicate, Reflect) — target Capstone level on all
-- **Status:** NOT SUBMITTED
+| Feature | Reason |
+|---------|--------|
+| Error dialog spam | Feels like a virus, not polished nostalgia |
+| Mobile responsive | PC-only experience per user decision |
+| React/Vue/framework | Single HTML/CSS/JS submission requirement |
+| npm/build tools | CDN only, no bundler |
+| Real multiplayer | Scope explosion, not needed for rubric |
+| Video recording/upload | Storage complexity, not in rubric |
 
-### 16. Revision & Reflection
-- **Due:** Apr 19
-- **Points:** 100
-- **Format:** File upload
-- **Requirements:**
-  - **TWO parts:** (1) Reflection narrative 500+ words, (2) Revised bibliography (10+ sources)
-  - **Reflection narrative sections:**
-    - **A) Project thesis:** State thesis, how arrived at it through research
-    - **B) Research process since Research Documentation:** How project evolved on: Scope (shifted? redefined parameters? genre/medium?), Approach/Perspective (what shifted critical lens?), Context (scholarly conversation shifted? audience refined?)
-    - **C) Strategies:** What strategies used for execution? Effective? Why/why not?
-  - Revised bibliography (10+ sources)
-  - APA style
-- **Rubric:** Capstone Rubric (Design, Prepare, Create, Communicate, Reflect)
-- **Status:** NOT SUBMITTED
+## Traceability
 
-### 17. Final Project (Research Artifact)
-- **Due:** Apr 19
-- **Points:** 100
-- **Format:** Text entry, URL, media recording, or file upload
-- **Requirements:**
-  - Synthesize research from Research Documentation with own ideas
-  - "Answer" research question in medium/genre suited to audience
-  - At least 5 sources used
-  - Can be essay, proposal, report, creative project, or "unessay"
-  - Must demonstrate: evidence of research, analysis, synthesis, integration with accuracy/fairness/relevance, clarity/precision, suited to audience/context
-- **Rubric:** Capstone Rubric (Design, Prepare, Create, Communicate, Reflect)
-- **Status:** NOT SUBMITTED — will be the interactive website
+| Requirement | Phase | Status |
+|-------------|-------|--------|
+| PRES-01 – PRES-08 | TBD | Pending |
+| STEAM-01 – STEAM-05 | TBD | Pending |
+| FILE-01 – FILE-04 | TBD | Pending |
+| BONZI-01 – BONZI-05 | TBD | Pending |
+| W95-01 – W95-15 | TBD | Pending |
+| QA-01 – QA-04 | TBD | Pending |
 
-## Point Distribution
-| Category | Points |
-|----------|--------|
-| Lightning Talks (DONE) | ~20 |
-| Crafting RQs | 100 |
-| Final Presentation | 100 |
-| Co-Curricular Reflection | 100 |
-| Research Documentation | 100 |
-| Revision & Reflection | 100 |
-| Final Project | 100 |
-| Check-in 3 | 60 |
-| Check-in 1 | 40 |
-| Short Proposal | 20 |
-| Brainstorm Discussion | 20 |
-| Check-in 2 | 20 |
-| Presentation Worksheet | 20 |
-| Library Assignments (3x) | 30 |
-| Discussion Post | ~10-20 |
-| **Total** | **~850** |
+**Coverage:**
+- v2.0 requirements: 41 total
+- Mapped to phases: 0
+- Unmapped: 41 ⚠️
 
-**High-value targets:** Crafting RQs (100), Final Presentation (100), Co-Curricular (100), Research Documentation (100), Revision & Reflection (100), Final Project (100)
+---
+*Requirements defined: 2026-03-31*
+*Last updated: 2026-03-31 after initial definition*
