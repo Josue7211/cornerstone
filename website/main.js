@@ -394,6 +394,7 @@ function buildStartMenu() {
 }
 
 function showWin95Desktop() {
+  desktopActive = true;
   state.phase = 'desktop';
   desktop.classList.add('visible');
   buildStartMenu();
@@ -1326,6 +1327,7 @@ window.addEventListener('resize', () => {
 
 function animate() {
   requestAnimationFrame(animate);
+  if (desktopActive) return;
   // Drift particles
   const pos = particles.geometry.attributes.position.array;
   for (let i = 0; i < PTC; i++) {
