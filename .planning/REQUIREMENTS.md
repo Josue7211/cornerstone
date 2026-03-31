@@ -70,8 +70,8 @@
 
 ### Infrastructure
 
-- [ ] **INFRA-01**: Split main.js into modules (presentation.js, steam.js, bonzi.js, games.js, extras.js) loaded via script tags
-- [ ] **INFRA-02**: Add CDN imports: marked.js, DOMPurify, clippy.js
+- [x] **INFRA-01**: Split main.js into modules (presentation.js, steam.js, bonzi.js, games.js, extras.js) loaded via script tags
+- [x] **INFRA-02**: Add CDN imports: marked.js, DOMPurify, clippy.js
 - [ ] **INFRA-03**: Kill Three.js requestAnimationFrame loop (invisible behind desktop, wasting GPU)
 - [x] **INFRA-04**: Remove 410 lines dead code (old HUD, portals, minimap, unused CSS)
 
@@ -84,9 +84,9 @@
 
 ### Hosting & Submission
 
-- [ ] **HOST-01**: Deployable to GitHub Pages or any static host
-- [ ] **HOST-02**: All assets self-contained (no external API dependencies except optional Ollama)
-- [ ] **HOST-03**: Works as local file:// or deployed URL
+- [x] **HOST-01**: Deployable to GitHub Pages or any static host
+- [x] **HOST-02**: All assets self-contained (no external API dependencies except optional Ollama)
+- [x] **HOST-03**: Works as local file:// or deployed URL
 
 ### Window Management
 

@@ -140,7 +140,7 @@ Plans:
 
 ## Phases
 
-- [ ] **Phase 12: Infrastructure Cleanup + Hosting** — Remove dead code, split JS into modules, add CDN imports, kill invisible Three.js loop, verify GitHub Pages deployability
+- [x] **Phase 12: Infrastructure Cleanup + Hosting** — Remove dead code, split JS into modules, add CDN imports, kill invisible Three.js loop, verify GitHub Pages deployability (completed 2026-03-31)
 - [ ] **Phase 13: Presentation.exe — Awwwards-Level Fullscreen** — 9-slide fullscreen scene-per-slide experience with GSAP animations, progress indicator, keyboard/click navigation
 - [ ] **Phase 14: Window Management + Boot Sequence + Navigation** — Resizable/snapping windows, minimize animations, maximize fix, Login→BIOS→Splash→Desktop boot order, start menu reorganization, desktop icon layout
 - [ ] **Phase 15: File Explorer + Steam App** — Assignment tree with markdown rendering, Steam game launcher with Snake, Silicon Runner, CPU vs GPU Race, Experience demos
@@ -163,9 +163,9 @@ Plans:
 **Plans**: 3 plans
 
 Plans:
-- [ ] 12-01-PLAN.md — Kill Three.js rAF loop, remove dead HTML/JS (INFRA-03, INFRA-04 partial)
+- [x] 12-01-PLAN.md — Kill Three.js rAF loop, remove dead HTML/JS (INFRA-03, INFRA-04 partial)
 - [x] 12-02-PLAN.md — Remove dead CSS ~160 lines (INFRA-04)
-- [ ] 12-03-PLAN.md — CDN imports, module stubs, .gitignore, hosting verification (INFRA-01, INFRA-02, HOST-01-03)
+- [x] 12-03-PLAN.md — CDN imports, module stubs, .gitignore, hosting verification (INFRA-01, INFRA-02, HOST-01-03)
 
 ### Phase 13: Presentation.exe — Awwwards-Level Fullscreen
 **Goal**: Users can experience an Awwwards-level 9-slide fullscreen immersive presentation that covers the hardware evolution narrative
@@ -181,7 +181,7 @@ Plans:
 
 Plans:
 - [ ] 12-01-PLAN.md — Kill Three.js rAF loop, remove dead HTML/JS (INFRA-03, INFRA-04 partial)
-- [ ] 12-02-PLAN.md — Remove dead CSS ~160 lines (INFRA-04)
+- [x] 12-02-PLAN.md — Remove dead CSS ~160 lines (INFRA-04)
 - [ ] 12-03-PLAN.md — CDN imports, module stubs, .gitignore, hosting verification (INFRA-01, INFRA-02, HOST-01-03)
 **UI hint**: yes
 
@@ -294,7 +294,7 @@ Plans:
 | 9. Research Documentation | 1/1 | Complete | 2026-03-30 |
 | 10. Revision & Reflection | 1/1 | Complete | 2026-03-30 |
 | 11. Final Project — Website | 5/5 | Complete | 2026-03-30 |
-| 12. Infrastructure Cleanup + Hosting | 1/3 | In Progress|  |
+| 12. Infrastructure Cleanup + Hosting | 3/3 | Complete   | 2026-03-31 |
 | 13. Presentation.exe Fullscreen | 0/TBD | Not started | - |
 | 14. Window Management + Boot + Nav | 0/TBD | Not started | - |
 | 15. File Explorer + Steam App | 0/TBD | Not started | - |

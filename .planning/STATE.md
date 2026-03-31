@@ -3,25 +3,35 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-last_updated: "2026-03-31T02:56:48.547Z"
+last_updated: "2026-03-31T03:02:45.764Z"
 progress:
   total_phases: 18
-  completed_phases: 3
+  completed_phases: 4
   total_plans: 11
-  completed_plans: 9
+  completed_plans: 11
 ---
 
 # Project State — IDS2891 Cornerstone
 
 ## Current Phase
 
-Phase 11 — Final Project (interactive website)
+Phase 12 — Infrastructure Cleanup + Hosting (COMPLETE)
+Next: Phase 13 — Presentation.exe Fullscreen
 
 ## Last Action
+
+2026-03-31: Phase 12 Plan 03 COMPLETE — CDN imports for marked.js + DOMPurify added to index.html, 6 module stub files created (presentation, steam, bonzi, games, extras, explorer), node_modules excluded from git. Commits: cd0fbed, 4f86d3b.
 
 2026-03-30: Phase 11 Plan 05 COMPLETE — Win95 Start menu (7 apps), terminal command parser (help/thesis/about/gpu/credits/clear), enhanced file explorer (two-panel), GSAP per-app window animations (pixel scatter, 3D flip, glitch, matrix rain, elastic bounce, typewriter, gravity drop). Commit: 968a323.
 
 2026-03-30: Phase 11 Plan 04 COMPLETE — Win95 desktop OS shell built. BIOS boot sequence with GPU-themed text, Win95 desktop with 7 icons, WindowManager class (drag/minimize/maximize/close/z-stack), Web Audio synthesis (startup chime + click sounds), CRT scanline overlay, Press Start 2P pixel font. All 3 content panels wrapped in draggable Win95 windows. Commits: c70e49c, e8d3169.
+
+## Phase 12 Plan 03 Decisions (2026-03-31)
+
+- Regular script tags (not type=module) for stub files — avoids importmap conflicts with Three.js ESM setup
+- UMD CDN builds for marked and DOMPurify — work as window globals without bundler
+- games.js loads before steam.js — steam depends on games, order established now
+- window.* globals pattern for stubs — compatible with non-module script loading
 
 ## Phase 11 Plan 05 Decisions (2026-03-30)
 
