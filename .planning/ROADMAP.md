@@ -163,8 +163,8 @@ Plans:
 **Plans**: 3 plans
 
 Plans:
-- [x] 12-01-PLAN.md — Kill Three.js rAF loop, remove dead HTML/JS (INFRA-03, INFRA-04 partial)
-- [ ] 12-02-PLAN.md — Remove dead CSS ~160 lines (INFRA-04)
+- [ ] 12-01-PLAN.md — Kill Three.js rAF loop, remove dead HTML/JS (INFRA-03, INFRA-04 partial)
+- [x] 12-02-PLAN.md — Remove dead CSS ~160 lines (INFRA-04)
 - [ ] 12-03-PLAN.md — CDN imports, module stubs, .gitignore, hosting verification (INFRA-01, INFRA-02, HOST-01-03)
 
 ### Phase 13: Presentation.exe — Awwwards-Level Fullscreen
