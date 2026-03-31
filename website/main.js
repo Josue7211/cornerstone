@@ -51,6 +51,7 @@ new RGBELoader().load('./assets/hdri/night_sky.hdr', (tex) => {
 // ═══════════════════════════════════════════════════
 // STATE
 // ═══════════════════════════════════════════════════
+let desktopActive = false; // Set true when Win95 desktop loads — halts Three.js render work
 const state = {
   phase: 'loading', // loading → zooming → desktop
   loaded: false,
@@ -346,6 +347,7 @@ function buildStartMenu() {
 }
 
 function showWin95Desktop() {
+  desktopActive = true; // Stop Three.js render work — desktop is now visible
   state.phase = 'desktop';
   desktop.classList.add('visible');
   playStartupChime();
@@ -1181,6 +1183,7 @@ const clock = new THREE.Clock();
 
 function animate() {
   requestAnimationFrame(animate);
+  if (desktopActive) return; // Desktop is visible — stop burning GPU on invisible Three.js scene
   const now = performance.now() / 1000;
 
   // Zoom into screen
