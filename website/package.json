@@ -3,5 +3,11 @@
   "version": "1.0.0",
   "description": "IDS2891 Cornerstone Final Project — AI Hardware Architecture Interactive Website",
   "author": "Josue Aparcedo Gonzalez",
-  "license": "ISC"
+  "license": "ISC",
+  "scripts": {
+    "sync:index": "node ./scripts/sync-explorer-index.js",
+    "sync:index:watch": "node ./scripts/sync-explorer-index.js --watch",
+    "test:ie": "node ./scripts/test-ie-data.js",
+    "qa:ie": "node ./scripts/qa-ie-flows.js"
+  }
 }

@@ -4,10 +4,12 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>From Pixels to Intelligence — Explore</title>
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <link rel="alternate icon" href="favicon.ico" sizes="any">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Chakra+Petch:wght@300;400;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323:wght@400&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="style.css?v=fullscreen16">
 
   <script type="importmap">
     {
@@ -20,6 +22,9 @@
   <script src="https://cdn.jsdelivr.net/npm/marked@13.1.0/lib/marked.umd.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/dompurify@3.3.3/dist/purify.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <script>
+    window.WIN95_AI = window.WIN95_AI || {};
+  </script>
 </head>
 <body>
 
@@ -103,7 +108,7 @@
           <div class="paper-section-content">
             <h2>Purpose-Built Silicon</h2>
             <p>When NVIDIA's domination became undeniable, the technology industry responded by designing chips that didn't compete with GPUs — they redefined the problem entirely. Google's Tensor Processing Unit (TPU) uses systolic arrays, a grid architecture where data flows between processing elements without touching memory at every step. The result: 15-30x better performance per watt than GPU-based inference for the specific matrix multiplications that define transformer models.</p>
-            <p>Meanwhile, Apple's M-series chips eliminated the most fundamental bottleneck in traditional computing: the gap between CPU and GPU memory. Traditional systems copy data across a slow PCIe bus; Apple's unified memory architecture puts CPU, GPU, and neural engine on the same memory pool. An M4 MacBook Pro can run a 70-billion-parameter AI model from its 128GB of unified memory — performance that would have required a $30,000 server three years ago.</p>
+            <p>Meanwhile, Apple's M-series chips eliminated the most fundamental bottleneck in traditional computing: the gap between CPU and GPU memory. Traditional systems copy data across a slow PCIe bus; Apple's unified memory architecture puts CPU, GPU, and neural engine on the same memory pool. An M4 MacBook Pro can run advanced local AI workloads from unified memory — performance that would have required specialized server hardware only a few years ago.</p>
             <p>The NPU (Neural Processing Unit) tells the larger story: every major chip architect — Apple, Qualcomm, AMD, Intel, Samsung — now ships dedicated AI inference hardware in consumer devices. The question is no longer whether local AI hardware exists. It's whether software can use it effectively.</p>
           </div>
         </div>
@@ -114,7 +119,7 @@
             <h2>The Software Revolution</h2>
             <p>Hardware sets the ceiling. Software determines whether you reach it. The most consequential developments in AI over the past three years have been algorithmic, not architectural. Quantization — reducing model weights from 32-bit floating point to 4-bit integers — shrinks a 140GB model to 35GB with measurable but modest quality loss. Flash Attention restructures the same mathematical operations to fit in GPU cache instead of VRAM, achieving 2-4x speedups without changing a single parameter.</p>
             <p>The open-source movement accelerated everything. Meta's Llama models, released freely to researchers and developers, triggered a wave of fine-tuning, optimization, and deployment that no single company could have produced. Ollama made local model deployment as simple as <code>ollama run llama3</code>. Hugging Face became the GitHub of AI models. The gap between GPT-4 and the best open-source models — once a chasm — is now a narrow competitive band that closed faster than anyone predicted.</p>
-            <p>The author runs a Llama 3.1 70B model locally on an NVIDIA RTX 4070 Ti SUPER ($800 GPU, $0/month API cost) with performance comparable to GPT-3.5-class cloud inference. This is the thesis made tangible: the democratization is not theoretical. It is running in an apartment right now.</p>
+            <p>The author runs local open-source models on an NVIDIA RTX 4070 Ti SUPER ($800 GPU, $0/month API cost). This is the thesis made tangible: the democratization is not theoretical. It is running in an apartment right now.</p>
           </div>
         </div>
 
@@ -142,7 +147,7 @@
         <div class="paper-sources">
           <h2>Key Sources</h2>
           <p class="sources-compact">Bitdeer (2025) · CRV Science (2024) · Data Center Knowledge (2025) · Glassner (2012) · IBM (2024) · Jouppi et al. (2017) · Krizhevsky et al. (2012) · Meta AI (2024) · MIT CSAIL (2023) · Rathore (2024) · UST (2024)</p>
-          <p class="sources-note">Full 35-source APA bibliography available in the complete research paper (research-paper.md).</p>
+          <p class="sources-note">Full 35-source APA bibliography available in the complete research paper (research-paper.pdf).</p>
         </div>
 
       </div>
@@ -198,24 +203,55 @@
             <div class="slide-tag">RESEARCH QUESTIONS &amp; METHODS</div>
             <h2>What I Explored and How</h2>
             <div class="slide-rqs">
-              <div class="rq-item">
-                <span class="rq-num">RQ1</span>
-                <p>How has GPU architecture evolved from a graphics rendering device to an AI accelerator, and what design features facilitated this evolution?</p>
+              <div class="rq-item" data-detail="Traced every GPU and NPU milestone from NVIDIA's GeForce 256 to 2026's Vera Rubin architecture to uncover the hardware inflection points.">
+                <div class="rq-card">
+                  <div class="rq-front">
+                    <span class="rq-num">RQ1</span>
+                    <p>How has GPU architecture evolved from a graphics rendering device to an AI accelerator, and what design features facilitated this evolution?</p>
+                  </div>
+                  <div class="rq-back">
+                    <p>Tracking timelines reveals how parallelism, cache hierarchy, and tensor/matrix engines reshaped GPUs into AI workhorses.</p>
+                  </div>
+                </div>
               </div>
-              <div class="rq-item">
-                <span class="rq-num">RQ2</span>
-                <p>What is the fundamental architectural difference between CPUs, GPUs, TPUs, and NPUs, and how do these differences determine suitability for AI workloads?</p>
+              <div class="rq-item" data-detail="Compared scalar CPU cores, thousands of GPU ALUs, Google's TPU systolic arrays, and on-device NPUs to highlight workload suitability.">
+                <div class="rq-card">
+                  <div class="rq-front">
+                    <span class="rq-num">RQ2</span>
+                    <p>What is the fundamental architectural difference between CPUs, GPUs, TPUs, and NPUs, and how do these differences determine suitability for AI workloads?</p>
+                  </div>
+                  <div class="rq-back">
+                    <p>Each architecture targets a different sweet spot — sequential control flow versus massive SIMD lanes versus engineered systolic datapaths versus low-power neural inference.</p>
+                  </div>
+                </div>
               </div>
-              <div class="rq-item">
-                <span class="rq-num">RQ3</span>
-                <p>What does specialized AI hardware mean for the future of computing — cost, accessibility, and democratization of AI?</p>
+              <div class="rq-item" data-detail="Explored cost curves, accessibility barriers, and democracy implications created by specialized AI hardware adoption.">
+                <div class="rq-card">
+                  <div class="rq-front">
+                    <span class="rq-num">RQ3</span>
+                    <p>What does specialized AI hardware mean for the future of computing — cost, accessibility, and democratization of AI?</p>
+                  </div>
+                  <div class="rq-back">
+                    <p>Local NPUs closing the latency gap can democratize AI even where internet access is limited, shifting power from cloud monopolies.</p>
+                  </div>
+                </div>
               </div>
             </div>
             <div class="slide-methods">
-              <h3>Methods</h3>
-              <p class="slide-body"><strong>Change-over-time:</strong> Tracing GPU architecture from gaming (1999) to AI acceleration (2026). <strong>Compare-and-contrast:</strong> CPU vs GPU vs TPU vs NPU architectures. <strong>Cause-and-effect:</strong> How AI workload demands drove specialized silicon development.</p>
-              <p class="slide-body"><strong>Sources:</strong> 39 APA-cited references — peer-reviewed conference proceedings (NeurIPS, ICLR, ISCA), industry analyses, government reports, and primary journalism. Plus autoethnographic evidence from my own homelab running local AI.</p>
-              <p class="slide-body"><strong>Challenges:</strong> The field moves incredibly fast — papers published 6 months ago are already outdated. Balancing technical accuracy with accessibility for a non-technical audience was the hardest part.</p>
+              <div class="slide-method-grid">
+                <article class="method-card">
+                  <h3>Methods</h3>
+                  <p>Change-over-time: traced GPU evolution from 1999 GeForce 256 to 2026 Vera Rubin chips. Compare-and-contrast: CPU vs GPU vs TPU vs NPU architectures. Cause-and-effect: quantified how Flash Attention, KV-cache compression, and quantization responded to AI workload pressure.</p>
+                </article>
+                <article class="method-card">
+                  <h3>Evidence Base</h3>
+                  <p>Built from 39 APA-cited references across peer-reviewed proceedings, industry reports, government analyses, and autoethnography from my homelab. The full bibliography lives on the dedicated sources page, not inside the slide deck.</p>
+                </article>
+                <article class="method-card">
+                  <h3>Challenges</h3>
+                  <p>The field ages rapidly — papers six months old feel outdated. Balancing technical accuracy with accessibility for a non-technical audience required repeated rehearsals and analogies.</p>
+                </article>
+              </div>
             </div>
           </div>
 
@@ -236,7 +272,7 @@
               </div>
               <div class="persp-item">
                 <span class="persp-label">PERSONAL STAKE</span>
-                <p>I run a homelab with an NVIDIA RTX 4070 Ti SUPER ($800 GPU). I use Ollama to run Llama 3.1 70B locally — $0/month, data never leaves my machine. The thesis isn't theoretical — it's running in my apartment right now.</p>
+                <p>I run a homelab with an NVIDIA RTX 4070 Ti SUPER ($800 GPU). I use Ollama for local model workflows — $0/month, data never leaves my machine. The thesis isn't theoretical — it's running in my apartment right now.</p>
               </div>
             </div>
           </div>
@@ -247,34 +283,99 @@
             <div class="slide-tag">TRANSDISCIPLINARY CONNECTIONS</div>
             <h2>This Is Not Just an Engineering Problem</h2>
             <div class="slide-disciplines">
-              <div class="discipline-tag">Computer Science</div>
-              <div class="discipline-tag">Mathematics</div>
-              <div class="discipline-tag">Economics</div>
-              <div class="discipline-tag">Psychology</div>
-              <div class="discipline-tag">Political Science</div>
-              <div class="discipline-tag">Ethics</div>
-              <div class="discipline-tag">Environmental Science</div>
+              <div class="discipline-tag" data-target="all">All</div>
+              <div class="discipline-tag" data-target="computer-science">Computer Science</div>
+              <div class="discipline-tag" data-target="mathematics">Mathematics</div>
+              <div class="discipline-tag" data-target="economics">Economics</div>
+              <div class="discipline-tag" data-target="psychology">Psychology</div>
+              <div class="discipline-tag" data-target="political-science">Political Science</div>
+              <div class="discipline-tag" data-target="ethics">Ethics</div>
+              <div class="discipline-tag" data-target="environmental-science">Environmental Science</div>
             </div>
             <div class="slide-connections">
-              <div class="connection-item">
+              <div class="connection-item" data-discipline="computer-science">
+                <span class="conn-field">COMPUTER SCIENCE</span>
+                <span class="conn-desc">AI hardware is really a systems design problem: memory bandwidth, cache locality, parallel scheduling, and compiler support matter as much as raw TOPS. The reason GPUs won was not just more cores. It was an architecture that matched transformer workloads.</span>
+              </div>
+              <div class="connection-item" data-discipline="computer-science">
+                <span class="conn-field">COMPUTER SCIENCE</span>
+                <span class="conn-desc">Software stacks like CUDA, Metal, and oneAPI keep reinventing how kernels map to hardware. Working with a tight hardware/software contract is what makes local inference as responsive as cloud APIs.</span>
+              </div>
+              <div class="connection-item" data-discipline="computer-science">
+                <span class="conn-field">COMPUTER SCIENCE</span>
+                <span class="conn-desc">The real bottleneck is often movement, not math. VRAM capacity, memory bandwidth, and kernel efficiency decide whether a model feels instant or unusably slow on consumer hardware.</span>
+              </div>
+              <div class="connection-item" data-discipline="mathematics">
                 <span class="conn-field">MATHEMATICS</span>
                 <span class="conn-desc">The linear algebra you learn in class IS what these chips compute — matrix multiplication is literally the operation GPUs and TPUs are built for. TurboQuant's KV-cache compression operates within 2.7x of Shannon's theoretical distortion-rate bound.</span>
               </div>
-              <div class="connection-item">
+              <div class="connection-item" data-discipline="mathematics">
+                <span class="conn-field">MATHEMATICS</span>
+                <span class="conn-desc">Quantization schemes, Top-K sampling, and sparse attention borrow directly from numerical analysis. Every rounding trade-off is a mathematical argument about how much error the user will tolerate.</span>
+              </div>
+              <div class="connection-item" data-discipline="mathematics">
+                <span class="conn-field">MATHEMATICS</span>
+                <span class="conn-desc">Parallel chips work because the workload is regular. Linear algebra turns language and images into tensors, and tensors let computation be split into thousands of repeatable operations at once.</span>
+              </div>
+              <div class="connection-item" data-discipline="economics">
                 <span class="conn-field">ECONOMICS</span>
                 <span class="conn-desc">NVIDIA has 87% revenue share in AI accelerators ($47B data center revenue in FY2025). AI chip market projected to reach $164B by 2029. DeepSeek trained a frontier model for $5.5M — 1/100th the estimated cost of GPT-4.</span>
               </div>
-              <div class="connection-item">
+              <div class="connection-item" data-discipline="economics">
+                <span class="conn-field">ECONOMICS</span>
+                <span class="conn-desc">Open-source hardware (RISC-V) and community-driven collab labs are redistributing the capital barriers. Instead of renting server hours, builders now amortize a single RTX 4070 Ti across dozens of projects.</span>
+              </div>
+              <div class="connection-item" data-discipline="economics">
+                <span class="conn-field">ECONOMICS</span>
+                <span class="conn-desc">Cloud AI turns compute into a subscription, but local AI turns it into an asset. The difference matters: one creates recurring dependence, the other creates ownership after the upfront hardware cost.</span>
+              </div>
+              <div class="connection-item" data-discipline="psychology">
                 <span class="conn-field">PSYCHOLOGY</span>
                 <span class="conn-desc">The "control premium" (Owens et al., 2014): people pay 8-15% more to delegate responsibility. Cloud AI exploits this — users pay $20/month for ChatGPT when free alternatives score within 1% on benchmarks. The legitimacy illusion: free = inferior.</span>
               </div>
-              <div class="connection-item">
+              <div class="connection-item" data-discipline="psychology">
+                <span class="conn-field">PSYCHOLOGY</span>
+                <span class="conn-desc">Users trust the “cloud” because it feels like a team. Local AI needs rituals (visual cues, privacy labels) so that people feel as safe running models on their hardware as they do letting someone else “take care of it.”</span>
+              </div>
+              <div class="connection-item" data-discipline="psychology">
+                <span class="conn-field">PSYCHOLOGY</span>
+                <span class="conn-desc">People also mistake invisibility for intelligence. When the hardware disappears behind an app, users assume the system is smarter than it is, because they never see the real constraints underneath it.</span>
+              </div>
+              <div class="connection-item" data-discipline="political-science">
                 <span class="conn-field">POLITICAL SCIENCE</span>
                 <span class="conn-desc">U.S. chip export controls (Oct 2022, Oct 2023) restrict NVIDIA H100 sales to China. China responded with $100B+ in domestic semiconductor investment. TSMC manufactures 90% of advanced chips — on one island. Silicon is a geopolitical weapon.</span>
               </div>
-              <div class="connection-item">
-                <span class="conn-field">ETHICS &amp; ENVIRONMENT</span>
-                <span class="conn-desc">AI data centers will consume 945 TWh by 2030 (IEA, 2025). Edge AI delivers 75% energy savings vs. cloud. Autonomous weapons use the same NPU architectures as smartphones. Anthropic's Claude Mythos leak crashed cybersecurity stocks 6%.</span>
+              <div class="connection-item" data-discipline="political-science">
+                <span class="conn-field">POLITICAL SCIENCE</span>
+                <span class="conn-desc">Supply-chain dependence is also a hygiene issue; every embargo or tariff reshuffles who can build AI systems. Democratized hardware helps smaller nations stay sovereign instead of outsourcing to a few cloud giants.</span>
+              </div>
+              <div class="connection-item" data-discipline="political-science">
+                <span class="conn-field">POLITICAL SCIENCE</span>
+                <span class="conn-desc">Who controls fabrication, packaging, and export licenses controls the pace of AI adoption. Hardware policy is now technology policy, industrial policy, and national security policy at the same time.</span>
+              </div>
+              <div class="connection-item" data-discipline="ethics">
+                <span class="conn-field">ETHICS</span>
+                <span class="conn-desc">The same accelerators that enable local creativity also enable deepfakes, autonomous weapons, and industrial-scale phishing. Democratizing AI hardware increases access, but it also decentralizes dangerous capability. The moral problem does not disappear when the model leaves the cloud.</span>
+              </div>
+              <div class="connection-item" data-discipline="ethics">
+                <span class="conn-field">ETHICS</span>
+                <span class="conn-desc">Who controls the stack also controls accountability. Transparent hardware and open tooling mean communities can audit models rather than trusting opaque APIs.</span>
+              </div>
+              <div class="connection-item" data-discipline="ethics">
+                <span class="conn-field">ETHICS</span>
+                <span class="conn-desc">There is also an equity question inside the democratization argument: wider access is good, but access without education can spread harm faster than the guardrails people assume the cloud is providing.</span>
+              </div>
+              <div class="connection-item" data-discipline="environmental-science">
+                <span class="conn-field">ENVIRONMENTAL SCIENCE</span>
+                <span class="conn-desc">AI data centers are on track to consume massive amounts of electricity, while edge inference can cut energy use by keeping computation on already-powered devices. Where AI runs is also an environmental decision, not just a technical one.</span>
+              </div>
+              <div class="connection-item" data-discipline="environmental-science">
+                <span class="conn-field">ENVIRONMENTAL SCIENCE</span>
+                <span class="conn-desc">Waste heat from consumer GPUs can be reused for heating, unlike remote data centers that dump megawatts into the sky. Local AI is both a climate and an efficiency argument.</span>
+              </div>
+              <div class="connection-item" data-discipline="environmental-science">
+                <span class="conn-field">ENVIRONMENTAL SCIENCE</span>
+                <span class="conn-desc">Efficiency is not just about watts per token. It is also about where that energy is consumed, how often data is moved, and whether computation happens on existing devices or in new buildings full of cooling infrastructure.</span>
               </div>
             </div>
           </div>
@@ -285,30 +386,31 @@
             <div class="slide-tag">IMPLICATIONS &amp; CONCLUSIONS</div>
             <h2>What I Discovered and Why It Matters</h2>
             <div class="slide-implications">
-              <div class="impl-item impl-pos">
+              <div class="impl-item impl-pos" data-detail="Deloitte (2026) predicts on-prem AI saves over 50% compared to cloud spend and consumer GPUs will match current A100 cards by 2031.">
                 <span class="impl-label">DEMOCRATIZATION IS REAL</span>
-                <p>An $800 GPU runs 70B parameter models locally today. DeepSeek proved frontier models can be trained for $5.5M instead of billions. By 2031, a $500 consumer GPU will match today's A100 data center cards. Deloitte (2026) found on-premise AI saves 50%+ over cloud over 3 years.</p>
+                <p>An $800 GPU can run capable local models today. DeepSeek proved frontier models can be trained for $5.5M instead of billions. By 2031, a $500 consumer GPU will match today's A100 data center cards. Deloitte (2026) found on-premise AI saves 50%+ over cloud over 3 years.</p>
               </div>
-              <div class="impl-item impl-pos">
+              <div class="impl-item impl-pos" data-detail="Zero transmission protects HIPAA, GDPR, and attorney-client privilege because the model never leaves the device.">
                 <span class="impl-label">PRIVACY &amp; SOVEREIGNTY</span>
                 <p>Samsung banned ChatGPT after engineers uploaded chip designs. Local AI means zero data transmission — HIPAA, GDPR, attorney-client privilege are all preserved by default. Your queries never train someone else's model.</p>
               </div>
-              <div class="impl-item impl-pos">
+              <div class="impl-item impl-pos" data-detail="On-device NPUs running 3B parameter models deliver sub-5ms latency, enabling access for 2.6 billion people without reliable cloud connections.">
                 <span class="impl-label">GLOBAL EQUITY</span>
                 <p>2.6 billion people lack reliable internet — cloud AI excludes them by definition. On-device NPUs running 3B parameter models at sub-5ms latency (Qualcomm) make AI accessible offline. The first truly global AI will be local.</p>
               </div>
-              <div class="impl-item impl-warn">
+              <div class="impl-item impl-warn" data-detail="TurboQuant compresses KV-cache 6x, Flash Attention accelerates transformers, and PagedAttention saves 50% memory — software now outpaces raw GPU gains.">
                 <span class="impl-label">SOFTWARE EATING HARDWARE</span>
                 <p>TurboQuant compresses KV-cache 6x with zero quality loss. Flash Attention: 2-4x speedup. PagedAttention: 50% memory savings. Speculative decoding: 2x generation speed. These compound — a $300 GPU today does what a $10,000 card did 2 years ago. Software optimization is outpacing hardware improvement.</p>
               </div>
-              <div class="impl-item impl-warn">
+              <div class="impl-item impl-warn" data-detail="Distillation wars, API cloning claims, and leaked IP show that both centralized and democratized AI paths carry geopolitical and security risks.">
                 <span class="impl-label">THE DOUBLE EDGE</span>
                 <p>Same hardware enables deepfakes, autonomous weapons, and industrial-scale phishing. The distillation wars — OpenAI accusing DeepSeek of API cloning — show cloud AI's IP is fundamentally leaky. Neither centralized nor democratized AI is fully safe. Both paths carry risks.</p>
               </div>
+              <div class="impl-item impl-warn" data-detail="When AI runs locally, ordinary users gain more control over privacy, cost, customization, and uptime instead of depending entirely on remote platforms.">
+                <span class="impl-label">POWER SHIFTS TO USERS</span>
+                <p>Local AI changes who holds leverage. When the model runs on your hardware, you control the data, the cost ceiling, the update timing, and the use case. The infrastructure layer stops being invisible and becomes something people can actually own.</p>
+              </div>
             </div>
-            <blockquote class="slide-thesis">
-              "AI is not a service to be rented. It is a tool to be owned."
-            </blockquote>
           </div>
 
           <!-- SLIDE 7: Advocacy — Why This Matters (8:00 – 9:30) -->
@@ -350,7 +452,7 @@
               </div>
               <div class="prep-item">
                 <span class="prep-label">THE META-EXPERIMENT</span>
-                <p>I used AI running on my own hardware (RTX 4070 Ti SUPER, Ollama, Llama 3.1) to assist with research, drafting, and fact-checking — then wrote about that experience as evidence for the thesis. The paper and this website are themselves proof that local AI works.</p>
+                <p>I used AI running on my own hardware (RTX 4070 Ti SUPER, Ollama, open-source local models) to assist with research, drafting, and fact-checking — then wrote about that experience as evidence for the thesis. The paper and this website are themselves proof that local AI works.</p>
               </div>
               <div class="prep-item">
                 <span class="prep-label">PRESENTATION FORMAT</span>
@@ -360,44 +462,25 @@
                 <span class="prep-label">PREPARATION STEPS</span>
                 <p>Timed each section to fit the 10-12 minute window. Practiced transitions between sections. Ensured every slide maps to the assignment rubric: introduction, methods, transdisciplinary connections, implications, advocacy, and reflection. Visited the Oral Communications Center resources for delivery tips.</p>
               </div>
+              <div class="prep-item">
+                <span class="prep-label">FINAL REFLECTION</span>
+                <p>Biggest takeaway: AI infrastructure literacy is now civic literacy. The thesis is practical, not hypothetical — consumer hardware plus open-source tooling already shifts power away from centralized gatekeepers.</p>
+              </div>
             </div>
           </div>
 
-          <!-- SLIDE 9: Final Reflection & Q&A (10:30 – 12:00) -->
+          <!-- SLIDE 9: Questions + Ending (10:30 – 12:00) -->
           <div class="pres-slide pres-slide--final" data-slide="09">
             <div class="slide-num">09 / 09</div>
-            <div class="slide-tag">REFLECTION &amp; Q&amp;A</div>
-            <h2>What I Learned</h2>
+            <div class="slide-tag">QUESTIONS &amp; ENDING</div>
+            <h2>Questions and Closing</h2>
             <blockquote class="slide-thesis">
               "AI is not a service to be rented.<br>It is a tool to be owned."
             </blockquote>
-            <div class="slide-reflections">
-              <div class="reflection-item">
-                <span class="ref-label">Biggest Takeaway</span>
-                <p>The most transformative technology of our generation runs on hardware designed for a completely different purpose. A fortunate accident between gaming GPUs and neural network math created a trillion-dollar industry — and the open-source community is making sure that industry doesn't stay locked behind corporate paywalls.</p>
-              </div>
-              <div class="reflection-item">
-                <span class="ref-label">What I'd Explore Further</span>
-                <p>How training costs are collapsing (DeepSeek's $5.5M frontier model). Whether federated training across consumer hardware could eventually democratize not just inference but model creation. The intersection of AI hardware and UBI policy — who captures the wealth when AI replaces human labor?</p>
-              </div>
-              <div class="reflection-item">
-                <span class="ref-label">What Surprised Me</span>
-                <p>How few people understand the hardware layer, even in tech. The gap between "I use ChatGPT" and "I understand what powers it" is enormous — and consequential. Also: how fast software optimization is outpacing hardware. The real revolution isn't in the silicon. It's in the code.</p>
-              </div>
-              <div class="reflection-item">
-                <span class="ref-label">What I'd Improve</span>
-                <p>More empirical data on local vs. cloud cost comparisons across different user profiles. A systematic study of adoption barriers for non-technical users. Deeper investigation into multimodal models (video, speech, robotics) which have different hardware constraints than text models.</p>
-              </div>
-            </div>
             <div class="slide-qa">
               <h3>Questions?</h3>
-              <p class="slide-body">I'm happy to discuss any aspect of the research — the hardware, the economics, the policy implications, or the homelab experience. You can also explore the other sections of this website: the full research paper, the interactive CPU vs GPU demo, and the pioneer profiles.</p>
-            </div>
-            <div class="slide-meta">
-              <p>The thesis is not theoretical. It is running right now — on consumer hardware, in open-source ecosystems, on devices people already own.</p>
-            </div>
-            <div class="slide-sources">
-              <p>Sources: 39 APA-cited references · Bitdeer (2025) · CRV Science (2024) · Dao et al. (2022) · Data Center Knowledge (2025) · DeepSeek-AI (2024) · Deloitte (2026) · Glassner (2012) · IBM (2024) · Jouppi et al. (2017) · Korinek &amp; Stiglitz (2019) · Krizhevsky et al. (2012) · Meta AI (2024) · MIT CSAIL (2023) · Owens et al. (2014) · Rathore (2024) · UST (2024) · Zandieh et al. (2026)</p>
+              <p class="slide-body">I'm happy to discuss any aspect of the research — the hardware, the economics, the policy implications, or the homelab experience. You can explore the other sections of this website: the full research paper, the interactive CPU vs GPU demo, and the pioneer profiles.</p>
+              <p class="slide-contact">Contact: <a href="mailto:japarcedo@fsw.edu">japarcedo@fsw.edu</a> · <a href="https://github.com/Josue7211" target="_blank" rel="noreferrer">github.com/Josue7211</a></p>
             </div>
           </div>
 
@@ -439,47 +522,47 @@
         <p class="exp-desc">Nine people whose work made local AI possible.</p>
         <div class="pioneers-grid">
           <div class="pioneer" data-info="Bet hundreds of millions on CUDA when it had no clear revenue path. Created the platform moat that made NVIDIA the engine of AI. $47B data center revenue FY2025. NVIDIA commands 86% of AI GPU market share.">
-            <div class="pioneer-photo"><img src="./portraits/jensen.jpg" alt="Jensen Huang" loading="lazy"></div>
+            <div class="pioneer-photo"><img src="./assets/media/photos/portraits/jensen.jpg" alt="Jensen Huang" loading="lazy"></div>
             <span>Jensen Huang</span>
             <small>CEO, NVIDIA</small>
           </div>
           <div class="pioneer" data-info="Spent decades advocating neural networks when the field abandoned them. His student Alex Krizhevsky's AlexNet (2012) proved GPUs could think. Nobel Prize in Physics, 2024. The godfather of deep learning.">
-            <div class="pioneer-photo"><img src="./portraits/hinton.jpg" alt="Geoffrey Hinton" loading="lazy"></div>
+            <div class="pioneer-photo"><img src="./assets/media/photos/portraits/hinton.jpg" alt="Geoffrey Hinton" loading="lazy"></div>
             <span>Geoffrey Hinton</span>
             <small>Nobel Laureate · Deep Learning</small>
           </div>
           <div class="pioneer" data-info="His 1965 observation — transistor density doubles every 2 years — drove 50 years of exponential progress. When Moore's Law stalled at atomic scales, specialized AI chips became necessary. His legacy explains why TPUs, NPUs, and Apple Silicon exist.">
-            <div class="pioneer-photo"><img src="./portraits/moore.jpg" alt="Gordon Moore" loading="lazy"></div>
+            <div class="pioneer-photo"><img src="./assets/media/photos/portraits/moore.jpg" alt="Gordon Moore" loading="lazy"></div>
             <span>Gordon Moore</span>
             <small>Co-founder, Intel</small>
           </div>
           <div class="pioneer" data-info="Built ImageNet — 14 million labeled images — proving AI needs curated data, not just hardware. AlexNet won on her benchmark. Stanford AI Lab director. Coined 'AI for the people' as a policy framework.">
-            <div class="pioneer-photo"><img src="./portraits/feifei.jpg" alt="Fei-Fei Li" loading="lazy"></div>
+            <div class="pioneer-photo"><img src="./assets/media/photos/portraits/feifei.jpg" alt="Fei-Fei Li" loading="lazy"></div>
             <span>Fei-Fei Li</span>
             <small>Stanford · ImageNet</small>
           </div>
           <div class="pioneer" data-info="Transformed AMD from near-bankruptcy to NVIDIA's most serious rival. The MI300X challenges H100 dominance in data centers. Her turnaround is a business school case study in focused execution.">
-            <div class="pioneer-photo"><img src="./portraits/lisasu.jpg" alt="Lisa Su" loading="lazy"></div>
+            <div class="pioneer-photo"><img src="./assets/media/photos/portraits/lisasu.jpg" alt="Lisa Su" loading="lazy"></div>
             <span>Lisa Su</span>
             <small>CEO, AMD</small>
           </div>
           <div class="pioneer" data-info="Director of AI at Tesla, founding OpenAI member, then independent educator. His open-source courses (nanoGPT, micrograd) democratized understanding of how LLMs work. More people learned transformers from his videos than from any academic course.">
-            <div class="pioneer-photo"><img src="./portraits/karpathy.jpg" alt="Andrej Karpathy" loading="lazy"></div>
+            <div class="pioneer-photo"><img src="./assets/media/photos/portraits/karpathy.jpg" alt="Andrej Karpathy" loading="lazy"></div>
             <span>Andrej Karpathy</span>
             <small>AI Educator · OpenAI</small>
           </div>
           <div class="pioneer" data-info="OpenAI CEO who has navigated the most consequential AI deployments in history. His push for AGI-first development and his controversial ouster and return defined the AI governance conversation of 2023-2024.">
-            <div class="pioneer-photo"><img src="./portraits/altman.jpg" alt="Sam Altman" loading="lazy"></div>
+            <div class="pioneer-photo"><img src="./assets/media/photos/portraits/altman.jpg" alt="Sam Altman" loading="lazy"></div>
             <span>Sam Altman</span>
             <small>CEO, OpenAI</small>
           </div>
           <div class="pioneer" data-info="CEO of Anthropic and author of the 'responsible scaling' framework. His leaked Claude Mythos model documentation revealed an AI so capable at finding software vulnerabilities that its announcement crashed cybersecurity stocks.">
-            <div class="pioneer-photo"><img src="./portraits/amodei.jpg" alt="Dario Amodei" loading="lazy"></div>
+            <div class="pioneer-photo"><img src="./assets/media/photos/portraits/amodei.jpg" alt="Dario Amodei" loading="lazy"></div>
             <span>Dario Amodei</span>
             <small>CEO, Anthropic</small>
           </div>
           <div class="pioneer" data-info="Designed the Alpha 21064, PA-8000, Athlon, Zen, Apple A4, and RISC-V cores. More processor designs than anyone in the industry. His work on efficiency-first architecture directly enables the NPUs and mobile AI chips that will run local AI for billions.">
-            <div class="pioneer-photo"><img src="./portraits/keller.jpg" alt="Jim Keller" loading="lazy"></div>
+            <div class="pioneer-photo"><img src="./assets/media/photos/portraits/keller.jpg" alt="Jim Keller" loading="lazy"></div>
             <span>Jim Keller</span>
             <small>Chip Architect</small>
           </div>
@@ -516,23 +599,28 @@
     </div>
   </div>
 
-  <!-- LOGIN SCREEN (Win95 style — before BIOS) -->
+  <!-- LOGIN SCREEN (Win95 style — shown after BIOS + splash) -->
   <div id="loginScreen" class="login-screen">
     <div class="login-dialog">
       <div class="login-titlebar">
-        <span class="login-titlebar-icon">🔑</span>
-        <span class="login-titlebar-text">Welcome to Windows</span>
+        <span class="login-titlebar-icon" aria-hidden="true">
+          <img class="login-titlebar-icon-img" src="./assets/icons/win98/start.ico" alt="">
+        </span>
+        <span class="login-titlebar-text">Welcome to AI 98 OS</span>
       </div>
       <div class="login-body">
         <div class="login-icon-area">
-          <div class="login-key-icon">🔑</div>
+          <div class="login-key-icon" aria-hidden="true">
+            <img class="login-key-icon-img" src="./assets/branding/win98-startup-logo.ico" alt="">
+          </div>
         </div>
         <div class="login-form-area">
-          <p class="login-prompt">Type a user name to log on to Windows.</p>
+          <p class="login-prompt">Type a user name to log on to AI 98 OS.</p>
           <div class="login-field">
             <label class="login-label" for="loginUser">User name:</label>
-            <input type="text" id="loginUser" class="login-input" value="Josue" autocomplete="off" spellcheck="false">
+            <input type="text" id="loginUser" class="login-input" value="IDS2891" autocomplete="off" spellcheck="false">
           </div>
+          <p class="login-hint">Hint: any name works. Press Enter or click OK.</p>
           <p class="login-status" id="loginStatus" aria-live="polite"></p>
         </div>
       </div>
@@ -574,20 +662,17 @@
     <div id="biosFooter" class="bios-footer"></div>
   </div>
 
-  <!-- WIN95 SPLASH SCREEN (flag logo + progress bar) -->
+  <!-- WIN98 SPLASH SCREEN (logo + progress bar) -->
   <div id="win95Splash">
     <div class="win95-splash-inner">
-      <div class="win95-flag-grid">
-        <div class="flag-tile flag-red"></div>
-        <div class="flag-tile flag-green"></div>
-        <div class="flag-tile flag-blue"></div>
-        <div class="flag-tile flag-yellow"></div>
+      <div class="win98-splash-logo-wrap">
+        <img class="win98-splash-logo" src="./assets/branding/win98-startup-logo.ico" alt="Windows 98 style startup logo">
       </div>
-      <div class="win95-splash-text">Microsoft Windows 95</div>
+      <div class="win95-splash-text">AI 98 OS</div>
       <div class="win95-splash-bar-wrap">
         <div class="win95-splash-bar" id="win95SplashBar"></div>
       </div>
-      <div class="win95-splash-status">Starting Windows 95...</div>
+      <div class="win95-splash-status">Starting AI 98 OS...</div>
     </div>
   </div>
 
@@ -604,17 +689,41 @@
           <span class="icon-emoji">🎬</span>
           <span class="icon-label">Presentation</span>
         </div>
-        <div class="desktop-icon" data-app="explorer" data-label="My Computer">
+        <div class="desktop-icon" data-app="explorer" data-label="File Explorer">
           <span class="icon-emoji">💾</span>
-          <span class="icon-label">My Computer</span>
+          <span class="icon-label">File Explorer</span>
+        </div>
+        <div class="desktop-icon" data-app="ie" data-label="Internet Explorer">
+          <span class="icon-emoji">🌐</span>
+          <span class="icon-label">Internet Explorer</span>
         </div>
         <div class="desktop-icon" data-app="terminal" data-label="Terminal">
-          <span class="icon-emoji">⌨️</span>
+          <span class="icon-emoji">🖥️</span>
           <span class="icon-label">Terminal</span>
+        </div>
+        <div class="desktop-icon" data-app="notepad" data-label="Notepad">
+          <span class="icon-emoji">📝</span>
+          <span class="icon-label">Notepad</span>
         </div>
         <div class="desktop-icon" data-app="steam" data-label="Steam95">
           <span class="icon-emoji">🎮</span>
           <span class="icon-label">Steam95</span>
+        </div>
+        <div class="desktop-icon" data-app="defrag" data-label="Disk Defragmenter">
+          <span class="icon-emoji">🧩</span>
+          <span class="icon-label">Disk Defragmenter</span>
+        </div>
+        <div class="desktop-icon" data-app="paint" data-label="Paint">
+          <span class="icon-emoji">🎨</span>
+          <span class="icon-label">Paint</span>
+        </div>
+        <div class="desktop-icon" data-app="msn" data-label="MSN Messenger">
+          <span class="icon-emoji">💬</span>
+          <span class="icon-label">MSN Messenger</span>
+        </div>
+        <div class="desktop-icon" data-app="winamp" data-label="Winamp">
+          <span class="icon-emoji">🎵</span>
+          <span class="icon-label">Winamp</span>
         </div>
         <div class="desktop-icon" data-app="recycle" data-label="Recycle Bin">
           <span class="icon-emoji">🗑️</span>
@@ -636,12 +745,40 @@
 
   <canvas id="scene"></canvas>
 
-  <script type="module" src="main.js"></script>
-  <script src="games.js"></script>
-  <script src="explorer.js"></script>
-  <script src="presentation.js"></script>
-  <script src="steam.js"></script>
-  <script src="bonzi.js"></script>
-  <script src="extras.js"></script>
+  <script src="src/shared/win95-shared.js?v=icons7"></script>
+  <script type="module" src="src/runtime/main.js?v=fullscreen29"></script>
+  <script src="src/features/games-shared.js"></script>
+  <script src="src/features/games-snake.js"></script>
+  <script src="src/features/games-runner.js"></script>
+  <script src="src/features/games-race.js"></script>
+  <script src="src/features/games.js"></script>
+  <script src="src/features/explorer-fs.js?v=icons2"></script>
+  <script src="src/features/explorer.js?v=icons3"></script>
+  <script type="module" src="src/presentation/index.js?v=fullscreen13"></script>
+  <script src="src/features/steam-game-snake.js?v=steam98a"></script>
+  <script src="src/features/steam-game-silicon-runner.js?v=steam98a"></script>
+  <script src="src/features/steam-game-cpu-gpu-race.js?v=steam98a"></script>
+  <script src="src/features/steam-game-hardware-timeline.js?v=steam98a"></script>
+  <script src="src/features/steam-game-minesweeper.js?v=steam98a"></script>
+  <script src="src/features/steam-game-pioneer-profiles.js?v=steam98a"></script>
+  <script src="src/features/steam-catalog.js?v=steam98a"></script>
+  <script src="src/features/steam-state.js?v=steam98a"></script>
+  <script src="src/features/steam-launcher.js?v=steam98a"></script>
+  <script src="src/features/steam.js?v=steam98a"></script>
+  <script src="src/features/bonzi-core.js"></script>
+  <script src="src/features/bonzi-chat-engine.js?v=ai98copy1"></script>
+  <script src="src/features/bonzi.js?v=voicefix8"></script>
+  <script src="src/features/extras-windowing.js"></script>
+  <script src="src/features/extras-app-minesweeper.js"></script>
+  <script src="src/features/extras-app-paint.js?v=paint6"></script>
+  <script src="src/features/extras-ie-data.js"></script>
+  <script src="src/features/extras-app-internet-explorer.js"></script>
+  <script src="src/features/extras-app-msn.js"></script>
+  <script src="src/features/extras-app-shutdown.js"></script>
+  <script src="src/features/extras-system-screensaver.js"></script>
+  <script src="src/features/extras-app-system-properties.js"></script>
+  <script src="src/features/extras-app-winamp.js"></script>
+  <script src="src/features/extras-apps-a.js"></script>
+  <script src="src/features/extras-apps-b.js"></script>
 </body>
 </html>

@@ -1,0 +1,44 @@
+reflection.txt - Josue Aparcedo Gonzalez
+========================================
+
+When I started this project, I had a simple question:
+why does a gaming GPU power artificial intelligence?
+I build PCs as a hobby. I knew my RTX 4070 Ti SUPER
+was fast at rendering games, but watching it run
+local 7B and 14B language models smoothly felt
+like discovering a secret the industry had been
+keeping from consumers.
+
+The CUDA/AlexNet connection was the first revelation.
+Jensen Huang bet hundreds of millions on a software
+platform with no guaranteed return, and a grad student
+named Alex Krizhevsky proved the bet right by training
+a neural network on two $500 gaming GPUs from Best Buy.
+That moment in 2012 redirected the entire field of AI.
+
+What surprised me most was the speed of convergence.
+Three years ago, running useful language models often required
+expensive cloud access. Today I can run strong local models
+in my apartment for $0/month. The gap between cloud and local AI did not
+close gradually -- it collapsed. Quantization, Flash
+Attention, and open-source models created a compounding
+effect that no one predicted would move this fast.
+
+Building this website became proof of the thesis itself.
+I used local AI tools running on the same GPU this paper
+describes to assist with research, drafting, and coding.
+The meta-narrative is real: consumer hardware is powerful
+enough to replace expensive cloud workflows right now.
+
+If I had more time, I would explore federated training --
+whether consumer GPUs could collectively train models,
+not just run them. I would dig deeper into UBI policy:
+when AI automates 40% of jobs, who captures the wealth?
+And I would study multimodal models (video, robotics)
+which have different hardware constraints than text.
+
+The thesis is not theoretical. It is running right now,
+on consumer hardware, in open-source ecosystems, on
+devices people already own.
+
+-- J.A.G., Spring 2026

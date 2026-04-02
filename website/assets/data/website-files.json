@@ -1,0 +1,1038 @@
+[
+  {
+    "name": "IDS2891",
+    "path": "./../IDS2891",
+    "type": "folder",
+    "size": "",
+    "modified": "2026-04-01"
+  },
+  {
+    "name": "IDS2891/assignment-1-discussion-post.md",
+    "path": "./../IDS2891/assignment-1-discussion-post.md",
+    "type": "file",
+    "size": "2.2 KB",
+    "modified": "2026-03-29"
+  },
+  {
+    "name": "IDS2891/assignment-1-interest-web.excalidraw",
+    "path": "./../IDS2891/assignment-1-interest-web.excalidraw",
+    "type": "file",
+    "size": "18.3 KB",
+    "modified": "2026-03-29"
+  },
+  {
+    "name": "IDS2891/assignment-10-checkin-2.md",
+    "path": "./../IDS2891/assignment-10-checkin-2.md",
+    "type": "file",
+    "size": "3.5 KB",
+    "modified": "2026-03-29"
+  },
+  {
+    "name": "IDS2891/assignment-11-checkin-3.md",
+    "path": "./../IDS2891/assignment-11-checkin-3.md",
+    "type": "file",
+    "size": "14.3 KB",
+    "modified": "2026-03-29"
+  },
+  {
+    "name": "IDS2891/assignment-12-presentation-worksheet.md",
+    "path": "./../IDS2891/assignment-12-presentation-worksheet.md",
+    "type": "file",
+    "size": "9.2 KB",
+    "modified": "2026-03-29"
+  },
+  {
+    "name": "IDS2891/assignment-13-final-presentation-plan.md",
+    "path": "./../IDS2891/assignment-13-final-presentation-plan.md",
+    "type": "file",
+    "size": "2.8 KB",
+    "modified": "2026-03-29"
+  },
+  {
+    "name": "IDS2891/assignment-15-research-documentation.md",
+    "path": "./../IDS2891/assignment-15-research-documentation.md",
+    "type": "file",
+    "size": "12.0 KB",
+    "modified": "2026-03-30"
+  },
+  {
+    "name": "IDS2891/assignment-16-revision-reflection.md",
+    "path": "./../IDS2891/assignment-16-revision-reflection.md",
+    "type": "file",
+    "size": "12.0 KB",
+    "modified": "2026-03-30"
+  },
+  {
+    "name": "IDS2891/assignment-2-interest-web-note.md",
+    "path": "./../IDS2891/assignment-2-interest-web-note.md",
+    "type": "file",
+    "size": "873 B",
+    "modified": "2026-03-29"
+  },
+  {
+    "name": "IDS2891/assignment-2-interest-web.png",
+    "path": "./../IDS2891/assignment-2-interest-web.png",
+    "type": "file",
+    "size": "123.9 KB",
+    "modified": "2026-03-29"
+  },
+  {
+    "name": "IDS2891/assignment-3-library-2-credo-sources.md",
+    "path": "./../IDS2891/assignment-3-library-2-credo-sources.md",
+    "type": "file",
+    "size": "2.7 KB",
+    "modified": "2026-03-29"
+  },
+  {
+    "name": "IDS2891/assignment-5-crafting-rqs.md",
+    "path": "./../IDS2891/assignment-5-crafting-rqs.md",
+    "type": "file",
+    "size": "4.2 KB",
+    "modified": "2026-03-29"
+  },
+  {
+    "name": "IDS2891/assignment-6-library-3-buckets.md",
+    "path": "./../IDS2891/assignment-6-library-3-buckets.md",
+    "type": "file",
+    "size": "4.3 KB",
+    "modified": "2026-03-29"
+  },
+  {
+    "name": "IDS2891/assignment-7-brainstorm-discussion.md",
+    "path": "./../IDS2891/assignment-7-brainstorm-discussion.md",
+    "type": "file",
+    "size": "6.7 KB",
+    "modified": "2026-03-29"
+  },
+  {
+    "name": "IDS2891/assignment-8-short-proposal.md",
+    "path": "./../IDS2891/assignment-8-short-proposal.md",
+    "type": "file",
+    "size": "7.1 KB",
+    "modified": "2026-03-29"
+  },
+  {
+    "name": "IDS2891/assignment-9-checkin-1.md",
+    "path": "./../IDS2891/assignment-9-checkin-1.md",
+    "type": "file",
+    "size": "2.7 KB",
+    "modified": "2026-03-29"
+  },
+  {
+    "name": "IDS2891/reflection.txt",
+    "path": "./../IDS2891/reflection.txt",
+    "type": "file",
+    "size": "1.9 KB",
+    "modified": "2026-03-31"
+  },
+  {
+    "name": "IDS2891/research-paper.pdf",
+    "path": "./../IDS2891/research-paper.pdf",
+    "type": "file",
+    "size": "543.6 KB",
+    "modified": "2026-03-31"
+  },
+  {
+    "name": "ops",
+    "path": "./../ops",
+    "type": "folder",
+    "size": "",
+    "modified": "2026-03-31"
+  },
+  {
+    "name": "ops/__pycache__",
+    "path": "./../ops/__pycache__",
+    "type": "folder",
+    "size": "",
+    "modified": "2026-03-31"
+  },
+  {
+    "name": "ops/__pycache__/ai_proxy.cpython-314.pyc",
+    "path": "./../ops/__pycache__/ai_proxy.cpython-314.pyc",
+    "type": "file",
+    "size": "14.3 KB",
+    "modified": "2026-03-31"
+  },
+  {
+    "name": "ops/ai_proxy.py",
+    "path": "./../ops/ai_proxy.py",
+    "type": "file",
+    "size": "8.5 KB",
+    "modified": "2026-03-31"
+  },
+  {
+    "name": "ops/cornerstone-cloudflared.yml",
+    "path": "./../ops/cornerstone-cloudflared.yml",
+    "type": "file",
+    "size": "335 B",
+    "modified": "2026-03-31"
+  },
+  {
+    "name": "ops/healthcheck.sh",
+    "path": "./../ops/healthcheck.sh",
+    "type": "file",
+    "size": "1.3 KB",
+    "modified": "2026-03-31"
+  },
+  {
+    "name": "ops/launch-kiosk.sh",
+    "path": "./../ops/launch-kiosk.sh",
+    "type": "file",
+    "size": "371 B",
+    "modified": "2026-03-31"
+  },
+  {
+    "name": "ops/start-ai-reverse-tunnel.sh",
+    "path": "./../ops/start-ai-reverse-tunnel.sh",
+    "type": "file",
+    "size": "649 B",
+    "modified": "2026-03-31"
+  },
+  {
+    "name": "ops/start-local-ai-proxy.sh",
+    "path": "./../ops/start-local-ai-proxy.sh",
+    "type": "file",
+    "size": "668 B",
+    "modified": "2026-03-31"
+  },
+  {
+    "name": "source code",
+    "path": "./",
+    "type": "folder",
+    "size": "",
+    "modified": "2026-04-01"
+  },
+  {
+    "name": "source code/assets",
+    "path": "./assets",
+    "type": "folder",
+    "size": "",
+    "modified": "2026-04-01"
+  },
+  {
+    "name": "source code/assets/media",
+    "path": "./assets/media",
+    "type": "folder",
+    "size": "",
+    "modified": "2026-04-01"
+  },
+  {
+    "name": "source code/assets/media/audio",
+    "path": "./assets/media/audio",
+    "type": "folder",
+    "size": "",
+    "modified": "2026-04-01"
+  },
+  {
+    "name": "source code/assets/media/audio/00-default.mp3",
+    "path": "./assets/media/audio/00-default.mp3",
+    "type": "file",
+    "size": "8.5 KB",
+    "modified": "2026-04-01"
+  },
+  {
+    "name": "source code/assets/media/audio/boot.mp3",
+    "path": "./assets/media/audio/boot.mp3",
+    "type": "file",
+    "size": "60.0 KB",
+    "modified": "2026-03-30"
+  },
+  {
+    "name": "source code/assets/media/audio/startup-chime.mp3",
+    "path": "./assets/media/audio/startup-chime.mp3",
+    "type": "file",
+    "size": "8.5 KB",
+    "modified": "2026-03-31"
+  },
+  {
+    "name": "source code/assets/media/photos/bonzi-frames",
+    "path": "./assets/media/photos/bonzi-frames",
+    "type": "folder",
+    "size": "",
+    "modified": "2026-04-01"
+  },
+  {
+    "name": "source code/assets/media/photos/bonzi-frames/frame-00.png",
+    "path": "./assets/media/photos/bonzi-frames/frame-00.png",
+    "type": "file",
+    "size": "47.2 KB",
+    "modified": "2026-03-31"
+  },
+  {
+    "name": "source code/assets/media/photos/bonzi-frames/frame-01.png",
+    "path": "./assets/media/photos/bonzi-frames/frame-01.png",
+    "type": "file",
+    "size": "46.0 KB",
+    "modified": "2026-03-31"
+  },
+  {
+    "name": "source code/assets/media/photos/bonzi-frames/frame-02.png",
+    "path": "./assets/media/photos/bonzi-frames/frame-02.png",
+    "type": "file",
+    "size": "47.2 KB",
+    "modified": "2026-03-31"
+  },
+  {
+    "name": "source code/assets/media/photos/bonzi-frames/frame-03.png",
+    "path": "./assets/media/photos/bonzi-frames/frame-03.png",
+    "type": "file",
+    "size": "46.9 KB",
+    "modified": "2026-03-31"
+  },
+  {
+    "name": "source code/assets/data",
+    "path": "./assets/data",
+    "type": "folder",
+    "size": "",
+    "modified": "2026-04-01"
+  },
+  {
+    "name": "source code/assets/data/md-index.json",
+    "path": "./assets/data/md-index.json",
+    "type": "file",
+    "size": "2.4 KB",
+    "modified": "2026-03-31"
+  },
+  {
+    "name": "source code/assets/data/website-files.json",
+    "path": "./assets/data/website-files.json",
+    "type": "file",
+    "size": "25.3 KB",
+    "modified": "2026-04-01"
+  },
+  {
+    "name": "source code/assets/docs",
+    "path": "./assets/docs",
+    "type": "folder",
+    "size": "",
+    "modified": "2026-04-01"
+  },
+  {
+    "name": "source code/assets/docs/research-paper.pdf",
+    "path": "./assets/docs/research-paper.pdf",
+    "type": "file",
+    "size": "543.6 KB",
+    "modified": "2026-04-01"
+  },
+  {
+    "name": "source code/assets/hdri",
+    "path": "./assets/hdri",
+    "type": "folder",
+    "size": "",
+    "modified": "2026-03-30"
+  },
+  {
+    "name": "source code/assets/hdri/dark_night.hdr",
+    "path": "./assets/hdri/dark_night.hdr",
+    "type": "file",
+    "size": "1.6 MB",
+    "modified": "2026-03-30"
+  },
+  {
+    "name": "source code/assets/hdri/night_sky.hdr",
+    "path": "./assets/hdri/night_sky.hdr",
+    "type": "file",
+    "size": "1.4 MB",
+    "modified": "2026-03-30"
+  },
+  {
+    "name": "source code/assets/models",
+    "path": "./assets/models",
+    "type": "folder",
+    "size": "",
+    "modified": "2026-04-01"
+  },
+  {
+    "name": "source code/assets/models/interstellar-runner",
+    "path": "./assets/models/interstellar-runner",
+    "type": "folder",
+    "size": "",
+    "modified": "2026-04-01"
+  },
+  {
+    "name": "source code/assets/models/interstellar-runner/Package",
+    "path": "./assets/models/interstellar-runner/Package",
+    "type": "folder",
+    "size": "",
+    "modified": "2019-11-29"
+  },
+  {
+    "name": "source code/assets/models/interstellar-runner/Package/InterstellarRunner.gif",
+    "path": "./assets/models/interstellar-runner/Package/InterstellarRunner.gif",
+    "type": "file",
+    "size": "17.1 MB",
+    "modified": "2019-11-29"
+  },
+  {
+    "name": "source code/assets/models/interstellar-runner/Package/InterstellarRunner.mtl",
+    "path": "./assets/models/interstellar-runner/Package/InterstellarRunner.mtl",
+    "type": "file",
+    "size": "150 B",
+    "modified": "2019-11-29"
+  },
+  {
+    "name": "source code/assets/models/interstellar-runner/Package/InterstellarRunner.obj",
+    "path": "./assets/models/interstellar-runner/Package/InterstellarRunner.obj",
+    "type": "file",
+    "size": "109.3 KB",
+    "modified": "2019-11-29"
+  },
+  {
+    "name": "source code/assets/models/interstellar-runner/Package/InterstellarRunner.png",
+    "path": "./assets/models/interstellar-runner/Package/InterstellarRunner.png",
+    "type": "file",
+    "size": "156 B",
+    "modified": "2019-11-29"
+  },
+  {
+    "name": "source code/assets/models/interstellar-runner/Package/InterstellarRunner.vox",
+    "path": "./assets/models/interstellar-runner/Package/InterstellarRunner.vox",
+    "type": "file",
+    "size": "70.2 KB",
+    "modified": "2019-11-29"
+  },
+  {
+    "name": "source code/assets/media/photos",
+    "path": "./assets/media/photos",
+    "type": "folder",
+    "size": "",
+    "modified": "2026-04-01"
+  },
+  {
+    "name": "source code/assets/media/photos/wallpaper-pixel.png",
+    "path": "./assets/media/photos/wallpaper-pixel.png",
+    "type": "file",
+    "size": "27.0 KB",
+    "modified": "2026-03-31"
+  },
+  {
+    "name": "source code/assets/media/photos/altman.jpg",
+    "path": "./assets/media/photos/altman.jpg",
+    "type": "file",
+    "size": "24.7 KB",
+    "modified": "2026-03-30"
+  },
+  {
+    "name": "source code/assets/media/photos/amodei.jpg",
+    "path": "./assets/media/photos/amodei.jpg",
+    "type": "file",
+    "size": "21.0 KB",
+    "modified": "2026-03-30"
+  },
+  {
+    "name": "source code/assets/media/photos/feifei.jpg",
+    "path": "./assets/media/photos/feifei.jpg",
+    "type": "file",
+    "size": "24.6 KB",
+    "modified": "2026-03-30"
+  },
+  {
+    "name": "source code/assets/media/photos/hinton.jpg",
+    "path": "./assets/media/photos/hinton.jpg",
+    "type": "file",
+    "size": "14.6 KB",
+    "modified": "2026-03-30"
+  },
+  {
+    "name": "source code/assets/media/photos/jensen.jpg",
+    "path": "./assets/media/photos/jensen.jpg",
+    "type": "file",
+    "size": "22.3 KB",
+    "modified": "2026-03-30"
+  },
+  {
+    "name": "source code/assets/media/photos/karpathy.jpg",
+    "path": "./assets/media/photos/karpathy.jpg",
+    "type": "file",
+    "size": "100.4 KB",
+    "modified": "2026-03-30"
+  },
+  {
+    "name": "source code/assets/media/photos/keller.jpg",
+    "path": "./assets/media/photos/keller.jpg",
+    "type": "file",
+    "size": "25.5 KB",
+    "modified": "2026-03-30"
+  },
+  {
+    "name": "source code/assets/media/photos/lisasu.jpg",
+    "path": "./assets/media/photos/lisasu.jpg",
+    "type": "file",
+    "size": "19.6 KB",
+    "modified": "2026-03-30"
+  },
+  {
+    "name": "source code/assets/media/photos/moore.jpg",
+    "path": "./assets/media/photos/moore.jpg",
+    "type": "file",
+    "size": "171.9 KB",
+    "modified": "2026-03-30"
+  },
+  {
+    "name": "source code/assets/media/photos/bonzi-real-still.png",
+    "path": "./assets/media/photos/bonzi-real-still.png",
+    "type": "file",
+    "size": "47.2 KB",
+    "modified": "2026-03-31"
+  },
+  {
+    "name": "source code/assets/media/photos/bonzi-real.gif",
+    "path": "./assets/media/photos/bonzi-real.gif",
+    "type": "file",
+    "size": "194.7 KB",
+    "modified": "2026-03-31"
+  },
+  {
+    "name": "source code/assets/media/photos/clippy-body.png",
+    "path": "./assets/media/photos/clippy-body.png",
+    "type": "file",
+    "size": "2.8 KB",
+    "modified": "2026-03-31"
+  },
+  {
+    "name": "source code/assets/media/photos/clippy-real.png",
+    "path": "./assets/media/photos/clippy-real.png",
+    "type": "file",
+    "size": "10.3 KB",
+    "modified": "2026-03-31"
+  },
+  {
+    "name": "source code/assets/media/photos/clippy-models",
+    "path": "./assets/media/photos/clippy-models",
+    "type": "folder",
+    "size": "",
+    "modified": "2026-04-01"
+  },
+  {
+    "name": "source code/assets/media/photos/clippy-models/rigged_microsoft_clippyclippit_fbx_and_blend.zip",
+    "path": "./assets/media/photos/clippy-models/rigged_microsoft_clippyclippit_fbx_and_blend.zip",
+    "type": "file",
+    "size": "124.0 KB",
+    "modified": "2026-04-01"
+  },
+  {
+    "name": "source code/assets/media/videos",
+    "path": "./assets/media/videos",
+    "type": "folder",
+    "size": "",
+    "modified": "2026-04-01"
+  },
+  {
+    "name": "source code/assets/media/videos/CPUvsGPUvsTPUvsDPUvsQPU.mp4",
+    "path": "./assets/media/videos/CPUvsGPUvsTPUvsDPUvsQPU.mp4",
+    "type": "file",
+    "size": "56.7 MB",
+    "modified": "2026-03-31"
+  },
+  {
+    "name": "source code/assets/media/videos/movie.mp4",
+    "path": "./assets/media/videos/movie.mp4",
+    "type": "file",
+    "size": "56.7 MB",
+    "modified": "2026-04-01"
+  },
+  {
+    "name": "source code/scripts",
+    "path": "./scripts",
+    "type": "folder",
+    "size": "",
+    "modified": "2026-04-01"
+  },
+  {
+    "name": "source code/scripts/sync-explorer-index.js",
+    "path": "./scripts/sync-explorer-index.js",
+    "type": "file",
+    "size": "3.5 KB",
+    "modified": "2026-04-01"
+  },
+  {
+    "name": "source code/src",
+    "path": "./src",
+    "type": "folder",
+    "size": "",
+    "modified": "2026-04-01"
+  },
+  {
+    "name": "source code/src/features",
+    "path": "./src/features",
+    "type": "folder",
+    "size": "",
+    "modified": "2026-04-01"
+  },
+  {
+    "name": "source code/src/features/bonzi-chat-engine.js",
+    "path": "./src/features/bonzi-chat-engine.js",
+    "type": "file",
+    "size": "9.1 KB",
+    "modified": "2026-04-01"
+  },
+  {
+    "name": "source code/src/features/bonzi-core.js",
+    "path": "./src/features/bonzi-core.js",
+    "type": "file",
+    "size": "8.8 KB",
+    "modified": "2026-04-01"
+  },
+  {
+    "name": "source code/src/features/bonzi.js",
+    "path": "./src/features/bonzi.js",
+    "type": "file",
+    "size": "26.7 KB",
+    "modified": "2026-04-01"
+  },
+  {
+    "name": "source code/src/features/explorer-fs.js",
+    "path": "./src/features/explorer-fs.js",
+    "type": "file",
+    "size": "6.7 KB",
+    "modified": "2026-04-01"
+  },
+  {
+    "name": "source code/src/features/explorer.js",
+    "path": "./src/features/explorer.js",
+    "type": "file",
+    "size": "9.1 KB",
+    "modified": "2026-04-01"
+  },
+  {
+    "name": "source code/src/features/extras-app-internet-explorer.js",
+    "path": "./src/features/extras-app-internet-explorer.js",
+    "type": "file",
+    "size": "19.9 KB",
+    "modified": "2026-04-01"
+  },
+  {
+    "name": "source code/src/features/extras-app-internet-msn.js",
+    "path": "./src/features/extras-app-internet-msn.js",
+    "type": "file",
+    "size": "158 B",
+    "modified": "2026-04-01"
+  },
+  {
+    "name": "source code/src/features/extras-app-minesweeper.js",
+    "path": "./src/features/extras-app-minesweeper.js",
+    "type": "file",
+    "size": "6.9 KB",
+    "modified": "2026-04-01"
+  },
+  {
+    "name": "source code/src/features/extras-app-msn.js",
+    "path": "./src/features/extras-app-msn.js",
+    "type": "file",
+    "size": "11.2 KB",
+    "modified": "2026-04-01"
+  },
+  {
+    "name": "source code/src/features/extras-app-paint.js",
+    "path": "./src/features/extras-app-paint.js",
+    "type": "file",
+    "size": "7.5 KB",
+    "modified": "2026-04-01"
+  },
+  {
+    "name": "source code/src/features/extras-app-shutdown.js",
+    "path": "./src/features/extras-app-shutdown.js",
+    "type": "file",
+    "size": "4.0 KB",
+    "modified": "2026-04-01"
+  },
+  {
+    "name": "source code/src/features/extras-app-system-properties.js",
+    "path": "./src/features/extras-app-system-properties.js",
+    "type": "file",
+    "size": "12.9 KB",
+    "modified": "2026-04-01"
+  },
+  {
+    "name": "source code/src/features/extras-app-winamp.js",
+    "path": "./src/features/extras-app-winamp.js",
+    "type": "file",
+    "size": "7.6 KB",
+    "modified": "2026-04-01"
+  },
+  {
+    "name": "source code/src/features/extras-apps-a.js",
+    "path": "./src/features/extras-apps-a.js",
+    "type": "file",
+    "size": "137 B",
+    "modified": "2026-04-01"
+  },
+  {
+    "name": "source code/src/features/extras-apps-b.js",
+    "path": "./src/features/extras-apps-b.js",
+    "type": "file",
+    "size": "637 B",
+    "modified": "2026-04-01"
+  },
+  {
+    "name": "source code/src/features/extras-apps.js",
+    "path": "./src/features/extras-apps.js",
+    "type": "file",
+    "size": "115 B",
+    "modified": "2026-04-01"
+  },
+  {
+    "name": "source code/src/features/extras-ie-data.js",
+    "path": "./src/features/extras-ie-data.js",
+    "type": "file",
+    "size": "16.1 KB",
+    "modified": "2026-04-01"
+  },
+  {
+    "name": "source code/src/features/extras-system-screensaver.js",
+    "path": "./src/features/extras-system-screensaver.js",
+    "type": "file",
+    "size": "3.6 KB",
+    "modified": "2026-04-01"
+  },
+  {
+    "name": "source code/src/features/extras-windowing.js",
+    "path": "./src/features/extras-windowing.js",
+    "type": "file",
+    "size": "12.3 KB",
+    "modified": "2026-04-01"
+  },
+  {
+    "name": "source code/src/features/extras.js",
+    "path": "./src/features/extras.js",
+    "type": "file",
+    "size": "128 B",
+    "modified": "2026-04-01"
+  },
+  {
+    "name": "source code/src/features/games-race.js",
+    "path": "./src/features/games-race.js",
+    "type": "file",
+    "size": "5.4 KB",
+    "modified": "2026-04-01"
+  },
+  {
+    "name": "source code/src/features/games-runner.js",
+    "path": "./src/features/games-runner.js",
+    "type": "file",
+    "size": "8.1 KB",
+    "modified": "2026-04-01"
+  },
+  {
+    "name": "source code/src/features/games-shared.js",
+    "path": "./src/features/games-shared.js",
+    "type": "file",
+    "size": "1.0 KB",
+    "modified": "2026-04-01"
+  },
+  {
+    "name": "source code/src/features/games-snake.js",
+    "path": "./src/features/games-snake.js",
+    "type": "file",
+    "size": "6.2 KB",
+    "modified": "2026-04-01"
+  },
+  {
+    "name": "source code/src/features/games.js",
+    "path": "./src/features/games.js",
+    "type": "file",
+    "size": "622 B",
+    "modified": "2026-04-01"
+  },
+  {
+    "name": "source code/src/features/steam-catalog.js",
+    "path": "./src/features/steam-catalog.js",
+    "type": "file",
+    "size": "422 B",
+    "modified": "2026-04-01"
+  },
+  {
+    "name": "source code/src/features/steam-game-cpu-gpu-race.js",
+    "path": "./src/features/steam-game-cpu-gpu-race.js",
+    "type": "file",
+    "size": "686 B",
+    "modified": "2026-04-01"
+  },
+  {
+    "name": "source code/src/features/steam-game-hardware-timeline.js",
+    "path": "./src/features/steam-game-hardware-timeline.js",
+    "type": "file",
+    "size": "3.7 KB",
+    "modified": "2026-04-01"
+  },
+  {
+    "name": "source code/src/features/steam-game-minesweeper.js",
+    "path": "./src/features/steam-game-minesweeper.js",
+    "type": "file",
+    "size": "859 B",
+    "modified": "2026-04-01"
+  },
+  {
+    "name": "source code/src/features/steam-game-pioneer-profiles.js",
+    "path": "./src/features/steam-game-pioneer-profiles.js",
+    "type": "file",
+    "size": "3.4 KB",
+    "modified": "2026-04-01"
+  },
+  {
+    "name": "source code/src/features/steam-game-silicon-runner.js",
+    "path": "./src/features/steam-game-silicon-runner.js",
+    "type": "file",
+    "size": "692 B",
+    "modified": "2026-04-01"
+  },
+  {
+    "name": "source code/src/features/steam-game-snake.js",
+    "path": "./src/features/steam-game-snake.js",
+    "type": "file",
+    "size": "608 B",
+    "modified": "2026-04-01"
+  },
+  {
+    "name": "source code/src/features/steam-launcher.js",
+    "path": "./src/features/steam-launcher.js",
+    "type": "file",
+    "size": "1.2 KB",
+    "modified": "2026-04-01"
+  },
+  {
+    "name": "source code/src/features/steam-state.js",
+    "path": "./src/features/steam-state.js",
+    "type": "file",
+    "size": "1.9 KB",
+    "modified": "2026-04-01"
+  },
+  {
+    "name": "source code/src/features/steam.js",
+    "path": "./src/features/steam.js",
+    "type": "file",
+    "size": "24.8 KB",
+    "modified": "2026-04-01"
+  },
+  {
+    "name": "source code/src/presentation",
+    "path": "./src/presentation",
+    "type": "folder",
+    "size": "",
+    "modified": "2026-04-01"
+  },
+  {
+    "name": "source code/src/presentation/audio.js",
+    "path": "./src/presentation/audio.js",
+    "type": "file",
+    "size": "2.0 KB",
+    "modified": "2026-04-01"
+  },
+  {
+    "name": "source code/src/presentation/bonzi.js",
+    "path": "./src/presentation/bonzi.js",
+    "type": "file",
+    "size": "1.6 KB",
+    "modified": "2026-04-01"
+  },
+  {
+    "name": "source code/src/presentation/config.js",
+    "path": "./src/presentation/config.js",
+    "type": "file",
+    "size": "3.3 KB",
+    "modified": "2026-04-01"
+  },
+  {
+    "name": "source code/src/presentation/index.js",
+    "path": "./src/presentation/index.js",
+    "type": "file",
+    "size": "106 B",
+    "modified": "2026-04-01"
+  },
+  {
+    "name": "source code/src/presentation/particle-shapes.js",
+    "path": "./src/presentation/particle-shapes.js",
+    "type": "file",
+    "size": "2.5 KB",
+    "modified": "2026-04-01"
+  },
+  {
+    "name": "source code/src/presentation/presentation-mode.js",
+    "path": "./src/presentation/presentation-mode.js",
+    "type": "file",
+    "size": "60.3 KB",
+    "modified": "2026-04-01"
+  },
+  {
+    "name": "source code/src/presentation/scene-interactions.js",
+    "path": "./src/presentation/scene-interactions.js",
+    "type": "file",
+    "size": "5.4 KB",
+    "modified": "2026-04-01"
+  },
+  {
+    "name": "source code/src/runtime",
+    "path": "./src/runtime",
+    "type": "folder",
+    "size": "",
+    "modified": "2026-04-01"
+  },
+  {
+    "name": "source code/src/runtime/modules",
+    "path": "./src/runtime/modules",
+    "type": "folder",
+    "size": "",
+    "modified": "2026-04-01"
+  },
+  {
+    "name": "source code/src/runtime/modules/ai-system.js",
+    "path": "./src/runtime/modules/ai-system.js",
+    "type": "file",
+    "size": "25.7 KB",
+    "modified": "2026-04-01"
+  },
+  {
+    "name": "source code/src/runtime/modules/audio-effects.js",
+    "path": "./src/runtime/modules/audio-effects.js",
+    "type": "file",
+    "size": "3.6 KB",
+    "modified": "2026-04-01"
+  },
+  {
+    "name": "source code/src/runtime/modules/boot-sequence.js",
+    "path": "./src/runtime/modules/boot-sequence.js",
+    "type": "file",
+    "size": "11.0 KB",
+    "modified": "2026-04-01"
+  },
+  {
+    "name": "source code/src/runtime/modules/clippy-assistant.js",
+    "path": "./src/runtime/modules/clippy-assistant.js",
+    "type": "file",
+    "size": "14.3 KB",
+    "modified": "2026-04-01"
+  },
+  {
+    "name": "source code/src/runtime/modules/context-menu.js",
+    "path": "./src/runtime/modules/context-menu.js",
+    "type": "file",
+    "size": "4.6 KB",
+    "modified": "2026-04-01"
+  },
+  {
+    "name": "source code/src/runtime/modules/icon-drag.js",
+    "path": "./src/runtime/modules/icon-drag.js",
+    "type": "file",
+    "size": "7.9 KB",
+    "modified": "2026-04-01"
+  },
+  {
+    "name": "source code/src/runtime/modules/media-windows.js",
+    "path": "./src/runtime/modules/media-windows.js",
+    "type": "file",
+    "size": "3.2 KB",
+    "modified": "2026-04-01"
+  },
+  {
+    "name": "source code/src/runtime/modules/notepad-system.js",
+    "path": "./src/runtime/modules/notepad-system.js",
+    "type": "file",
+    "size": "13.8 KB",
+    "modified": "2026-04-01"
+  },
+  {
+    "name": "source code/src/runtime/modules/presentation-animations.js",
+    "path": "./src/runtime/modules/presentation-animations.js",
+    "type": "file",
+    "size": "5.0 KB",
+    "modified": "2026-04-01"
+  },
+  {
+    "name": "source code/src/runtime/modules/start-menu.js",
+    "path": "./src/runtime/modules/start-menu.js",
+    "type": "file",
+    "size": "13.4 KB",
+    "modified": "2026-04-01"
+  },
+  {
+    "name": "source code/src/runtime/modules/terminal-filesystem.js",
+    "path": "./src/runtime/modules/terminal-filesystem.js",
+    "type": "file",
+    "size": "10.7 KB",
+    "modified": "2026-04-01"
+  },
+  {
+    "name": "source code/src/runtime/modules/terminal-matrix.js",
+    "path": "./src/runtime/modules/terminal-matrix.js",
+    "type": "file",
+    "size": "3.7 KB",
+    "modified": "2026-04-01"
+  },
+  {
+    "name": "source code/src/runtime/modules/terminal-runtime.js",
+    "path": "./src/runtime/modules/terminal-runtime.js",
+    "type": "file",
+    "size": "27.1 KB",
+    "modified": "2026-04-01"
+  },
+  {
+    "name": "source code/src/runtime/modules/window-manager.js",
+    "path": "./src/runtime/modules/window-manager.js",
+    "type": "file",
+    "size": "23.2 KB",
+    "modified": "2026-04-01"
+  },
+  {
+    "name": "source code/src/runtime/main.js",
+    "path": "./src/runtime/main.js",
+    "type": "file",
+    "size": "44.3 KB",
+    "modified": "2026-04-01"
+  },
+  {
+    "name": "source code/src/shared",
+    "path": "./src/shared",
+    "type": "folder",
+    "size": "",
+    "modified": "2026-04-01"
+  },
+  {
+    "name": "source code/src/shared/win95-shared.js",
+    "path": "./src/shared/win95-shared.js",
+    "type": "file",
+    "size": "2.6 KB",
+    "modified": "2026-04-01"
+  },
+  {
+    "name": "source code/src/README.md",
+    "path": "./src/README.md",
+    "type": "file",
+    "size": "2.2 KB",
+    "modified": "2026-04-01"
+  },
+  {
+    "name": "source code/favicon.ico",
+    "path": "./favicon.ico",
+    "type": "file",
+    "size": "31.3 KB",
+    "modified": "2026-04-01"
+  },
+  {
+    "name": "source code/favicon.svg",
+    "path": "./favicon.svg",
+    "type": "file",
+    "size": "356 B",
+    "modified": "2026-04-01"
+  },
+  {
+    "name": "source code/index.html",
+    "path": "./index.html",
+    "type": "file",
+    "size": "57.2 KB",
+    "modified": "2026-04-01"
+  },
+  {
+    "name": "source code/package.json",
+    "path": "./package.json",
+    "type": "file",
+    "size": "379 B",
+    "modified": "2026-04-01"
+  },
+  {
+    "name": "source code/style.css",
+    "path": "./style.css",
+    "type": "file",
+    "size": "152.1 KB",
+    "modified": "2026-04-01"
+  }
+]
