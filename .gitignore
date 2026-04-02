@@ -9,3 +9,5 @@ website/package-lock.json
 .gstack/
 .claude/
 cornerstone/
+.planning/
+.research/
