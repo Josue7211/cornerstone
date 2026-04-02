@@ -1,6 +1,9 @@
 export function startBootSequence(options = {}) {
   const onDesktopReady = typeof options.onDesktopReady === 'function' ? options.onDesktopReady : () => {};
   const onStartupChime = typeof options.onStartupChime === 'function' ? options.onStartupChime : () => {};
+  const params = new URLSearchParams((typeof window !== 'undefined' && window.location && window.location.search) ? window.location.search : '');
+  const autoBootFromUrl = ['1', 'true', 'yes', 'auto'].includes(String(params.get('boot') || '').toLowerCase());
+  const autoLoginFromUrl = ['1', 'true', 'yes', 'auto'].includes(String(params.get('login') || '').toLowerCase());
 
 const bootAudio = new Audio('./assets/media/audio/boot.mp3');
   bootAudio.volume = 1.0;
@@ -85,7 +88,7 @@ const bootAudio = new Audio('./assets/media/audio/boot.mp3');
 
   bios.classList.add('active');
   out.textContent = '';
-  const autoPowerOn = sessionStorage.getItem('boot.autoPowerOn') === '1';
+  const autoPowerOn = sessionStorage.getItem('boot.autoPowerOn') === '1' || autoBootFromUrl;
   sessionStorage.removeItem('boot.autoPowerOn');
 
   if (autoPowerOn) {
@@ -167,6 +170,11 @@ const bootAudio = new Audio('./assets/media/audio/boot.mp3');
         event.preventDefault();
         doLogin();
       }, { once: true });
+    }
+    if (autoLoginFromUrl) {
+      setTimeout(() => {
+        if (!okBtn.disabled) doLogin();
+      }, 260);
     }
   }
 

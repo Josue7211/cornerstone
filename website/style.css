@@ -2253,6 +2253,7 @@ canvas#scene {
   background-image: radial-gradient(circle at center, rgba(255,255,255,0.18) 0.6px, transparent 0.7px);
   background-size: 3px 3px;
   mix-blend-mode: soft-light;
+  display: none;
 }
 .pres-fullscreen.pfs-in-transition .pfs-stage-noise {
   animation: none;

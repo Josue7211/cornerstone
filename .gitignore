@@ -5,3 +5,5 @@ website/assets/hdri/
 # Node modules (CDN-only project — node_modules should never be committed)
 website/node_modules/
 website/package-lock.json
+.venv/
+.gstack/

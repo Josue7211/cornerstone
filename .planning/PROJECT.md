@@ -1,5 +1,17 @@
 # IDS2891 Cornerstone — Spring 2026
 
+## What This Is
+An interdisciplinary capstone project about AI hardware history that evolved from a standard research presentation into a Win95-style interactive website, with the presentation itself embedded as the final artifact.
+
+## Core Value
+Turn the semester's research into a polished, memorable interactive experience that still communicates the hardware evolution argument clearly enough to satisfy the capstone rubric.
+
+## Requirements
+- Preserve the AI hardware evolution narrative as the central throughline.
+- Hit Capstone-level quality across Design, Prepare, Create, Communicate, and Reflect.
+- Keep the deliverable static-host friendly: plain HTML/CSS/JS, no bundler requirement.
+- Make the website feel like a discovered research workstation, not a paper with retro chrome.
+
 ## Overview
 Interdisciplinary Studies capstone course at Florida SouthWestern State College (FSW). Semester-long research project culminating in a 10-12 minute presentation.
 

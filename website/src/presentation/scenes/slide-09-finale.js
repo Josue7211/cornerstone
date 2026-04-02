@@ -1,9 +1,10 @@
 export function createSlide09FinaleScene({ mode, scene }) {
   const teardown = [];
+  const thesis = scene.querySelector('.slide-thesis');
+  const qa = scene.querySelector('.slide-qa');
 
   return {
     mount() {
-      const qa = scene.querySelector('.slide-qa');
       if (!qa) return;
       const onClick = () => {
         qa.classList.toggle('is-focus');
@@ -12,11 +13,29 @@ export function createSlide09FinaleScene({ mode, scene }) {
       qa.addEventListener('click', onClick);
       teardown.push(() => qa.removeEventListener('click', onClick));
     },
-    enter() {},
+    enter() {
+      if (!window.gsap) return;
+      const nodes = [thesis, qa].filter(Boolean);
+      if (!nodes.length) return;
+      gsap.killTweensOf(nodes);
+      gsap.fromTo(
+        nodes,
+        { opacity: 0, y: 20, scale: 0.985, force3D: true },
+        {
+          opacity: 1,
+          y: 0,
+          scale: 1,
+          duration: 0.66,
+          ease: 'power3.out',
+          stagger: 0.08,
+          force3D: true,
+          clearProps: 'transform,opacity'
+        }
+      );
+    },
     exit() {},
     destroy() {
       teardown.forEach((fn) => fn());
     }
   };
 }
-

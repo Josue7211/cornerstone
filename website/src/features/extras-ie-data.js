@@ -277,61 +277,123 @@ function buildYoutube2005Doc() {
   return [
     '<!doctype html>',
     '<html><head><meta charset="utf-8"><title>YouTube (2005)</title></head>',
-    '<body style="margin:0;background:#f7f7f7;color:#000;font-family:Arial,Helvetica,sans-serif;">',
+    '<body style="margin:0;background:#f1f1f1;color:#000;font-family:Arial,Helvetica,sans-serif;">',
     '<div style="padding:14px 18px;background:#ffffff;border-bottom:1px solid #d0d0d0;box-shadow:0 1px 0 #fff inset;">',
     '<div style="font-size:34px;font-weight:bold;color:#cc181e;letter-spacing:-1px;">YouTube</div>',
     '<div style="font-size:12px;color:#666;margin-top:2px;">Broadcast Yourself</div>',
     '</div>',
-    '<div style="max-width:980px;margin:0 auto;padding:18px 20px 30px;">',
+    '<div style="max-width:1080px;margin:0 auto;padding:18px 20px 30px;">',
     '<div style="display:flex;gap:12px;flex-wrap:wrap;align-items:center;margin-bottom:16px;">',
-    '<input type="text" value="search videos" style="flex:1;min-width:240px;max-width:520px;height:26px;border:1px solid #999;padding:3px 8px;font-size:14px;background:#fff;">',
+    '<input type="text" value="search videos" style="flex:1;min-width:240px;max-width:520px;height:26px;border:1px solid #999;padding:3px 8px;font-size:14px;background:#fff;" onfocus="this.select()">',
     '<button type="button" style="height:30px;padding:0 14px;font-size:13px;border:1px solid #999;background:linear-gradient(180deg,#fefefe,#dfdfdf);">Search</button>',
     '</div>',
-    '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:14px;">',
-    '<div style="background:#fff;border:1px solid #d9d9d9;padding:8px;">',
-    '<div style="height:100px;background:linear-gradient(135deg,#111,#444);display:flex;align-items:center;justify-content:center;color:#fff;font-size:12px;">Video 1</div>',
-    '<div style="margin-top:6px;font-size:13px;font-weight:bold;">Me at the zoo</div>',
-    '<div style="font-size:11px;color:#666;">jawed • 1,234 views</div>',
+    '<div style="display:grid;grid-template-columns:minmax(420px,1fr) 320px;gap:16px;align-items:start;">',
+    '<div style="background:#fff;border:1px solid #c9c9c9;padding:10px;box-shadow:0 1px 2px rgba(0,0,0,0.12);">',
+    '<video id="yt2005-player" controls preload="metadata" style="display:block;width:100%;max-height:480px;background:#000;" poster="/assets/media/videos/youtube2005/thumbnails/movie-fake-thumb.jpg"></video>',
+    '<div id="yt2005-title" style="margin-top:8px;font-size:16px;font-weight:bold;color:#111;">Me at the zoo</div>',
+    '<div id="yt2005-meta" style="font-size:12px;color:#666;">jawed • 2005</div>',
+    '<div style="margin-top:8px;font-size:11px;color:#666;">Tip: click a video on the right to play it here.</div>',
     '</div>',
-    '<div style="background:#fff;border:1px solid #d9d9d9;padding:8px;">',
-    '<div style="height:100px;background:linear-gradient(135deg,#111,#555);display:flex;align-items:center;justify-content:center;color:#fff;font-size:12px;">Video 2</div>',
-    '<div style="margin-top:6px;font-size:13px;font-weight:bold;">Early viral clip</div>',
-    '<div style="font-size:11px;color:#666;">community upload • 482 views</div>',
-    '</div>',
-    '<div style="background:#fff;border:1px solid #d9d9d9;padding:8px;">',
-    '<div style="height:100px;background:linear-gradient(135deg,#111,#666);display:flex;align-items:center;justify-content:center;color:#fff;font-size:12px;">Video 3</div>',
-    '<div style="margin-top:6px;font-size:13px;font-weight:bold;">Home video archive</div>',
-    '<div style="font-size:11px;color:#666;">2005 era • 913 views</div>',
+    '<div id="yt2005-list" style="display:flex;flex-direction:column;gap:8px;max-height:540px;overflow:auto;padding-right:2px;"></div>',
     '</div>',
     '</div>',
-    '</div>',
+    '<script>(function(){',
+    'var videos = [',
+    '{title:"Me at the zoo",meta:"jawed • 2005",src:"/assets/media/videos/youtube2005/jNQXAC9IVRw - Me at the zoo.mp4"},',
+    '{title:"My Snowboarding Skillz",meta:"community upload • 2005",src:"/assets/media/videos/youtube2005/LeAltgu_pbM - My Snowboarding Skillz.mp4"},',
+    '{title:"Funny Surfer Dude",meta:"community upload • 2005",src:"/assets/media/videos/youtube2005/n-5F_7DwPpo - Funny Surfer Dude.mp4"},',
+    '{title:"Lazy Sunday",meta:"SNL clip • 2005",src:"/assets/media/videos/youtube2005/YKSIaeQHV94 - Lazy Sunday.mp4"},',
+    '{title:"Extreme Mentos & Diet Coke",meta:"viral experiments • 2006",src:"/assets/media/videos/youtube2005/h_2osOb2SMU - Extreme Mentos & Diet Coke.mp4"},',
+    '{title:"Numa Numa Original Music Video",meta:"viral classic • 2006",src:"/assets/media/videos/youtube2005/ILtz5nX3_fc - Numa Numa Original Music Video.mp4"},',
+    '{title:"Evolution of Dance",meta:"viral hit • 2006",src:"/assets/media/videos/youtube2005/dMH0bHeiRNg - Evolution of Dance.mp4"},',
+    '{title:"Burger King Foot Lettuce",meta:"meme upload",src:"/assets/media/videos/youtube2005/9PWjqgM_CU8 - Burger King Foot Lettuce (Original full version).mp4"},',
+    '{title:"Totally Normal Pop Song",meta:"definitely not a rickroll",src:"/assets/media/videos/youtube2005/movie.mp4",thumb:"/assets/media/videos/youtube2005/thumbnails/movie-fake-thumb.jpg"}',
+    '];',
+    'var list = document.getElementById("yt2005-list");',
+    'var player = document.getElementById("yt2005-player");',
+    'var title = document.getElementById("yt2005-title");',
+    'var meta = document.getElementById("yt2005-meta");',
+    'if(!list||!player||!title||!meta){return;}',
+    'function setActive(idx){',
+    'var item = videos[idx]; if(!item){return;}',
+    'player.src = item.src; if(item.thumb){player.poster = item.thumb;}',
+    'title.textContent = item.title; meta.textContent = item.meta;',
+    'Array.prototype.forEach.call(list.children,function(node,n){',
+    'node.style.background = n===idx ? "#dbe8ff" : "#fff";',
+    'node.style.borderColor = n===idx ? "#4a70c7" : "#c9c9c9";',
+    '});',
+    '}',
+    'videos.forEach(function(item, idx){',
+    'var btn = document.createElement("button");',
+    'btn.type = "button";',
+    'btn.style.textAlign = "left";',
+    'btn.style.width = "100%";',
+    'btn.style.border = "1px solid #c9c9c9";',
+    'btn.style.background = "#fff";',
+    'btn.style.cursor = "pointer";',
+    'btn.style.padding = "8px";',
+    'btn.innerHTML = "<div style=\\"font-size:13px;font-weight:bold;color:#111;\\">"+item.title+"</div><div style=\\"font-size:11px;color:#666;margin-top:3px;\\">"+item.meta+"</div>";',
+    'btn.addEventListener("click", function(){ setActive(idx); player.play().catch(function(){}); });',
+    'list.appendChild(btn);',
+    '});',
+    'setActive(0);',
+    '})();<\/script>',
     '</body></html>'
   ].join('');
 }
 
-function buildWin98InsideWin98Layer(level) {
-  var safeLevel = Number(level) || 0;
-  var inset = Math.min(18, 10 + safeLevel * 2);
-  var tintA = Math.max(10, 42 - safeLevel);
-  var tintB = Math.max(48, 92 - safeLevel * 2);
+function escapeHtmlAttr(value) {
+  return String(value || '')
+    .replace(/&/g, '&amp;')
+    .replace(/"/g, '&quot;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;');
+}
+
+function getNestedDesktopDepth() {
+  if (typeof window === 'undefined' || !window.location) return 0;
+  try {
+    var params = new URLSearchParams(window.location.search || '');
+    var parsed = Number(params.get('nestedDepth') || '0');
+    if (!Number.isFinite(parsed)) return 0;
+    return Math.max(0, Math.floor(parsed));
+  } catch (_) {
+    return 0;
+  }
+}
+
+function buildNestedDesktopUrl() {
+  if (typeof window === 'undefined' || !window.location) return '';
+  var depth = getNestedDesktopDepth();
+  var url = new URL(window.location.href);
+  url.search = '';
+  url.hash = '';
+  url.searchParams.set('boot', 'auto');
+  url.searchParams.set('login', 'auto');
+  url.searchParams.set('nestedDesktop', '1');
+  url.searchParams.set('nestedDepth', String(depth + 1));
+  return url.toString();
+}
+
+function buildWin98InsideWin98Doc() {
+  var maxDepth = 3;
+  var currentDepth = getNestedDesktopDepth();
+  var reachedEnd = currentDepth >= maxDepth;
+  var nestedUrl = buildNestedDesktopUrl();
   return [
     '<!doctype html>',
     '<html><head><meta charset="utf-8"><title>Win98 Inside Win98</title></head>',
-    '<body style="margin:0;background:linear-gradient(180deg,#0a2f74,#' + tintA.toString(16).padStart(2, '0') + '3b' + tintB.toString(16).padStart(2, '0') + ');color:#fff;font-family:Arial,Helvetica,sans-serif;overflow:hidden;">',
+    '<body style="margin:0;background:linear-gradient(180deg,#0a2f74,#153f93);color:#fff;font-family:Arial,Helvetica,sans-serif;overflow:hidden;">',
     '<div style="padding:10px 12px;border-bottom:1px solid rgba(255,255,255,0.35);background:linear-gradient(90deg,#001e67,#0f58be);font-size:13px;">',
-    '<strong>Nested Desktop Mode:</strong> one level deeper.',
+    '<strong>Nested Desktop Mode:</strong> level ' + String(currentDepth) + ' of ' + String(maxDepth) + '.',
     '</div>',
-    '<div style="height:calc(100vh - 42px);padding:' + inset + 'px;background:rgba(0,0,0,0.12);box-sizing:border-box;">',
-    '<iframe style="display:block;width:calc(100% - ' + (inset * 2) + 'px);height:calc(100% - ' + (inset * 2) + 'px);margin:' + inset + 'px;border:2px solid rgba(255,255,255,0.65);background:#000;box-shadow:0 0 0 2px rgba(0,0,0,0.35), 8px 8px 0 rgba(0,0,0,0.18);" src="' +
-      escapeHtml((window.location && window.location.origin ? window.location.origin : '') + (window.location && window.location.pathname ? window.location.pathname : '/')) +
-      '" title="Win98 Inside Win98 Level ' + safeLevel + '"></iframe>',
+    '<div style="height:calc(100vh - 42px);padding:14px;background:rgba(0,0,0,0.12);box-sizing:border-box;">',
+    reachedEnd
+      ? '<div style="display:flex;width:100%;height:100%;border:2px solid rgba(255,255,255,0.65);background:linear-gradient(180deg,#081a4e,#071133);box-shadow:0 0 0 2px rgba(0,0,0,0.35), 8px 8px 0 rgba(0,0,0,0.18);align-items:center;justify-content:center;padding:24px;box-sizing:border-box;"><div style="max-width:620px;border:2px outset #b9c8ea;background:#d7deea;color:#000;padding:14px 16px;"><div style="font-weight:bold;font-size:16px;margin-bottom:8px;">You reached the end of the nested tunnel.</div><div style="font-size:12px;line-height:1.5;">This is the deepest level. To keep performance stable, additional nesting stops here.</div></div></div>'
+      : '<iframe style="display:block;width:100%;height:100%;border:2px solid rgba(255,255,255,0.65);background:#000;box-shadow:0 0 0 2px rgba(0,0,0,0.35), 8px 8px 0 rgba(0,0,0,0.18);" src="' + escapeHtmlAttr(nestedUrl) + '" title="Nested Win98 Desktop"></iframe>',
     '</div>',
     '</body></html>'
   ].join('');
-}
-
-function buildWin98InsideWin98Doc(depth) {
-  return buildWin98InsideWin98Layer(Number(depth) || 0);
 }
 
 function scoreArchiveResult(query, item) {
@@ -757,7 +819,6 @@ function normalizeArchiveTarget(rawValue) {
       buildAltaVista1999Doc: buildAltaVista1999Doc,
       buildGeoCities1999Doc: buildGeoCities1999Doc,
       buildYoutube2005Doc: buildYoutube2005Doc,
-      buildWin98InsideWin98Layer: buildWin98InsideWin98Layer,
       buildWin98InsideWin98Doc: buildWin98InsideWin98Doc,
       buildArchiveSearchResultsDoc: buildArchiveSearchResultsDoc,
       looksLikeSearchQuery: looksLikeSearchQuery,

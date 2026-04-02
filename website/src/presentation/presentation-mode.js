@@ -687,34 +687,34 @@ class PresentationMode {
     }
     gsap.killTweensOf(this.refs.bonzi);
     const signatureBySlide = [
-      { duration: 0.86, settle: 0.24 }, // title
-      { duration: 0.68, settle: 0.16 },
-      { duration: 0.74, settle: 0.18 },
-      { duration: 0.7, settle: 0.16 },
-      { duration: 0.8, settle: 0.2 },
-      { duration: 0.78, settle: 0.2 },
-      { duration: 0.72, settle: 0.18 },
-      { duration: 0.72, settle: 0.16 },
-      { duration: 0.9, settle: 0.26 } // finale
+      { duration: 0.7, settle: 0.16 }, // title
+      { duration: 0.56, settle: 0.12 },
+      { duration: 0.6, settle: 0.14 },
+      { duration: 0.58, settle: 0.12 },
+      { duration: 0.66, settle: 0.16 },
+      { duration: 0.64, settle: 0.16 },
+      { duration: 0.6, settle: 0.14 },
+      { duration: 0.6, settle: 0.12 },
+      { duration: 0.72, settle: 0.18 } // finale
     ];
     const sig = signatureBySlide[index] || signatureBySlide[0];
-    const delayBySlide = [0.22, 0.12, 0.16, 0.14, 0.2, 0.18, 0.16, 0.15, 0.24];
+    const delayBySlide = [0.34, 0.18, 0.2, 0.18, 0.26, 0.24, 0.22, 0.2, 0.34];
     const introDelay = delayBySlide[index] ?? 0.14;
     const from = { x: 0, y: 0, scale: 1 };
-    if (introStyle === 'peek') from.x = profile.stage.side === 'left' ? -40 : 40;
-    if (introStyle === 'jump') { from.y = 44; from.scale = 0.94; }
-    if (introStyle === 'drop') { from.y = -46; from.scale = 1.05; }
-    if (introStyle === 'ascend') { from.y = 62; from.scale = 0.92; }
-    if (introStyle === 'spark') { from.y = -18; from.x = profile.stage.side === 'left' ? -26 : 26; }
+    if (introStyle === 'peek') from.x = profile.stage.side === 'left' ? -26 : 26;
+    if (introStyle === 'jump') { from.y = 28; from.scale = 0.97; }
+    if (introStyle === 'drop') { from.y = -28; from.scale = 1.03; }
+    if (introStyle === 'ascend') { from.y = 36; from.scale = 0.96; }
+    if (introStyle === 'spark') { from.y = -14; from.x = profile.stage.side === 'left' ? -18 : 18; }
 
     this.bonziIntroCall = gsap.delayedCall(introDelay, () => {
       const tl = gsap.timeline();
       tl.fromTo(
         this.refs.bonzi,
         { opacity: 0, x: from.x, y: from.y, scale: from.scale },
-        { opacity: 1, x: 0, y: 0, scale: 1, duration: sig.duration, ease: 'power3.out' }
+        { opacity: 1, x: 0, y: 0, scale: 1, duration: sig.duration, ease: 'power2.out', clearProps: 'transform,opacity' }
       );
-      tl.to(this.refs.bonzi, { y: -4, duration: sig.settle, yoyo: true, repeat: 1, ease: 'sine.inOut' }, '-=0.06');
+      tl.to(this.refs.bonzi, { y: -3, duration: sig.settle, yoyo: true, repeat: 1, ease: 'sine.inOut' }, '-=0.04');
     });
   }
 

@@ -251,39 +251,58 @@ class TransitionEngine {
     gsap.killTweensOf(newScene);
     const tl = gsap.timeline();
     this.activeContentTl = tl;
-    const durOut = Math.max(0.16, 0.18 * contentMult);
-    const durIn = Math.max(0.34, 0.42 * contentMult);
+    const styleOffsets = {
+      warp: { out: 0.16, in: 0.38, gap: 0.08, intro: 0.13, oldY: -8, newY: 12, oldScale: 0.992, oldXLead: 5, oldXExit: -12, newX: 14 },
+      iris: { out: 0.12, in: 0.28, gap: 0.05, intro: 0.09, oldY: -4, newY: 8, oldScale: 0.996, oldXLead: 3, oldXExit: -8, newX: 10 },
+      shard: { out: 0.14, in: 0.32, gap: 0.06, intro: 0.11, oldY: -6, newY: 10, oldScale: 0.994, oldXLead: 4, oldXExit: -10, newX: 12 },
+      katana: { out: 0.1, in: 0.24, gap: 0.04, intro: 0.06, oldY: -2, newY: 8, oldScale: 0.997, oldXLead: 0, oldXExit: -18, newX: 16 },
+      parallax: { out: 0.14, in: 0.34, gap: 0.07, intro: 0.12, oldY: -5, newY: 10, oldScale: 0.995, oldXLead: 4, oldXExit: -10, newX: 12 },
+      pulse: { out: 0.13, in: 0.3, gap: 0.06, intro: 0.1, oldY: -4, newY: 8, oldScale: 0.996, oldXLead: 2, oldXExit: -8, newX: 10 },
+      scanline: { out: 0.11, in: 0.26, gap: 0.05, intro: 0.08, oldY: -3, newY: 6, oldScale: 0.997, oldXLead: 2, oldXExit: -8, newX: 8 },
+      finale: { out: 0.18, in: 0.42, gap: 0.1, intro: 0.16, oldY: -10, newY: 16, oldScale: 0.99, oldXLead: 6, oldXExit: -14, newX: 18 }
+    }[style] || { out: 0.14, in: 0.32, gap: 0.06, intro: 0.1, oldY: -6, newY: 10, oldScale: 0.994, oldXLead: 4, oldXExit: -10, newX: 12 };
+    const durOut = Math.max(styleOffsets.out, styleOffsets.out * contentMult);
+    const durIn = Math.max(styleOffsets.in, styleOffsets.in * contentMult);
 
     applyTransitionFlavor(m.refs, tl, style, direction);
+
+    if (oldScene && oldScene !== newScene) {
+      tl.to(
+        oldScene,
+        { x: direction * styleOffsets.oldXLead, duration: 0.05, ease: 'power1.out', force3D: true },
+        0
+      );
+    }
 
     if (oldScene && oldScene !== newScene) {
       tl.fromTo(
         oldScene,
         { opacity: 1, y: 0, scale: 1, force3D: true },
-        { opacity: 0, y: -8, scale: 0.992, duration: durOut, ease: 'power2.inOut', force3D: true },
-        0
+        { opacity: 0, x: direction * styleOffsets.oldXExit, y: styleOffsets.oldY, scale: styleOffsets.oldScale, duration: durOut, ease: 'power2.out', force3D: true },
+        0.04
       );
       tl.set(oldScene, { visibility: 'hidden', pointerEvents: 'none' }, durOut + 0.02);
     }
 
     tl.fromTo(
       newScene,
-      { opacity: 0, y: 16, scale: 1.008, force3D: true },
+      { opacity: 0, x: direction * styleOffsets.newX, y: styleOffsets.newY, scale: 1.004, force3D: true },
       {
         opacity: 1,
+        x: 0,
         y: 0,
         scale: 1,
         duration: durIn,
-        ease: 'expo.out',
+        ease: 'power3.out',
         force3D: true,
         clearProps: 'x,y,scale,rotationX,rotationY,rotationZ,skewX,skewY,filter,clipPath,transform'
       },
-      oldScene && oldScene !== newScene ? 0.12 : 0
+      oldScene && oldScene !== newScene ? styleOffsets.gap : 0
     );
 
     const introTl = this.animateSceneContentIn(newScene, nextIndex, direction, false, sig);
     if (introTl) {
-      tl.add(introTl, oldScene && oldScene !== newScene ? 0.2 : 0.08);
+      tl.add(introTl, oldScene && oldScene !== newScene ? styleOffsets.intro : 0.08);
     }
     m.sceneTimelines[nextIndex] = null;
     tl.eventCallback('onInterrupt', () => {
@@ -360,6 +379,13 @@ class TransitionEngine {
       ...advocacy,
       ...prep
     ].filter(Boolean);
+    const visible = all.filter((el) => {
+      if (!(el instanceof HTMLElement)) return false;
+      return el.style.display !== 'none' && getComputedStyle(el).display !== 'none';
+    });
+    const primary = [...meta, title, ...body].filter(Boolean);
+    const secondary = visible.filter((el) => !primary.includes(el));
+    const animated = [...primary, ...secondary].slice(0, 12);
 
     if (!window.gsap || immediate) {
       all.forEach((el) => {
@@ -370,7 +396,7 @@ class TransitionEngine {
       return null;
     }
 
-    gsap.killTweensOf(all);
+    gsap.killTweensOf(animated);
     const style = TRANSITION_STYLE_BY_SLIDE[index] || 'ignite';
     const sig = signature || SIGNATURE_BY_SLIDE[index] || SIGNATURE_BY_SLIDE[0];
     const contentMult = sig.content || 1;
@@ -380,9 +406,9 @@ class TransitionEngine {
       toVars.stagger = { ...toVars.stagger, each: Math.min(0.07, toVars.stagger.each * Math.max(1, contentMult * 0.94)) };
     }
 
-    gsap.set(all, { opacity: 1, force3D: true, clearProps: 'x,y,scale,rotation,rotationX,rotationY,filter,skewX,transform' });
+    gsap.set(animated, { opacity: 1, force3D: true, clearProps: 'x,y,scale,rotation,rotationX,rotationY,filter,skewX,transform' });
     const tl = gsap.timeline();
-    tl.fromTo(all, fromVars, toVars, Math.max(0.06, 0.02 * contentMult));
+    tl.fromTo(animated, fromVars, toVars, Math.max(0.06, 0.02 * contentMult));
     return tl;
   }
 

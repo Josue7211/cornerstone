@@ -490,6 +490,7 @@
     var currentYear = 1999;
     var currentSourceUrl = '';
     var currentResolvedTimestamp = '';
+    var currentMode = '';
     var timelineRequestTicket = 0;
     var timelineCache = {};
     var timelineDebounceTimer = 0;
@@ -688,14 +689,28 @@
       };
     }
 
+    function isSidebarEntryActive(entry) {
+      if (!entry || !entry.target) return false;
+      var target = entry.target;
+      var targetSource = String(target.sourceUrl || target.displayValue || '').toLowerCase();
+      var activeSource = String(currentSourceUrl || '').toLowerCase();
+      var targetTitle = String(target.title || entry.label || '').toLowerCase();
+      var activeTitle = String(currentTitle || '').toLowerCase();
+      if (target.mode && currentMode && target.mode === currentMode) return true;
+      if (targetSource && activeSource && targetSource === activeSource) return true;
+      if (targetTitle && activeTitle && targetTitle === activeTitle) return true;
+      return false;
+    }
+
     function getSidebarEntries() {
       var entries = presets.map(function(preset) {
+        var target = buildPresetTarget(preset);
         return {
           key: preset.label,
           label: preset.label,
           meta: preset.display,
-          target: buildPresetTarget(preset),
-          isActive: currentPreset && currentPreset.label === preset.label
+          target: target,
+          isActive: false
         };
       });
       var youtubeFavorite = getYoutubeFavorite();
@@ -704,7 +719,7 @@
         label: 'YouTube 2005',
         meta: 'YouTube (2005)',
         target: youtubeFavorite,
-        isActive: currentTitle === 'YouTube 2005' || String(currentSourceUrl || '').toLowerCase().indexOf('youtube.com') !== -1
+        isActive: false
       };
       var win98Index = -1;
       for (var i = 0; i < entries.length; i += 1) {
@@ -715,6 +730,9 @@
       }
       if (win98Index === -1) entries.push(youtubeEntry);
       else entries.splice(win98Index, 0, youtubeEntry);
+      entries.forEach(function(entry) {
+        entry.isActive = isSidebarEntryActive(entry);
+      });
       return entries;
     }
 
@@ -843,14 +861,7 @@
     }
 
     function updatePresetButtons() {
-      favoritesList.querySelectorAll('.ie-preset-btn').forEach(function(btn) {
-        btn.classList.toggle('active', btn.dataset.preset === (currentPreset && currentPreset.label));
-      });
-      favoritesList.querySelectorAll('.ie-preset-btn').forEach(function(btn) {
-        if (btn.dataset.preset === 'YouTube 2005') {
-          btn.classList.toggle('active', currentTitle === 'YouTube 2005' || String(currentSourceUrl || '').toLowerCase().indexOf('youtube.com') !== -1);
-        }
-      });
+      renderFavorites();
     }
 
     function setStatusMeta(baseText) {
@@ -899,6 +910,7 @@
       ) ? target : normalizeArchiveTarget(target);
       if (normalized.engine) currentPreset = normalized.engine;
       currentSourceUrl = normalized.sourceUrl || normalized.displayValue || '';
+      currentMode = normalized.mode || '';
       setCurrentYear(inferYearFromTarget(normalized));
       currentResolvedTimestamp = normalized.resolvedTimestamp || '';
       setSourceBadge(normalized.mode, !!currentResolvedTimestamp);

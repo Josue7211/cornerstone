@@ -1,0 +1,10 @@
+tunnel: 1046f991-691e-4d73-85b1-744765a9c4ac
+credentials-file: /home/josue/.cloudflared/1046f991-691e-4d73-85b1-744765a9c4ac.json
+
+ingress:
+  - hostname: cornerstone.aparcedo.org
+    path: /api/.*
+    service: http://127.0.0.1:3015
+  - hostname: cornerstone.aparcedo.org
+    service: http://127.0.0.1:3000
+  - service: http_status:404
