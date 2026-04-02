@@ -28,6 +28,12 @@ class PresentationMode {
     this.autoNarrationSlide = -1;
     this.autoNarrationToken = 0;
     this.autoStatusInterval = null;
+    this.audioCtx = null;
+    this.audioMaster = null;
+    this.audioCompressor = null;
+    this.lastNavSfxAt = 0;
+    this.lastStingSfxAt = 0;
+    this.sfxEnabled = true;
     this.overlay = null;
     this.scenes = [];
     this.dots = [];
@@ -52,11 +58,21 @@ class PresentationMode {
     this.shipRoot = null;
     this.transitionResetCall = null;
     this.transitionUnlockTimer = 0;
+    this.transitionFailSafeTimer = 0;
+    this.transitionNonce = 0;
     this.bonziIntroCall = null;
+    this.bonziBubbleCall = null;
+    this.bonziIntroToken = 0;
+    this.lastSlideSwitchAt = 0;
+    this.notesVisible = false;
+    this.rehearsalMode = false;
+    this.presenterStartAt = 0;
+    this.presenterTicker = 0;
     this.cameraHome = null;
     this.initialIntroPlayed = false;
     this.midPresentationHeckleShown = false;
     this.finalAchievementShown = false;
+    this.pendingSceneEnterCall = null;
     this.transitionEngine = new TransitionEngine(this);
   }
 
@@ -85,6 +101,10 @@ class PresentationMode {
     this.autoNarrationSlide = -1;
     this.autoNarrationToken = 0;
     this.autoStatusInterval = null;
+    this.notesVisible = false;
+    this.rehearsalMode = false;
+    this.presenterStartAt = Date.now();
+    this.presenterTicker = 0;
     this.overlay = this._buildOverlay(sourceSlides);
     document.body.appendChild(this.overlay);
     document.body.classList.add('presentation-open');
@@ -92,6 +112,7 @@ class PresentationMode {
     this._initThree();
     this._bindEvents();
     this.transitionEngine.goTo(0, false);
+    this._startPresenterHud();
     this.overlay.focus();
   }
 
@@ -117,11 +138,27 @@ class PresentationMode {
       clearTimeout(this.transitionUnlockTimer);
       this.transitionUnlockTimer = 0;
     }
+    if (this.transitionFailSafeTimer) {
+      clearTimeout(this.transitionFailSafeTimer);
+      this.transitionFailSafeTimer = 0;
+    }
 
     this._clearAutoPlay();
     if (this.bonziIntroCall && typeof this.bonziIntroCall.kill === 'function') {
       this.bonziIntroCall.kill();
       this.bonziIntroCall = null;
+    }
+    if (this.bonziBubbleCall && typeof this.bonziBubbleCall.kill === 'function') {
+      this.bonziBubbleCall.kill();
+      this.bonziBubbleCall = null;
+    }
+    if (this.pendingSceneEnterCall && typeof this.pendingSceneEnterCall.kill === 'function') {
+      this.pendingSceneEnterCall.kill();
+      this.pendingSceneEnterCall = null;
+    }
+    if (this.presenterTicker) {
+      clearInterval(this.presenterTicker);
+      this.presenterTicker = 0;
     }
     this._unbindEvents();
     this._runCleanupFns();
@@ -295,6 +332,12 @@ class PresentationMode {
     autoChip.textContent = 'AUTO OFF';
     root.appendChild(autoChip);
 
+    const sfxChip = document.createElement('button');
+    sfxChip.className = 'pfs-auto-chip pfs-audio-chip';
+    sfxChip.type = 'button';
+    sfxChip.textContent = 'SFX ON';
+    root.appendChild(sfxChip);
+
     const prevBtn = document.createElement('button');
     prevBtn.type = 'button';
     prevBtn.className = 'pfs-nav pfs-nav--prev';
@@ -326,6 +369,15 @@ class PresentationMode {
     hint.textContent = MANUAL_HINT;
     root.appendChild(hint);
 
+    const presenterHud = document.createElement('div');
+    presenterHud.className = 'pfs-presenter-hud';
+    presenterHud.innerHTML = `
+      <span class="pfs-hud-chip"><strong>Elapsed</strong> <span class="pfs-hud-elapsed">00:00</span></span>
+      <span class="pfs-hud-chip"><strong>Target</strong> <span class="pfs-hud-target">12:00</span></span>
+      <span class="pfs-hud-chip"><strong>Left</strong> <span class="pfs-hud-left">12:00</span></span>
+    `;
+    root.appendChild(presenterHud);
+
     const counter = document.createElement('div');
     counter.className = 'pfs-counter';
     counter.textContent = '01 / 09';
@@ -341,6 +393,14 @@ class PresentationMode {
     completion.style.cssText = 'position:absolute;right:18px;bottom:18px;padding:8px 10px;border:1px solid rgba(255,255,255,0.35);background:rgba(5,12,28,0.78);color:#d8e6ff;font-family:var(--font-pixel);font-size:7px;letter-spacing:0.02em;border-radius:6px;z-index:32;';
     completion.textContent = 'Progress: 14% ████░░░░░░';
     root.appendChild(completion);
+
+    const notesPanel = document.createElement('div');
+    notesPanel.className = 'pfs-notes-panel';
+    notesPanel.innerHTML = `
+      <div class="pfs-notes-head">Speaker Notes</div>
+      <div class="pfs-notes-body">Press N to show notes.</div>
+    `;
+    root.appendChild(notesPanel);
 
     const bonzi = document.createElement('div');
     bonzi.className = 'pfs-bonzi is-visible';
@@ -363,13 +423,20 @@ class PresentationMode {
       chapterTag: chapter.querySelector('.pfs-chapter-tag'),
       chapterTitle: chapter.querySelector('.pfs-chapter-title'),
       autoChip,
+      sfxChip,
       autoStatus: null,
       prevBtn,
       nextBtn,
       hint,
+      presenterHud,
+      hudElapsed: presenterHud.querySelector('.pfs-hud-elapsed'),
+      hudTarget: presenterHud.querySelector('.pfs-hud-target'),
+      hudLeft: presenterHud.querySelector('.pfs-hud-left'),
       counter,
       progressFill: progress.querySelector('.pfs-progress-fill'),
       completion,
+      notesPanel,
+      notesBody: notesPanel.querySelector('.pfs-notes-body'),
       bonzi,
       bonziLabel: bonzi.querySelector('.pfs-bonzi-label'),
       bonziText: bonzi.querySelector('.pfs-bonzi-text'),
@@ -395,6 +462,11 @@ class PresentationMode {
         this._scheduleAutoPlay(this.current);
       }
       else this._clearAutoPlay();
+    });
+    sfxChip.addEventListener('click', () => {
+      this.sfxEnabled = !this.sfxEnabled;
+      this._applyAudioUi();
+      if (this.sfxEnabled) this._playUiConfirmSound();
     });
     prevBtn.addEventListener('click', () => this.prev());
     nextBtn.addEventListener('click', () => this.next());
@@ -476,16 +548,111 @@ class PresentationMode {
     else this.refs.autoChip.textContent = 'AUTO ON';
 
     this.refs.hint.textContent = this.autoPlayEnabled
-      ? `${AUTO_HINT} · SPACE pause/resume`
-      : MANUAL_HINT;
+      ? `${AUTO_HINT} · SPACE pause/resume · M SFX · N notes · R rehearse`
+      : `${MANUAL_HINT} · 1-9 jump · M SFX · N notes · R rehearse`;
     this._setAutoStatus(
       !this.autoPlayEnabled ? 'AUTO OFF' : (this.autoPaused ? 'AUTO PAUSED' : 'AUTO STANDBY'),
       this.autoPlayEnabled && !this.autoPaused
     );
+    this._applyAudioUi();
+  }
+
+  _applyAudioUi() {
+    if (!this.refs || !this.refs.sfxChip) return;
+    this.refs.sfxChip.textContent = this.sfxEnabled ? 'SFX ON' : 'SFX OFF';
+    this.refs.sfxChip.classList.toggle('is-live', this.sfxEnabled);
+  }
+
+  _ensureAudioCtx() {
+    if (!this.sfxEnabled) return null;
+    if (!window.AudioContext && !window.webkitAudioContext) return null;
+    if (!this.audioCtx) {
+      const Ctx = window.AudioContext || window.webkitAudioContext;
+      this.audioCtx = new Ctx();
+      this.audioMaster = this.audioCtx.createGain();
+      this.audioMaster.gain.value = 0.24;
+      this.audioCompressor = this.audioCtx.createDynamicsCompressor();
+      this.audioCompressor.threshold.value = -22;
+      this.audioCompressor.knee.value = 18;
+      this.audioCompressor.ratio.value = 3;
+      this.audioCompressor.attack.value = 0.01;
+      this.audioCompressor.release.value = 0.18;
+      this.audioMaster.connect(this.audioCompressor).connect(this.audioCtx.destination);
+    }
+    if (this.audioCtx && this.audioCtx.state === 'suspended') {
+      this.audioCtx.resume().catch(() => {});
+    }
+    return this.audioCtx;
+  }
+
+  _audioDestination() {
+    return this.audioMaster || (this.audioCtx ? this.audioCtx.destination : null);
   }
 
   _scheduleAutoPlay(index) {
     this.transitionEngine.scheduleAutoPlay(index);
+  }
+
+  _startPresenterHud() {
+    if (!this.refs) return;
+    if (this.presenterTicker) clearInterval(this.presenterTicker);
+    this.presenterStartAt = Date.now();
+    const tick = () => this._updatePresenterHud();
+    tick();
+    this.presenterTicker = setInterval(tick, 250);
+  }
+
+  _formatClock(ms) {
+    const safe = Math.max(0, Math.floor(ms / 1000));
+    const m = String(Math.floor(safe / 60)).padStart(2, '0');
+    const s = String(safe % 60).padStart(2, '0');
+    return `${m}:${s}`;
+  }
+
+  _updatePresenterHud() {
+    if (!this.refs || !this.refs.hudElapsed || !this.refs.hudTarget || !this.refs.hudLeft) return;
+    const elapsedMs = Date.now() - (this.presenterStartAt || Date.now());
+    const targetMs = 12 * 60 * 1000;
+    const leftMs = Math.max(0, targetMs - elapsedMs);
+    this.refs.hudElapsed.textContent = this._formatClock(elapsedMs);
+    this.refs.hudTarget.textContent = this._formatClock(targetMs);
+    this.refs.hudLeft.textContent = this._formatClock(leftMs);
+    this.refs.presenterHud.classList.toggle('is-over', elapsedMs > targetMs);
+  }
+
+  _buildNotesForSlide(index) {
+    const notes = [
+      'Hook the room: gaming GPU became AI infrastructure.',
+      'State thesis early. Tie to privacy, cost, access, power.',
+      'Walk method lens: timeline, compare/contrast, cause/effect.',
+      'Defend scope choices. Mention in-scope vs out-of-scope.',
+      'Show cross-discipline impact: CS, math, econ, policy, ethics.',
+      'Translate findings into practical consequences for users.',
+      'Advocacy asks: open-source support and hardware literacy.',
+      'Explain build process and why format reinforces thesis.',
+      'Strong close: restate thesis, invite targeted questions.'
+    ];
+    return notes[index] || 'Use this slide to bridge to the next section.';
+  }
+
+  _toggleNotes() {
+    if (!this.refs || !this.refs.notesPanel || !this.refs.notesBody) return;
+    this.notesVisible = !this.notesVisible;
+    this.refs.notesPanel.classList.toggle('is-open', this.notesVisible);
+    this.refs.notesBody.textContent = this._buildNotesForSlide(this.current);
+  }
+
+  _toggleRehearsalMode() {
+    this.rehearsalMode = !this.rehearsalMode;
+    if (!this.overlay) return;
+    this.overlay.classList.toggle('pfs-rehearsal', this.rehearsalMode);
+    if (this.rehearsalMode) {
+      this.sfxEnabled = false;
+      this._applyAudioUi();
+      this._setBonziBubble('Rehearsal', 'Rehearsal mode on: reduced sensory load.');
+      return;
+    }
+    this._setBonziBubble('Rehearsal', 'Rehearsal mode off.');
   }
 
   _clearAutoPlay() {
@@ -568,6 +735,9 @@ class PresentationMode {
     if (this.autoPlayEnabled && !this.autoPaused) {
       const script = BONZI_NARRATION_LINES[this.current] || text;
       this._queueBonziNarration(script);
+    }
+    if (this.notesVisible && this.refs && this.refs.notesBody) {
+      this.refs.notesBody.textContent = this._buildNotesForSlide(this.current);
     }
   }
 
@@ -674,16 +844,25 @@ class PresentationMode {
     if (!this.refs || !this.refs.bonzi) return;
     const profile = EXPERIENCE_PROFILES[index] || EXPERIENCE_PROFILES[0];
     const introStyle = profile.introStyle || 'peek';
+    const introToken = ++this.bonziIntroToken;
+    const sinceSlideSwitch = performance.now() - (this.lastSlideSwitchAt || 0);
+    const rapidSwitch = Number.isFinite(sinceSlideSwitch) && sinceSlideSwitch > 0 && sinceSlideSwitch < 340;
 
     this.refs.bonzi.dataset.side = profile.stage.side || 'right';
     this.refs.bonzi.dataset.face = profile.stage.face || 'normal';
     this.refs.bonzi.classList.add('is-visible');
-    this._setBonziBubble(BONZI_LABELS[index] || 'Note', BONZI_LINES[index] || BONZI_LINES[0]);
 
-    if (!window.gsap) return;
+    if (!window.gsap) {
+      this._setBonziBubble(BONZI_LABELS[index] || 'Note', BONZI_LINES[index] || BONZI_LINES[0]);
+      return;
+    }
     if (this.bonziIntroCall && typeof this.bonziIntroCall.kill === 'function') {
       this.bonziIntroCall.kill();
       this.bonziIntroCall = null;
+    }
+    if (this.bonziBubbleCall && typeof this.bonziBubbleCall.kill === 'function') {
+      this.bonziBubbleCall.kill();
+      this.bonziBubbleCall = null;
     }
     gsap.killTweensOf(this.refs.bonzi);
     const signatureBySlide = [
@@ -700,6 +879,7 @@ class PresentationMode {
     const sig = signatureBySlide[index] || signatureBySlide[0];
     const delayBySlide = [0.34, 0.18, 0.2, 0.18, 0.26, 0.24, 0.22, 0.2, 0.34];
     const introDelay = delayBySlide[index] ?? 0.14;
+    const bubbleDelay = rapidSwitch ? 0.2 : Math.min(0.22, introDelay + 0.06);
     const from = { x: 0, y: 0, scale: 1 };
     if (introStyle === 'peek') from.x = profile.stage.side === 'left' ? -26 : 26;
     if (introStyle === 'jump') { from.y = 28; from.scale = 0.97; }
@@ -707,14 +887,31 @@ class PresentationMode {
     if (introStyle === 'ascend') { from.y = 36; from.scale = 0.96; }
     if (introStyle === 'spark') { from.y = -14; from.x = profile.stage.side === 'left' ? -18 : 18; }
 
+    this.bonziBubbleCall = gsap.delayedCall(bubbleDelay, () => {
+      if (introToken !== this.bonziIntroToken) return;
+      if (this.current !== index) return;
+      this._setBonziBubble(BONZI_LABELS[index] || 'Note', BONZI_LINES[index] || BONZI_LINES[0]);
+      this.bonziBubbleCall = null;
+    });
+
     this.bonziIntroCall = gsap.delayedCall(introDelay, () => {
+      if (introToken !== this.bonziIntroToken) return;
+      if (this.current !== index) return;
       const tl = gsap.timeline();
-      tl.fromTo(
-        this.refs.bonzi,
-        { opacity: 0, x: from.x, y: from.y, scale: from.scale },
-        { opacity: 1, x: 0, y: 0, scale: 1, duration: sig.duration, ease: 'power2.out', clearProps: 'transform,opacity' }
-      );
-      tl.to(this.refs.bonzi, { y: -3, duration: sig.settle, yoyo: true, repeat: 1, ease: 'sine.inOut' }, '-=0.04');
+      if (rapidSwitch) {
+        tl.fromTo(
+          this.refs.bonzi,
+          { opacity: 0.76, x: 0, y: 0, scale: 0.992 },
+          { opacity: 1, x: 0, y: 0, scale: 1, duration: 0.2, ease: 'power2.out', clearProps: 'transform,opacity' }
+        );
+      } else {
+        tl.fromTo(
+          this.refs.bonzi,
+          { opacity: 0, x: from.x, y: from.y, scale: from.scale },
+          { opacity: 1, x: 0, y: 0, scale: 1, duration: sig.duration, ease: 'power2.out', clearProps: 'transform,opacity' }
+        );
+        tl.to(this.refs.bonzi, { y: -3, duration: sig.settle, yoyo: true, repeat: 1, ease: 'sine.inOut' }, '-=0.04');
+      }
     });
   }
 
@@ -761,6 +958,41 @@ class PresentationMode {
       if (!this.autoPlayEnabled) return;
       event.preventDefault();
       this._toggleAutoPause();
+      return;
+    }
+    if (event.key.toLowerCase() === 'm') {
+      event.preventDefault();
+      this.sfxEnabled = !this.sfxEnabled;
+      this._applyAudioUi();
+      if (this.sfxEnabled) this._playUiConfirmSound();
+      return;
+    }
+    if (event.key === 'Home') {
+      event.preventDefault();
+      this.transitionEngine.goTo(0);
+      return;
+    }
+    if (event.key === 'End') {
+      event.preventDefault();
+      this.transitionEngine.goTo(TOTAL_SLIDES - 1);
+      return;
+    }
+    if (/^[1-9]$/.test(event.key)) {
+      const target = Number(event.key) - 1;
+      if (target >= 0 && target < TOTAL_SLIDES) {
+        event.preventDefault();
+        this.transitionEngine.goTo(target);
+      }
+      return;
+    }
+    if (event.key.toLowerCase() === 'n') {
+      event.preventDefault();
+      this._toggleNotes();
+      return;
+    }
+    if (event.key.toLowerCase() === 'r') {
+      event.preventDefault();
+      this._toggleRehearsalMode();
     }
   }
 
@@ -812,68 +1044,106 @@ class PresentationMode {
     }
   }
 
+  _playUiConfirmSound() {
+    const ctx = this._ensureAudioCtx();
+    const dest = this._audioDestination();
+    if (!ctx || !dest) return;
+    const now = ctx.currentTime;
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.type = 'triangle';
+    osc.frequency.setValueAtTime(520, now);
+    osc.frequency.exponentialRampToValueAtTime(760, now + 0.11);
+    gain.gain.setValueAtTime(0.001, now);
+    gain.gain.exponentialRampToValueAtTime(0.02, now + 0.02);
+    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.14);
+    osc.connect(gain).connect(dest);
+    osc.start(now);
+    osc.stop(now + 0.16);
+  }
+
   _playNavSound(direction) {
-    if (!window.AudioContext && !window.webkitAudioContext) return;
-    if (!this.audioCtx) {
-      const Ctx = window.AudioContext || window.webkitAudioContext;
-      this.audioCtx = new Ctx();
-    }
+    const ctx = this._ensureAudioCtx();
+    const dest = this._audioDestination();
+    if (!ctx || !dest) return;
+    const nowMs = performance.now();
+    if (nowMs - this.lastNavSfxAt < 70) return;
+    this.lastNavSfxAt = nowMs;
     const freq = direction >= 0 ? 720 : 420;
-    const now = this.audioCtx.currentTime;
-    const osc = this.audioCtx.createOscillator();
-    const gain = this.audioCtx.createGain();
+    const now = ctx.currentTime;
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
     osc.type = 'triangle';
     osc.frequency.setValueAtTime(freq, now);
+    osc.frequency.exponentialRampToValueAtTime(direction >= 0 ? 910 : 310, now + 0.1);
     gain.gain.setValueAtTime(0.001, now);
-    gain.gain.exponentialRampToValueAtTime(0.035, now + 0.02);
-    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.12);
-    osc.connect(gain).connect(this.audioCtx.destination);
+    gain.gain.exponentialRampToValueAtTime(0.016, now + 0.018);
+    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.11);
+    const shimmer = ctx.createOscillator();
+    const shimmerGain = ctx.createGain();
+    shimmer.type = 'sine';
+    shimmer.frequency.setValueAtTime(direction >= 0 ? 1440 : 980, now);
+    shimmerGain.gain.setValueAtTime(0.001, now);
+    shimmerGain.gain.exponentialRampToValueAtTime(0.0046, now + 0.02);
+    shimmerGain.gain.exponentialRampToValueAtTime(0.001, now + 0.085);
+    osc.connect(gain).connect(dest);
+    shimmer.connect(shimmerGain).connect(dest);
     osc.start(now);
-    osc.stop(now + 0.13);
+    shimmer.start(now + 0.008);
+    osc.stop(now + 0.12);
+    shimmer.stop(now + 0.095);
   }
 
   _playTransitionSting(index) {
-    if (!window.AudioContext && !window.webkitAudioContext) return;
-    if (!this.audioCtx) {
-      const Ctx = window.AudioContext || window.webkitAudioContext;
-      this.audioCtx = new Ctx();
-    }
+    const ctx = this._ensureAudioCtx();
+    const dest = this._audioDestination();
+    if (!ctx || !dest) return;
+    const nowMs = performance.now();
+    if (nowMs - this.lastStingSfxAt < 180) return;
+    this.lastStingSfxAt = nowMs;
     const style = TRANSITION_STYLE_BY_SLIDE[index] || 'ignite';
-    const now = this.audioCtx.currentTime;
+    const now = ctx.currentTime;
     const mk = (type, f0, f1, t0, t1, g0, g1) => {
-      const osc = this.audioCtx.createOscillator();
-      const gain = this.audioCtx.createGain();
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
       osc.type = type;
       osc.frequency.setValueAtTime(f0, now + t0);
       osc.frequency.exponentialRampToValueAtTime(Math.max(20, f1), now + t1);
       gain.gain.setValueAtTime(g0, now + t0);
       gain.gain.exponentialRampToValueAtTime(Math.max(0.0001, g1), now + t1);
-      osc.connect(gain).connect(this.audioCtx.destination);
+      osc.connect(gain).connect(dest);
       osc.start(now + t0);
       osc.stop(now + t1 + 0.02);
     };
 
     if (style === 'warp' || style === 'finale') {
-      mk('triangle', 180, 740, 0.0, 0.2, 0.001, 0.018);
-      mk('sine', 460, 120, 0.04, 0.34, 0.012, 0.001);
-      mk('triangle', 900, 340, 0.06, 0.18, 0.004, 0.0008);
+      mk('triangle', 180, 740, 0.0, 0.2, 0.001, 0.012);
+      mk('sine', 460, 120, 0.04, 0.34, 0.007, 0.001);
+      mk('triangle', 900, 340, 0.06, 0.18, 0.003, 0.0008);
+      mk('sine', 1200, 1680, 0.0, 0.08, 0.001, 0.0034);
     } else if (style === 'katana') {
-      mk('square', 1000, 380, 0, 0.1, 0.008, 0.001);
-      mk('triangle', 240, 520, 0.08, 0.2, 0.002, 0.0008);
+      mk('square', 1000, 380, 0, 0.1, 0.0052, 0.001);
+      mk('triangle', 240, 520, 0.08, 0.2, 0.0018, 0.0008);
+      mk('sine', 1600, 820, 0.01, 0.07, 0.001, 0.0026);
     } else if (style === 'iris') {
-      mk('sine', 280, 620, 0, 0.2, 0.001, 0.012);
-      mk('sine', 520, 320, 0.1, 0.3, 0.003, 0.0008);
+      mk('sine', 280, 620, 0, 0.2, 0.001, 0.009);
+      mk('sine', 520, 320, 0.1, 0.3, 0.0022, 0.0008);
+      mk('triangle', 920, 1180, 0.02, 0.1, 0.001, 0.0024);
     } else if (style === 'scanline') {
-      mk('sine', 320, 1400, 0, 0.16, 0.001, 0.01);
-      mk('triangle', 180, 420, 0.1, 0.24, 0.002, 0.0008);
+      mk('sine', 320, 1400, 0, 0.16, 0.001, 0.0074);
+      mk('triangle', 180, 420, 0.1, 0.24, 0.0018, 0.0008);
+      mk('square', 2200, 880, 0.0, 0.055, 0.001, 0.0022);
     } else if (style === 'shard') {
-      mk('triangle', 240, 780, 0, 0.14, 0.001, 0.011);
-      mk('sine', 520, 260, 0.07, 0.22, 0.004, 0.0008);
+      mk('triangle', 240, 780, 0, 0.14, 0.001, 0.0085);
+      mk('sine', 520, 260, 0.07, 0.22, 0.0028, 0.0008);
+      mk('square', 1480, 620, 0.015, 0.085, 0.001, 0.0023);
     } else if (style === 'pulse') {
-      mk('sine', 220, 480, 0, 0.18, 0.001, 0.012);
-      mk('sine', 480, 260, 0.12, 0.28, 0.003, 0.0008);
+      mk('sine', 220, 480, 0, 0.18, 0.001, 0.009);
+      mk('sine', 480, 260, 0.12, 0.28, 0.0021, 0.0008);
+      mk('triangle', 760, 980, 0.03, 0.12, 0.001, 0.0026);
     } else {
-      mk('triangle', 260, 560, 0, 0.18, 0.001, 0.012);
+      mk('triangle', 260, 560, 0, 0.18, 0.001, 0.009);
+      mk('sine', 980, 720, 0.02, 0.11, 0.001, 0.0024);
     }
   }
 

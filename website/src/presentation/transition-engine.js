@@ -5,21 +5,55 @@ import { applyTransitionFlavor } from './effects/transition-flavors.js';
 const DIRECTOR_SLOWDOWN = 1.0;
 
 const SIGNATURE_BY_SLIDE = [
-  { content: 1.34, three: 1.46, unlock: 2.42 }, // title
-  { content: 1.18, three: 1.14, unlock: 2.18 },
-  { content: 1.2, three: 1.18, unlock: 2.24 },
-  { content: 1.18, three: 1.24, unlock: 2.28 },
-  { content: 1.28, three: 1.3, unlock: 2.36 }, // connections
-  { content: 1.22, three: 1.2, unlock: 2.26 },
-  { content: 1.18, three: 1.26, unlock: 2.32 },
-  { content: 1.2, three: 1.16, unlock: 2.3 },
-  { content: 1.42, three: 1.56, unlock: 2.58 } // finale
+  { content: 1.08, three: 1.1, unlock: 1.22 }, // title
+  { content: 1.02, three: 1.02, unlock: 1.08 },
+  { content: 1.04, three: 1.04, unlock: 1.1 },
+  { content: 1.03, three: 1.05, unlock: 1.12 },
+  { content: 1.06, three: 1.07, unlock: 1.16 }, // connections
+  { content: 1.04, three: 1.05, unlock: 1.1 },
+  { content: 1.03, three: 1.06, unlock: 1.12 },
+  { content: 1.03, three: 1.03, unlock: 1.1 },
+  { content: 1.1, three: 1.12, unlock: 1.24 } // finale
 ];
+
+const UNLOCK_BY_STYLE = {
+  warp: { min: 0.48, max: 0.78, add: 0.08, resetLead: 0.09, failSafeMs: 1020 },
+  iris: { min: 0.42, max: 0.64, add: 0.04, resetLead: 0.07, failSafeMs: 900 },
+  shard: { min: 0.44, max: 0.68, add: 0.05, resetLead: 0.08, failSafeMs: 940 },
+  katana: { min: 0.4, max: 0.62, add: 0.04, resetLead: 0.07, failSafeMs: 860 },
+  parallax: { min: 0.44, max: 0.66, add: 0.05, resetLead: 0.08, failSafeMs: 920 },
+  pulse: { min: 0.42, max: 0.64, add: 0.05, resetLead: 0.07, failSafeMs: 900 },
+  scanline: { min: 0.4, max: 0.6, add: 0.04, resetLead: 0.07, failSafeMs: 840 },
+  finale: { min: 0.52, max: 0.82, add: 0.1, resetLead: 0.1, failSafeMs: 1080 }
+};
 
 class TransitionEngine {
   constructor(mode) {
     this.mode = mode;
     this.activeContentTl = null;
+  }
+
+  _scheduleSceneEnter(controller, delaySeconds = 0, timeline = null) {
+    const m = this.mode;
+    if (!controller || typeof controller.enter !== 'function') return;
+    if (m.pendingSceneEnterCall && typeof m.pendingSceneEnterCall.kill === 'function') {
+      m.pendingSceneEnterCall.kill();
+      m.pendingSceneEnterCall = null;
+    }
+    if (timeline && typeof timeline.call === 'function') {
+      timeline.call(() => {
+        try { controller.enter(); } catch (_) {}
+      }, null, Math.max(0, delaySeconds));
+      return;
+    }
+    if (!window.gsap || delaySeconds <= 0) {
+      try { controller.enter(); } catch (_) {}
+      return;
+    }
+    m.pendingSceneEnterCall = gsap.delayedCall(delaySeconds, () => {
+      try { controller.enter(); } catch (_) {}
+      m.pendingSceneEnterCall = null;
+    });
   }
 
   _resetSceneElements(scene) {
@@ -41,6 +75,18 @@ class TransitionEngine {
   _finalizeTransition(target, newScene) {
     const m = this.mode;
     if (!m.isOpen) return;
+    if (m.transitionUnlockTimer) {
+      clearTimeout(m.transitionUnlockTimer);
+      m.transitionUnlockTimer = 0;
+    }
+    if (m.transitionFailSafeTimer) {
+      clearTimeout(m.transitionFailSafeTimer);
+      m.transitionFailSafeTimer = 0;
+    }
+    if (m.transitionResetCall && window.gsap) {
+      m.transitionResetCall.kill();
+      m.transitionResetCall = null;
+    }
     m.scenes.forEach((scene, idx) => {
       const isTarget = idx === target;
       scene.classList.toggle('active', isTarget);
@@ -59,7 +105,9 @@ class TransitionEngine {
       newScene.style.filter = '';
       newScene.style.clipPath = '';
       newScene.style.transform = '';
+      this._resetSceneElements(newScene);
     }
+    m.scenes.forEach((scene) => this._resetSceneElements(scene));
     if (m.overlay) m.overlay.classList.remove('pfs-hyperspace-active');
     if (m.overlay) m.overlay.classList.remove('pfs-in-transition');
     if (m.refs && m.refs.veil) {
@@ -163,6 +211,7 @@ class TransitionEngine {
     const style = TRANSITION_STYLE_BY_SLIDE[target] || 'warp';
     m._setThreeWorld(target, immediate ? 0.95 : 1);
     const threeDuration = 0;
+    m.lastSlideSwitchAt = performance.now();
     m._playBonziIntro(target);
     if (typeof m.playMidPresentationHeckle === 'function') {
       m.playMidPresentationHeckle(target);
@@ -173,10 +222,6 @@ class TransitionEngine {
     if (nextController && typeof nextController.reset === 'function') {
       try { nextController.reset(); } catch (_) {}
     }
-    if (nextController && typeof nextController.enter === 'function') {
-      try { nextController.enter(); } catch (_) {}
-    }
-
     const transitionDuration = this.animateSceneTransition(oldScene, newScene, direction, target, immediate, signature, style);
     m._playTransitionSting(target);
     m._playNavSound(direction);
@@ -189,20 +234,38 @@ class TransitionEngine {
       m.transitionUnlockTimer = 0;
     }
     let finalized = false;
+    const transitionNonce = ++m.transitionNonce;
     const finalize = () => {
       if (finalized) return;
+      if (transitionNonce !== m.transitionNonce) return;
       finalized = true;
       this._finalizeTransition(target, newScene);
     };
-    const computedUnlock = Math.max(
-      signature.unlock || 2.2,
-      (transitionDuration || 0) + 0.24,
-      (threeDuration || 0) + 0.18
+    const unlockProfile = UNLOCK_BY_STYLE[style] || { min: 0.44, max: 0.7, add: 0.06, resetLead: 0.08, failSafeMs: 940 };
+    const computedUnlock = Math.min(
+      unlockProfile.max,
+      Math.max(
+        unlockProfile.min,
+        (transitionDuration || 0) + unlockProfile.add,
+        (threeDuration || 0) + 0.12
+      )
     );
     const unlockMs = immediate ? 0 : Math.round(computedUnlock * 1000);
     m.transitionUnlockTimer = setTimeout(finalize, unlockMs);
+    if (m.transitionFailSafeTimer) {
+      clearTimeout(m.transitionFailSafeTimer);
+      m.transitionFailSafeTimer = 0;
+    }
+    m.transitionFailSafeTimer = setTimeout(() => {
+      if (transitionNonce !== m.transitionNonce) return;
+      if (!m.transitioning) return;
+      finalize();
+    }, immediate ? 0 : unlockProfile.failSafeMs);
     if (!immediate && window.gsap) {
-      m.transitionResetCall = gsap.delayedCall(Math.max(1.2, computedUnlock - 0.18), finalize);
+      m.transitionResetCall = gsap.delayedCall(
+        Math.max(Math.max(0.32, unlockProfile.min - 0.06), computedUnlock - unlockProfile.resetLead),
+        finalize
+      );
     } else {
       finalize();
     }
@@ -252,17 +315,18 @@ class TransitionEngine {
     const tl = gsap.timeline();
     this.activeContentTl = tl;
     const styleOffsets = {
-      warp: { out: 0.16, in: 0.38, gap: 0.08, intro: 0.13, oldY: -8, newY: 12, oldScale: 0.992, oldXLead: 5, oldXExit: -12, newX: 14 },
-      iris: { out: 0.12, in: 0.28, gap: 0.05, intro: 0.09, oldY: -4, newY: 8, oldScale: 0.996, oldXLead: 3, oldXExit: -8, newX: 10 },
-      shard: { out: 0.14, in: 0.32, gap: 0.06, intro: 0.11, oldY: -6, newY: 10, oldScale: 0.994, oldXLead: 4, oldXExit: -10, newX: 12 },
-      katana: { out: 0.1, in: 0.24, gap: 0.04, intro: 0.06, oldY: -2, newY: 8, oldScale: 0.997, oldXLead: 0, oldXExit: -18, newX: 16 },
-      parallax: { out: 0.14, in: 0.34, gap: 0.07, intro: 0.12, oldY: -5, newY: 10, oldScale: 0.995, oldXLead: 4, oldXExit: -10, newX: 12 },
-      pulse: { out: 0.13, in: 0.3, gap: 0.06, intro: 0.1, oldY: -4, newY: 8, oldScale: 0.996, oldXLead: 2, oldXExit: -8, newX: 10 },
-      scanline: { out: 0.11, in: 0.26, gap: 0.05, intro: 0.08, oldY: -3, newY: 6, oldScale: 0.997, oldXLead: 2, oldXExit: -8, newX: 8 },
-      finale: { out: 0.18, in: 0.42, gap: 0.1, intro: 0.16, oldY: -10, newY: 16, oldScale: 0.99, oldXLead: 6, oldXExit: -14, newX: 18 }
-    }[style] || { out: 0.14, in: 0.32, gap: 0.06, intro: 0.1, oldY: -6, newY: 10, oldScale: 0.994, oldXLead: 4, oldXExit: -10, newX: 12 };
+      warp: { out: 0.12, in: 0.28, gap: 0.04, intro: 0.08, oldY: -5, newY: 8, oldScale: 0.995, oldXLead: 3, oldXExit: -8, newX: 9 },
+      iris: { out: 0.1, in: 0.24, gap: 0.03, intro: 0.07, oldY: -3, newY: 6, oldScale: 0.997, oldXLead: 2, oldXExit: -6, newX: 8 },
+      shard: { out: 0.11, in: 0.26, gap: 0.04, intro: 0.08, oldY: -4, newY: 7, oldScale: 0.996, oldXLead: 3, oldXExit: -8, newX: 9 },
+      katana: { out: 0.09, in: 0.22, gap: 0.03, intro: 0.06, oldY: -2, newY: 6, oldScale: 0.998, oldXLead: 0, oldXExit: -12, newX: 11 },
+      parallax: { out: 0.11, in: 0.27, gap: 0.04, intro: 0.08, oldY: -4, newY: 7, oldScale: 0.996, oldXLead: 3, oldXExit: -8, newX: 9 },
+      pulse: { out: 0.1, in: 0.25, gap: 0.03, intro: 0.07, oldY: -3, newY: 6, oldScale: 0.997, oldXLead: 2, oldXExit: -6, newX: 8 },
+      scanline: { out: 0.09, in: 0.22, gap: 0.03, intro: 0.06, oldY: -2, newY: 5, oldScale: 0.998, oldXLead: 1, oldXExit: -6, newX: 7 },
+      finale: { out: 0.13, in: 0.3, gap: 0.05, intro: 0.1, oldY: -6, newY: 10, oldScale: 0.994, oldXLead: 4, oldXExit: -10, newX: 12 }
+    }[style] || { out: 0.11, in: 0.26, gap: 0.04, intro: 0.08, oldY: -4, newY: 7, oldScale: 0.996, oldXLead: 3, oldXExit: -8, newX: 9 };
     const durOut = Math.max(styleOffsets.out, styleOffsets.out * contentMult);
     const durIn = Math.max(styleOffsets.in, styleOffsets.in * contentMult);
+    const nextController = m.sceneControllers[nextIndex];
 
     applyTransitionFlavor(m.refs, tl, style, direction);
 
@@ -301,6 +365,7 @@ class TransitionEngine {
     );
 
     const introTl = this.animateSceneContentIn(newScene, nextIndex, direction, false, sig);
+    this._scheduleSceneEnter(nextController, oldScene && oldScene !== newScene ? styleOffsets.intro : 0.08, tl);
     if (introTl) {
       tl.add(introTl, oldScene && oldScene !== newScene ? styleOffsets.intro : 0.08);
     }
@@ -316,6 +381,7 @@ class TransitionEngine {
         newScene.style.clipPath = '';
         newScene.style.transform = '';
         newScene.style.zIndex = '2';
+        this._resetSceneElements(newScene);
       }
       if (oldScene && oldScene !== newScene) {
         oldScene.classList.remove('active');
@@ -326,6 +392,7 @@ class TransitionEngine {
         oldScene.style.clipPath = '';
         oldScene.style.transform = '';
         oldScene.style.zIndex = '1';
+        this._resetSceneElements(oldScene);
       }
     });
     tl.eventCallback('onComplete', () => {
@@ -339,6 +406,7 @@ class TransitionEngine {
         newScene.style.clipPath = '';
         newScene.style.transform = '';
         newScene.style.zIndex = '2';
+        this._resetSceneElements(newScene);
       }
       if (oldScene && oldScene !== newScene) {
         oldScene.classList.remove('active');
@@ -349,6 +417,7 @@ class TransitionEngine {
         oldScene.style.clipPath = '';
         oldScene.style.transform = '';
         oldScene.style.zIndex = '1';
+        this._resetSceneElements(oldScene);
       }
     });
     return tl.totalDuration();
@@ -385,7 +454,7 @@ class TransitionEngine {
     });
     const primary = [...meta, title, ...body].filter(Boolean);
     const secondary = visible.filter((el) => !primary.includes(el));
-    const animated = [...primary, ...secondary].slice(0, 12);
+    const animated = [...primary, ...secondary].slice(0, 9);
 
     if (!window.gsap || immediate) {
       all.forEach((el) => {
@@ -401,9 +470,9 @@ class TransitionEngine {
     const sig = signature || SIGNATURE_BY_SLIDE[index] || SIGNATURE_BY_SLIDE[0];
     const contentMult = sig.content || 1;
     const { fromVars, toVars } = buildContentMotion(style, direction);
-    toVars.duration = Math.max(0.42, (toVars.duration || 0.5) * contentMult);
+    toVars.duration = Math.max(0.34, Math.min(0.46, (toVars.duration || 0.5) * contentMult * 0.9));
     if (toVars.stagger && typeof toVars.stagger.each === 'number') {
-      toVars.stagger = { ...toVars.stagger, each: Math.min(0.07, toVars.stagger.each * Math.max(1, contentMult * 0.94)) };
+      toVars.stagger = { ...toVars.stagger, each: Math.min(0.032, toVars.stagger.each * Math.max(0.84, contentMult * 0.82)) };
     }
 
     gsap.set(animated, { opacity: 1, force3D: true, clearProps: 'x,y,scale,rotation,rotationX,rotationY,filter,skewX,transform' });

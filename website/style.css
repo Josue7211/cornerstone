@@ -2211,7 +2211,9 @@ canvas#scene {
   pointer-events: none;
   opacity: 0;
   display: none;
-  background: radial-gradient(circle at 50% 50%, color-mix(in srgb, var(--pfs-accent) 18%, transparent 82%) 0%, rgba(0,0,0,0.55) 70%);
+  background: radial-gradient(circle at 50% 50%, color-mix(in srgb, var(--pfs-accent) 14%, transparent 86%) 0%, rgba(0,0,0,0.48) 72%);
+  backdrop-filter: blur(2px);
+  will-change: opacity, backdrop-filter;
 }
 .pres-fullscreen.pfs-in-transition .pfs-transition-veil {
   display: block;
@@ -2239,13 +2241,13 @@ canvas#scene {
 }
 .pfs-stage-ring {
   background:
-    radial-gradient(circle at 50% 50%, rgba(255,255,255,0.0) 0 18%, rgba(188,233,255,0.92) 22%, rgba(107,191,255,0.58) 26%, rgba(6,8,18,0.0) 34%);
+    radial-gradient(circle at 50% 50%, rgba(255,255,255,0.0) 0 18%, rgba(188,233,255,0.74) 22%, rgba(107,191,255,0.42) 26%, rgba(6,8,18,0.0) 34%);
   transform: scale(0.25);
-  filter: saturate(1.2);
+  filter: saturate(1.08) blur(0.4px);
   transform-origin: center center;
 }
 .pfs-stage-sweep {
-  background: linear-gradient(112deg, transparent 0%, rgba(255,255,255,0.0) 34%, rgba(186,230,255,0.82) 48%, rgba(255,157,227,0.64) 54%, rgba(255,255,255,0.0) 66%, transparent 100%);
+  background: linear-gradient(112deg, transparent 0%, rgba(255,255,255,0.0) 34%, rgba(186,230,255,0.64) 48%, rgba(255,157,227,0.46) 54%, rgba(255,255,255,0.0) 66%, transparent 100%);
   transform: translateX(-120%) skewX(-12deg);
   mix-blend-mode: screen;
 }
@@ -2438,11 +2440,12 @@ canvas#scene {
   z-index: 3;
   will-change: transform, opacity;
   transform: translate3d(calc(var(--pfs-px, 0) * 2px), calc(var(--pfs-py, 0) * 1px), 0);
-  transition: transform 140ms linear;
+  transition: transform 260ms ease-out, filter 260ms ease-out, opacity 260ms ease-out;
 }
 .pres-fullscreen.pfs-in-transition .pfs-content {
   transform: none !important;
-  transition: none !important;
+  filter: saturate(0.98) blur(0.7px);
+  opacity: 0.985;
 }
 .pres-fullscreen.pfs-in-transition .pfs-scene {
   overflow: hidden !important;
@@ -2640,6 +2643,69 @@ canvas#scene {
   backdrop-filter: none;
 }
 
+.pfs-presenter-hud {
+  position: absolute;
+  right: 30px;
+  top: 58px;
+  z-index: 12;
+  display: flex;
+  gap: 0.45rem;
+}
+.pfs-hud-chip {
+  border: 1px solid rgba(140, 150, 186, 0.22);
+  background: rgba(6, 10, 20, 0.56);
+  color: #d6deff;
+  font-family: var(--font-mono);
+  font-size: 0.52rem;
+  letter-spacing: 0.08em;
+  border-radius: 999px;
+  padding: 0.24rem 0.5rem;
+}
+.pfs-hud-chip strong {
+  color: rgba(193, 204, 245, 0.82);
+  margin-right: 0.25rem;
+  font-weight: 600;
+}
+.pfs-presenter-hud.is-over .pfs-hud-chip {
+  border-color: rgba(255, 120, 120, 0.62);
+  color: rgba(255, 190, 190, 0.95);
+}
+
+.pfs-notes-panel {
+  position: absolute;
+  left: 30px;
+  bottom: 52px;
+  z-index: 13;
+  width: min(420px, calc(100vw - 60px));
+  border: 1px solid rgba(164, 178, 220, 0.22);
+  background: rgba(6, 8, 18, 0.88);
+  border-radius: 10px;
+  padding: 0.65rem 0.75rem;
+  opacity: 0;
+  transform: translateY(8px);
+  pointer-events: none;
+  transition: opacity 160ms ease, transform 160ms ease;
+}
+.pfs-notes-panel.is-open {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+.pfs-notes-head {
+  font-family: var(--font-mono);
+  font-size: 0.56rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: color-mix(in srgb, var(--pfs-accent) 68%, #ffffff 32%);
+  margin-bottom: 0.32rem;
+}
+.pfs-notes-body {
+  font-family: var(--font-pixel);
+  font-size: 0.6rem;
+  line-height: 1.45;
+  color: #d3dbff;
+}
+
 .pfs-auto-chip {
   position: absolute;
   top: 20px;
@@ -2657,6 +2723,9 @@ canvas#scene {
   box-shadow: 0 12px 26px rgba(0, 0, 0, 0.22);
   transition: transform 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
 }
+.pfs-audio-chip {
+  right: 118px;
+}
 .pfs-auto-chip:hover {
   border-color: color-mix(in srgb, var(--pfs-accent) 80%, #ffffff 20%);
   box-shadow: 0 14px 30px color-mix(in srgb, var(--pfs-accent) 16%, rgba(0, 0, 0, 0.25) 84%);
@@ -2665,6 +2734,21 @@ canvas#scene {
 .pfs-auto-chip.is-live {
   border-color: color-mix(in srgb, var(--pfs-accent) 84%, #ffffff 16%);
   box-shadow: 0 0 18px color-mix(in srgb, var(--pfs-accent) 34%, transparent 66%);
+}
+
+.pres-fullscreen.pfs-rehearsal .pfs-bonzi {
+  opacity: 0.84;
+}
+.pres-fullscreen.pfs-rehearsal .pfs-three-host canvas {
+  filter: saturate(0.95) contrast(0.98) !important;
+}
+.pres-fullscreen.pfs-rehearsal .pfs-ambient {
+  opacity: 0.72;
+}
+.pres-fullscreen.pfs-rehearsal .pfs-stage-sweep,
+.pres-fullscreen.pfs-rehearsal .pfs-stage-ring,
+.pres-fullscreen.pfs-rehearsal .pfs-stage-noise {
+  opacity: 0.42 !important;
 }
 
 .pfs-auto-status {
@@ -2920,9 +3004,9 @@ canvas#scene {
 
 .pfs-bonzi {
   position: absolute;
-  top: 72px;
+  top: 132px;
   right: 14px;
-  z-index: 14;
+  z-index: 4;
   display: flex;
   align-items: flex-start;
   gap: 12px;
@@ -2930,6 +3014,11 @@ canvas#scene {
   opacity: 0;
   visibility: hidden;
   transform-origin: center bottom;
+}
+.pfs-bonzi,
+.pfs-bonzi * {
+  pointer-events: none !important;
+  user-select: none;
 }
 .pfs-bonzi[data-side="left"] {
   flex-direction: row-reverse;
@@ -3043,9 +3132,19 @@ canvas#scene {
   padding: 2rem;
   border: 1px solid var(--border);
   background: rgba(0, 240, 255, 0.03);
+  transition: border-color 180ms ease, box-shadow 180ms ease, transform 180ms ease;
 }
 .pfs-slide-inner .inline-num {
   font-size: clamp(2.5rem, 5vw, 4rem);
+}
+.pfs-slide-inner .slide-stat-inline.is-focus {
+  border-color: rgba(0, 240, 255, 0.72);
+  box-shadow: 0 0 28px rgba(0, 240, 255, 0.2);
+  transform: translateY(-2px);
+}
+.pfs-slide-inner .slide-body.is-focus {
+  color: var(--text);
+  text-shadow: 0 0 18px rgba(0, 240, 255, 0.2);
 }
 
 .pfs-scene--compact .pfs-slide-inner .slide-tag {
@@ -3089,6 +3188,11 @@ canvas#scene {
   border-color: color-mix(in srgb, var(--pfs-accent) 85%, #fff 15%);
   box-shadow: 0 18px 52px rgba(0, 0, 0, 0.42);
 }
+.pfs-slide-inner .rq-item:focus-visible {
+  outline: 2px solid color-mix(in srgb, var(--pfs-accent) 82%, white 18%);
+  outline-offset: 3px;
+  border-radius: 14px;
+}
 
 /* Discipline tags in fullscreen */
 .pfs-slide-inner .discipline-tag {
@@ -3124,6 +3228,10 @@ canvas#scene {
   border-color: color-mix(in srgb, var(--pfs-accent) 72%, #ffffff 28%);
   box-shadow: 0 16px 42px rgba(0,0,0,0.34);
 }
+.pfs-slide-inner .impl-item:focus-visible {
+  outline: 2px solid color-mix(in srgb, var(--pfs-accent) 82%, white 18%);
+  outline-offset: 3px;
+}
 .pfs-scene--implications .slide-thesis {
   font-size: clamp(1.15rem, 2.3vw, 1.75rem);
   padding: 1.7rem 1.4rem;
@@ -3138,10 +3246,28 @@ canvas#scene {
 }
 .pfs-scene--advocacy .advocacy-point {
   gap: 0.95rem;
+  padding: 0.9rem 1rem;
+  border-radius: 14px;
+  border: 1px solid transparent;
+  transition: border-color 180ms ease, background-color 180ms ease, box-shadow 180ms ease, transform 180ms ease;
 }
 .pfs-scene--advocacy .advocacy-point p {
   font-size: 0.82rem;
   line-height: 1.55;
+}
+.pfs-scene--advocacy .advocacy-point.is-focus {
+  border-color: color-mix(in srgb, var(--pfs-accent) 62%, #ffffff 24%);
+  background: color-mix(in srgb, var(--pfs-accent) 8%, rgba(8, 12, 22, 0.92));
+  box-shadow: 0 16px 34px rgba(0, 0, 0, 0.28);
+  transform: translateY(-2px);
+}
+.pfs-scene--advocacy .advocacy-point.is-focus .adv-num {
+  opacity: 1;
+  text-shadow: 0 0 18px color-mix(in srgb, var(--pfs-accent) 55%, transparent);
+}
+.pfs-scene--advocacy .advocacy-point:focus-visible {
+  outline: 2px solid color-mix(in srgb, var(--pfs-accent) 82%, white 18%);
+  outline-offset: 2px;
 }
 
 .pfs-scene--prep .slide-prep {
@@ -3154,6 +3280,7 @@ canvas#scene {
 .pfs-scene--prep .prep-item {
   min-height: 100%;
   padding: 1rem;
+  transition: border-color 180ms ease, background-color 180ms ease, box-shadow 180ms ease, transform 180ms ease;
 }
 .pfs-scene--prep .prep-item:last-child {
   grid-column: 1 / -1;
@@ -3164,6 +3291,20 @@ canvas#scene {
 .pfs-scene--prep .prep-item p {
   font-size: 0.8rem;
   line-height: 1.5;
+}
+.pfs-scene--prep .prep-item.is-focus {
+  border-color: color-mix(in srgb, var(--pfs-accent) 58%, #ffffff 22%);
+  background: color-mix(in srgb, var(--pfs-accent) 8%, rgba(10, 12, 18, 0.96));
+  box-shadow: 0 14px 32px rgba(0, 0, 0, 0.26);
+  transform: translateY(-2px);
+}
+.pfs-scene--prep .prep-item.is-focus::before {
+  transform: scale(1.22);
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--pfs-accent) 18%, transparent);
+}
+.pfs-scene--prep .prep-item:focus-visible {
+  outline: 2px solid color-mix(in srgb, var(--pfs-accent) 82%, white 18%);
+  outline-offset: 2px;
 }
 
 .pfs-scene--final .slide-thesis {
@@ -3327,6 +3468,7 @@ canvas#scene {
   border-radius: 50%;
   background: var(--cyan);
   border: 2px solid var(--bg);
+  transition: transform 180ms ease, box-shadow 180ms ease;
 }
 
 /* Reflection items */
@@ -3340,6 +3482,18 @@ canvas#scene {
 /* Perspective items */
 .pfs-slide-inner .persp-item {
   will-change: transform, opacity;
+  cursor: pointer;
+  transition: border-color 180ms ease, box-shadow 180ms ease, background-color 180ms ease, transform 180ms ease;
+}
+.pfs-slide-inner .persp-item.is-focus {
+  border-color: rgba(0, 240, 255, 0.65);
+  background: rgba(0, 240, 255, 0.06);
+  box-shadow: 0 0 22px rgba(0, 240, 255, 0.16);
+  transform: translateY(-1px);
+}
+.pfs-slide-inner .persp-item:focus-visible {
+  outline: 2px solid rgba(0, 240, 255, 0.85);
+  outline-offset: 2px;
 }
 
 /* ── Subtle scanline overlay for CRT feel ── */
@@ -3370,10 +3524,10 @@ canvas#scene {
 
 @media (max-width: 900px) {
   .pfs-scene {
-    padding: 4.2rem 0 8rem;
+    padding: calc(4.1rem + env(safe-area-inset-top, 0px)) 0 calc(8.4rem + env(safe-area-inset-bottom, 0px));
   }
   .pfs-chapter {
-    top: 14px;
+    top: calc(12px + env(safe-area-inset-top, 0px));
     left: 14px;
     right: 14px;
     max-width: none;
@@ -3389,7 +3543,7 @@ canvas#scene {
   }
   .pfs-nav {
     top: auto;
-    bottom: 60px;
+    bottom: calc(74px + env(safe-area-inset-bottom, 0px));
     width: 42px;
     height: 42px;
     transform: none;
@@ -3398,19 +3552,38 @@ canvas#scene {
   .pfs-nav--next { right: 16px; }
   .pfs-nav:hover { transform: scale(1.05); }
   .pfs-counter {
-    right: 16px;
-    bottom: 14px;
+    right: 14px;
+    bottom: calc(14px + env(safe-area-inset-bottom, 0px));
     font-size: 0.62rem;
+    letter-spacing: 0.16em;
+    padding: 0.2rem 0.4rem;
+    border-radius: 999px;
+    background: rgba(6, 8, 18, 0.5);
+    border: 1px solid rgba(255, 255, 255, 0.08);
   }
   .pfs-hint {
-    left: 16px;
-    bottom: 14px;
-    font-size: 0.55rem;
+    display: none;
+  }
+  .pfs-presenter-hud {
+    top: calc(14px + env(safe-area-inset-top, 0px));
+    left: 14px;
+    right: auto;
+    gap: 0.32rem;
+    flex-wrap: wrap;
+    max-width: calc(100vw - 150px);
+  }
+  .pfs-hud-chip {
+    font-size: 0.5rem;
+    padding: 0.2rem 0.42rem;
   }
   .pfs-auto-chip {
-    top: 14px;
+    top: calc(14px + env(safe-area-inset-top, 0px));
     right: 14px;
     font-size: 0.56rem;
+  }
+  .pfs-audio-chip {
+    top: calc(46px + env(safe-area-inset-top, 0px));
+    right: 14px;
   }
   .pfs-task {
     top: auto;
@@ -3421,14 +3594,29 @@ canvas#scene {
     max-width: none;
   }
   .pfs-bonzi {
-    top: 54px;
+    top: calc(126px + env(safe-area-inset-top, 0px));
     right: 14px;
     left: 14px;
     justify-content: flex-end;
   }
   .pfs-bonzi-bubble {
-    max-width: min(230px, calc(100vw - 138px));
-    font-size: 13px;
+    max-width: min(220px, calc(100vw - 146px));
+    font-size: 12px;
+    line-height: 1.35;
+  }
+  .pfs-dots {
+    bottom: calc(14px + env(safe-area-inset-bottom, 0px));
+    gap: 10px;
+  }
+  .pfs-dot {
+    width: 12px;
+    height: 12px;
+  }
+  .pfs-notes-panel {
+    left: 14px;
+    right: 14px;
+    width: auto;
+    bottom: calc(58px + env(safe-area-inset-bottom, 0px));
   }
   .pfs-scene--advocacy .slide-advocacy-points,
   .pfs-scene--prep .slide-prep,
