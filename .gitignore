@@ -7,3 +7,4 @@ website/node_modules/
 website/package-lock.json
 .venv/
 .gstack/
+.claude/
