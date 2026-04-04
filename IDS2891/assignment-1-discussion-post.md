@@ -1,10 +1,10 @@
 # IDS2891 Cornerstone - Assignment 1: Discussion Post
-**Josue Aparcedo Gonzalez**
-**Florida SouthWestern State College - Spring 2026**
+**Project Author**
+**the college - 2026**
 
 ---
 
-Hey everyone, I'm Josue Aparcedo Gonzalez — a computer engineering student here at FSW. Looking forward to getting to know everyone this semester.
+Hey everyone, I'm Project Author — a computer engineering student here at the college. Looking forward to getting to know everyone this semester.
 
 For movies, I lean toward films that are a little unconventional. Some of my favorites are *Sound of Metal*, *Moonrise Kingdom*, *Blade Runner 2049*, and *Surf's Up* (yes, seriously). Each one has something that just sticks with me. Shows-wise I grew up on *Naruto*, and more recently *How I Met Your Mother* and *Better Call Saul* have been on rotation.
 

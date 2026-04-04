@@ -164,7 +164,7 @@
     var myDot = document.createElement('span');
     myDot.className = 'msn-status-dot online';
     var myName = document.createElement('span');
-    myName.textContent = 'Josue (Online)';
+    myName.textContent = 'You (Online)';
     myStatus.appendChild(myDot);
     myStatus.appendChild(myName);
     buddyList.appendChild(myStatus);
@@ -281,7 +281,7 @@
     var statusIdx = 0;
     setInterval(function() {
       statusIdx = (statusIdx + 1) % statusMessages.length;
-      myName.textContent = 'Josue (' + statusMessages[statusIdx] + ')';
+      myName.textContent = 'You (' + statusMessages[statusIdx] + ')';
     }, 4800);
 
     function openChat(buddy) {
@@ -348,7 +348,7 @@
         el.className = 'msn-msg' + (isMe ? ' msn-msg-me' : '');
         var fromSpan = document.createElement('span');
         fromSpan.className = 'msn-msg-from';
-        fromSpan.textContent = (isMe ? 'Josue' : msg.from) + ' says [' + stampNow() + ']:';
+        fromSpan.textContent = (isMe ? 'You' : msg.from) + ' says [' + stampNow() + ']:';
         var textSpan = document.createElement('span');
         textSpan.className = 'msn-msg-text';
         textSpan.textContent = msg.text;

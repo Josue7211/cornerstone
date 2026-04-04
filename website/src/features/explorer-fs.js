@@ -31,7 +31,7 @@
         'i think.',
         'i submitted something.',
         '',
-        '— josue, 11:59 PM, march 31'
+        '— project author, 11:59 PM, march 31'
       ].join('\n')
     });
 
@@ -76,7 +76,7 @@
           modified: '2026-03-31',
           content: [
             'CORNERSTONE — FINAL PAPER',
-            'Author: Josue',
+            'Author: Project Author',
             '',
             'ABSTRACT',
             'Artificial intelligence is changing the world.',
@@ -174,7 +174,7 @@
             'was that before or after I started this assignment.',
             '',
             'Respectfully,',
-            'Josue',
+            'Project Author',
             '',
             '[draft — not sent]'
           ].join('\n'),
@@ -305,7 +305,7 @@
     folder('System', [
       file('README.txt', {
         size: '1 KB',
-        content: 'AI 98 OS Education Edition\nUser: Josue\n',
+        content: 'AI 98 OS Education Edition\nUser: Guest\n',
         icon: '📜'
       }),
       file('grades.exe', { size: '1 KB', content: 'grades.exe', icon: '⚙️' }),

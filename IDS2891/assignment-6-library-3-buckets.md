@@ -1,6 +1,6 @@
 # Library Assignment #3 — Research Buckets & Expert Sources
-**Josue Aparcedo Gonzalez**
-**IDS2891 Cornerstone — Spring 2026**
+**Project Author**
+**IDS2891 Cornerstone — 2026**
 
 ---
 
@@ -26,7 +26,7 @@ The technical progression from graphics-only GPUs to today's AI accelerators, an
 
 ---
 
-## Step 3: Source from FSW Libraries
+## Step 3: Source from the college Libraries
 
 **Citation (APA):**
 
@@ -34,7 +34,7 @@ Jouppi, N. P., Young, C., Patil, N., Patterson, D., Agrawal, G., Bajwa, R., Bate
 
 **Link:** https://doi.org/10.1145/3079856.3080246
 
-**Research Note:** Google's 2017 TPU paper, authored by Norman Jouppi and the team that built the first Tensor Processing Unit, is relevant beyond just describing a single chip. It demonstrates that purpose-built, efficient silicon is a key step in making AI computation practical at scale — and eventually affordable enough to reach consumer devices. The performance-per-watt gains documented here are the same logic that now powers efficient on-device AI in phones, laptops, and consumer hardware. Available through FSW library access to the ACM Digital Library.
+**Research Note:** Google's 2017 TPU paper, authored by Norman Jouppi and the team that built the first Tensor Processing Unit, is relevant beyond just describing a single chip. It demonstrates that purpose-built, efficient silicon is a key step in making AI computation practical at scale — and eventually affordable enough to reach consumer devices. The performance-per-watt gains documented here are the same logic that now powers efficient on-device AI in phones, laptops, and consumer hardware. Available through the college library access to the ACM Digital Library.
 
 ---
 

@@ -1,9 +1,9 @@
 export const TOTAL_SLIDES = 9;
 export const MANUAL_HINT = 'MANUAL MODE · ESC exit · arrows/click navigate';
 export const AUTO_HINT = 'AUTO MODE · ESC exit · arrows/click override';
-export const AUTO_DWELLS = [17000, 19000, 22000, 18000, 21000, 22000, 19000, 18500, 24000];
+export const AUTO_DWELLS = [45000, 65000, 100000, 70000, 90000, 100000, 70000, 55000, 55000];
 export const PAGE_SIZE_ALL = 7;
-export const TRANSITION_STYLE_BY_SLIDE = ['warp', 'iris', 'warp', 'shard', 'katana', 'parallax', 'pulse', 'scanline', 'finale'];
+export const TRANSITION_STYLE_BY_SLIDE = ['warp', 'push', 'trace', 'push', 'push', 'trace', 'push', 'trace', 'finale'];
 export const PARTICLE_SHAPE_BY_SLIDE = ['portal', 'sphere', 'helix', 'cube', 'torus', 'wave', 'burst', 'disc', 'vortex'];
 
 export const EXPERIENCE_PROFILES = [

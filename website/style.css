@@ -2170,11 +2170,6 @@ canvas#scene {
   filter: none;
   mix-blend-mode: normal;
 }
-.pfs-scene.active,
-.pfs-scene.active .pfs-content,
-.pfs-scene.active .pfs-slide-inner {
-  opacity: 1 !important;
-}
 .pfs-scene > * { position: relative; z-index: 2; }
 .pfs-scene--scroll {
   overflow-y: auto;
@@ -2257,6 +2252,82 @@ canvas#scene {
   mix-blend-mode: soft-light;
   display: none;
 }
+.pfs-exit-ship {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 280px;
+  height: 104px;
+  z-index: 19;
+  pointer-events: none;
+  opacity: 0;
+  mix-blend-mode: screen;
+  will-change: opacity, transform;
+  filter: drop-shadow(0 0 16px rgba(180, 234, 255, 0.55)) drop-shadow(0 0 28px rgba(255, 135, 225, 0.25));
+}
+.pfs-exit-ship-body {
+  position: absolute;
+  left: 44px;
+  top: 42px;
+  width: 136px;
+  height: 18px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, rgba(255,255,255,0.88) 0%, rgba(164,223,255,0.92) 22%, rgba(86,170,255,0.92) 62%, rgba(255,125,224,0.6) 100%);
+  box-shadow: 0 0 18px rgba(177, 228, 255, 0.42);
+}
+.pfs-exit-ship-core {
+  position: absolute;
+  left: 56px;
+  top: 45px;
+  width: 104px;
+  height: 8px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, rgba(255,255,255,0.96) 0%, rgba(204,244,255,0.9) 38%, rgba(134,211,255,0.62) 100%);
+  opacity: 0.92;
+  filter: blur(0.4px);
+}
+.pfs-exit-ship-nose {
+  position: absolute;
+  left: 168px;
+  top: 34px;
+  width: 0;
+  height: 0;
+  border-top: 14px solid transparent;
+  border-bottom: 14px solid transparent;
+  border-left: 34px solid rgba(230, 249, 255, 0.95);
+  filter: drop-shadow(0 0 8px rgba(143, 225, 255, 0.55));
+}
+.pfs-exit-ship-wing {
+  position: absolute;
+  top: 27px;
+  width: 52px;
+  height: 8px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, rgba(255,255,255,0.24), rgba(161,220,255,0.72), rgba(255,140,221,0.35));
+  opacity: 0.88;
+  transform-origin: center center;
+}
+.pfs-exit-ship-wing--a {
+  left: 70px;
+  transform: skewX(-24deg) rotate(-18deg);
+}
+.pfs-exit-ship-wing--b {
+  left: 70px;
+  top: 50px;
+  transform: skewX(24deg) rotate(18deg);
+}
+.pfs-exit-ship-wake {
+  position: absolute;
+  left: 0;
+  top: 43px;
+  width: 120px;
+  height: 8px;
+  border-radius: 999px;
+  transform-origin: left center;
+  background: linear-gradient(90deg, rgba(255,255,255,0.0) 0%, rgba(170, 234, 255, 0.56) 36%, rgba(255, 144, 225, 0.34) 70%, rgba(255,255,255,0.0) 100%);
+  filter: blur(2px);
+  opacity: 0;
+}
 .pres-fullscreen.pfs-in-transition .pfs-stage-noise {
   animation: none;
 }
@@ -2268,12 +2339,14 @@ canvas#scene {
 
 
 .pfs-hyperspace-active {
-  background: radial-gradient(circle at 50% 20%, rgba(5, 5, 10, 0.98) 0%, rgba(2, 2, 6, 0.95) 60%, rgba(0, 0, 0, 0.85) 90%);
-  backdrop-filter: blur(12px);
-  box-shadow: inset 0 0 120px rgba(255, 255, 255, 0.08);
+  background: radial-gradient(circle at 50% 20%, rgba(3, 5, 16, 0.42) 0%, rgba(1, 2, 10, 0.26) 62%, rgba(0, 0, 0, 0.16) 92%);
+  backdrop-filter: blur(2px);
+  box-shadow: inset 0 0 60px rgba(120, 200, 255, 0.12);
 }
-.pres-fullscreen.pfs-hyperspace-active .pfs-transition-veil {
-  opacity: 0 !important;
+.pres-fullscreen.pfs-hyperspace-active .pfs-three-host {
+  z-index: 8;
+  opacity: 1;
+  visibility: visible;
 }
 .pfs-hyperspace-active .pfs-ambient,
 .pfs-hyperspace-active .pfs-content,
@@ -2284,7 +2357,7 @@ canvas#scene {
 .pfs-hyperspace-active .pfs-chapter,
 .pfs-hyperspace-active .pfs-task,
 .pfs-hyperspace-active .pfs-auto-chip {
-  opacity: 0 !important;
+  opacity: 0.34 !important;
   pointer-events: none !important;
 }
 .pfs-hyperspace-message {
@@ -2444,8 +2517,8 @@ canvas#scene {
 }
 .pres-fullscreen.pfs-in-transition .pfs-content {
   transform: none !important;
-  filter: saturate(0.98) blur(0.7px);
-  opacity: 0.985;
+  filter: none;
+  opacity: 1;
 }
 .pres-fullscreen.pfs-in-transition .pfs-scene {
   overflow: hidden !important;
@@ -2462,6 +2535,38 @@ canvas#scene {
 }
 .pres-fullscreen:not(.pfs-in-transition) .pfs-transition-stage {
   display: none !important;
+  opacity: 0 !important;
+}
+
+/* ESC warp gets a dedicated visual stack to avoid normal transition CSS conflicts. */
+.pres-fullscreen.pfs-exit-warp .pfs-three-host {
+  z-index: 18 !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+.pres-fullscreen.pfs-exit-warp .pfs-scene {
+  opacity: 0 !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+}
+.pres-fullscreen.pfs-exit-warp .pfs-transition-stage {
+  display: block !important;
+  opacity: 1 !important;
+  z-index: 17 !important;
+  mix-blend-mode: screen;
+  filter: saturate(1.08) contrast(1.04);
+}
+.pres-fullscreen.pfs-exit-warp .pfs-stage-ring {
+  opacity: 1 !important;
+}
+.pres-fullscreen.pfs-exit-warp .pfs-stage-sweep {
+  opacity: 0.82 !important;
+}
+.pres-fullscreen.pfs-exit-warp .pfs-transition-veil {
+  opacity: 0.34 !important;
+}
+.pres-fullscreen.pfs-exit-warp .pfs-content {
+  filter: none !important;
   opacity: 0 !important;
 }
 
@@ -2931,6 +3036,51 @@ canvas#scene {
 }
 .pres-fullscreen[data-experience="experience-finale"] .pfs-scene {
   background: radial-gradient(circle at 55% -20%, rgba(0, 255, 198, 0.15), transparent 60%), radial-gradient(circle at 40% 20%, rgba(255, 0, 170, 0.2), transparent 60%);
+}
+.pres-fullscreen[data-experience="experience-finale"] .pfs-slide-inner {
+  position: relative;
+}
+.pres-fullscreen[data-experience="experience-finale"] .slide-thesis {
+  position: relative;
+  overflow: hidden;
+  background:
+    linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.01)),
+    rgba(255, 0, 170, 0.06);
+  border-color: rgba(176, 255, 236, 0.32);
+  box-shadow:
+    0 0 0 1px rgba(255, 255, 255, 0.02) inset,
+    0 0 40px rgba(0, 255, 198, 0.1),
+    0 14px 36px rgba(0, 0, 0, 0.28);
+}
+.pres-fullscreen[data-experience="experience-finale"] .slide-thesis::before {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  pointer-events: none;
+  background: linear-gradient(135deg, rgba(255,255,255,0.14), rgba(0,255,198,0.06), rgba(255,0,170,0.06));
+  opacity: 0.4;
+}
+.pres-fullscreen[data-experience="experience-finale"] .slide-qa {
+  background:
+    linear-gradient(180deg, rgba(255,255,255,0.05), rgba(255,255,255,0.01)),
+    rgba(8, 12, 22, 0.86);
+  border-color: rgba(160, 255, 230, 0.22);
+  box-shadow: 0 0 28px rgba(0, 255, 198, 0.08);
+}
+.pres-fullscreen[data-experience="experience-finale"] .slide-reflections {
+  gap: 1.15rem;
+}
+.pres-fullscreen[data-experience="experience-finale"] .reflection-item {
+  background:
+    linear-gradient(180deg, rgba(255,255,255,0.05), rgba(255,255,255,0.015)),
+    rgba(7, 10, 20, 0.9);
+  border-color: rgba(160, 255, 230, 0.14);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.18);
+}
+.pres-fullscreen[data-experience="experience-finale"] .slide-ending-note {
+  color: rgba(206, 245, 255, 0.82);
+  letter-spacing: 0.08em;
 }
 .pres-fullscreen[data-experience="experience-finale"] .pfs-content::before {
   background: linear-gradient(180deg, rgba(6, 12, 22, 0.94), rgba(8, 10, 22, 0.86));

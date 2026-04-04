@@ -5,6 +5,14 @@
   function getDefaultHostedEndpoint(path) {
     const cleanedPath = String(path || '').replace(/^\/*/, '/');
     if (typeof window === 'undefined' || !window.location || !window.location.origin) return cleanedPath;
+    const host = String(window.location.hostname || '').toLowerCase();
+    const isLoopback = host === 'localhost' || host === '127.0.0.1' || host === '::1';
+    if (isLoopback) {
+      const sharedCfg = window.WIN95_AI || {};
+      const proxyOrigin = cleanConfigValue(sharedCfg.proxyOrigin).replace(/\/$/, '');
+      if (proxyOrigin) return proxyOrigin + cleanedPath;
+      return 'http://127.0.0.1:3015' + cleanedPath;
+    }
     return window.location.origin.replace(/\/$/, '') + cleanedPath;
   }
 

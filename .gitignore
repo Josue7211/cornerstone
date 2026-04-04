@@ -1,6 +1,9 @@
 website/assets/models/
 website/portraits/
 website/assets/hdri/
+.env
+.env.*
+!.env.example
 
 # Node modules (CDN-only project — node_modules should never be committed)
 website/node_modules/

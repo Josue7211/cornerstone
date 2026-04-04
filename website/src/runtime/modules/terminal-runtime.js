@@ -10,7 +10,11 @@ export function createTerminalRuntime(deps = {}) {
   const getAppConfig = deps.getAppConfig || (() => ({}));
   const getRecentAppIds = deps.getRecentAppIds || (() => []);
   const matrix = createMatrixRainController();
-  const ADMIN_PASSWORD = 'win95admin';
+  const ADMIN_PASSWORD = String(
+    typeof process !== 'undefined' && process.env && process.env.TERMINAL_ADMIN_PASSWORD
+      ? process.env.TERMINAL_ADMIN_PASSWORD
+      : ''
+  ).trim();
   const USERS_ROOT = 'C:\\RESEARCH\\USERS';
   const DEFAULT_STUDENT = 'STUDENT1';
 
@@ -509,6 +513,11 @@ export function createTerminalRuntime(deps = {}) {
         resultText = 'Usage: unlock <admin_password>';
         break;
       }
+      if (!ADMIN_PASSWORD) {
+        resultText = 'Admin override is not configured.';
+        resultClass = 'terminal-error-line';
+        break;
+      }
       if (rest === ADMIN_PASSWORD) {
         session.adminUnlocked = true;
         resultText = 'Admin override enabled for this terminal session.';
@@ -908,8 +917,8 @@ export function createTerminalRuntime(deps = {}) {
     case 'about':
       resultText = [
         'FROM PIXELS TO INTELLIGENCE',
-        'Josue Aparcedo Gonzalez',
-        'IDS2891 Cornerstone, Spring 2026',
+        'Project Author',
+        'Open-source release',
         'Built with Three.js, GSAP, and vanilla JavaScript.'
       ].join('\n');
       break;

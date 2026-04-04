@@ -1,5 +1,8 @@
 import * as THREE from 'three';
 import { OBJLoader } from 'three/addons/loaders/OBJLoader.js';
+import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
+import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
+import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
 import {
   TOTAL_SLIDES,
   MANUAL_HINT,
@@ -50,12 +53,15 @@ class PresentationMode {
     this.threeMode = 'chip';
     this.sceneTimelines = [];
     this.threeTransitionActive = false;
+    this.threeTransitionStyle = 'none';
     this.escapeWarpActive = false;
     this.particleMorph = null;
     this.pointer = { x: 0, y: 0 };
     this.boundPointerMove = this._onPointerMove.bind(this);
     this.boundPointerDown = this._onPointerDown.bind(this);
     this.shipRoot = null;
+    this.shipWake = null;
+    this.shipModelLoaded = false;
     this.transitionResetCall = null;
     this.transitionUnlockTimer = 0;
     this.transitionFailSafeTimer = 0;
@@ -130,6 +136,7 @@ class PresentationMode {
   _finalizeClose() {
     if (this.overlay) this.overlay.classList.remove('pfs-hyperspace-active');
     if (this.overlay) this.overlay.classList.remove('pfs-in-transition');
+    if (this.overlay) this.overlay.classList.remove('pfs-exit-warp');
     this.isOpen = false;
     this.transitioning = false;
     this.closing = false;
@@ -184,11 +191,36 @@ class PresentationMode {
       return;
     }
 
+    // Hard-cancel any in-flight slide transition work so ESC warp cannot be overridden.
+    this.transitionNonce += 1;
+    if (this.transitionUnlockTimer) {
+      clearTimeout(this.transitionUnlockTimer);
+      this.transitionUnlockTimer = 0;
+    }
+    if (this.transitionFailSafeTimer) {
+      clearTimeout(this.transitionFailSafeTimer);
+      this.transitionFailSafeTimer = 0;
+    }
+    if (this.transitionResetCall && typeof this.transitionResetCall.kill === 'function') {
+      this.transitionResetCall.kill();
+      this.transitionResetCall = null;
+    }
+    if (this.transitionEngine && this.transitionEngine.activeContentTl && typeof this.transitionEngine.activeContentTl.kill === 'function') {
+      this.transitionEngine.activeContentTl.kill();
+      this.transitionEngine.activeContentTl = null;
+    }
+    if (this.threeTransitions && typeof this.threeTransitions.kill === 'function') {
+      this.threeTransitions.kill();
+      this.threeTransitions = null;
+    }
+
     this._clearAutoPlay();
     this._unbindEvents();
     this.escapeWarpActive = true;
     this.threeTransitionActive = true;
+    this.transitioning = false;
     if (this.overlay) this.overlay.classList.add('pfs-in-transition');
+    if (this.overlay) this.overlay.classList.add('pfs-exit-warp');
 
     const tl = gsap.timeline({
       onComplete: () => this.close('warp-complete', true)
@@ -196,54 +228,234 @@ class PresentationMode {
 
     if (this.overlay) this.overlay.classList.add('pfs-hyperspace-active');
 
+    // Hide world geometry so the exit reads as a focused warp moment.
+    if (this.threeGroups) {
+      const { chipGroup, researchGroup, connectionsGroup, implicationsGroup, finaleGroup } = this.threeGroups;
+      this._setGroupOpacity(chipGroup, 0);
+      this._setGroupOpacity(researchGroup, 0);
+      this._setGroupOpacity(connectionsGroup, 0);
+      this._setGroupOpacity(implicationsGroup, 0);
+      this._setGroupOpacity(finaleGroup, 0);
+    }
+    if (this.particleMorph && this.particleMorph.material) {
+      this.particleMorph.material.opacity = 0;
+      if (this.particleMorph.points) this.particleMorph.points.visible = false;
+    }
+
     if (this.three && this.three.renderer && this.three.renderer.domElement) {
       const { renderer, camera, stars, tunnelStars, portal, portalHalo } = this.three;
-      tl.fromTo(renderer.domElement, { opacity: 0 }, { opacity: 1, duration: 0.1, ease: 'power2.in' }, 0);
-      tl.to(camera.position, { z: 3.6, duration: 0.62, ease: 'power3.in' }, 0.02);
-      tl.to(stars.material, { opacity: 0.95, duration: 0.28, ease: 'power2.out' }, 0.02);
-      tl.to(tunnelStars.material, { opacity: 0.92, duration: 0.22, ease: 'power2.out' }, 0.02);
-      tl.fromTo(portal.material, { opacity: 0.2 }, { opacity: 1.0, duration: 0.24, ease: 'power3.out' }, 0.08);
-      tl.fromTo(portalHalo.material, { opacity: 0.1 }, { opacity: 0.7, duration: 0.24, ease: 'power3.out' }, 0.1);
-      tl.to(portal.scale, { x: 2.2, y: 2.2, z: 1.3, duration: 0.52, ease: 'expo.in' }, 0.12);
-      tl.to(portalHalo.scale, { x: 2.6, y: 2.6, z: 1.2, duration: 0.52, ease: 'expo.in' }, 0.12);
-      tl.to(renderer.domElement, { opacity: 0, duration: 0.18, ease: 'power2.in' }, 0.62);
+      gsap.killTweensOf(renderer.domElement);
+      gsap.killTweensOf(camera.position);
+      gsap.killTweensOf(stars.material);
+      gsap.killTweensOf(tunnelStars.material);
+      gsap.killTweensOf(portal.material);
+      gsap.killTweensOf(portalHalo.material);
+      gsap.killTweensOf(portal.scale);
+      gsap.killTweensOf(portalHalo.scale);
+      tl.fromTo(renderer.domElement, { opacity: 0 }, { opacity: 1, duration: 0.16, ease: 'power2.inOut' }, 0);
+
+      // Keep the camera wide enough for readability, then push into the hole.
+      tl.to(camera.position, { z: 7.2, y: 0.2, duration: 1.2, ease: 'sine.inOut' }, 0.0);
+      tl.to(camera.position, { z: 6.3, y: 0.06, duration: 2.25, ease: 'power1.inOut' }, 1.2);
+
+      // Make the wormhole unmistakable.
+      tl.to(stars.material, { opacity: 0.2, duration: 0.9, ease: 'power2.out' }, 0.12);
+      tl.to(tunnelStars.material, { opacity: 1.0, duration: 1.35, ease: 'power2.out' }, 0.06);
+      tl.to(tunnelStars.material, { size: 0.24, duration: 1.2, ease: 'power2.out' }, 0.1);
+      tl.to(tunnelStars.material, { size: 0.06, duration: 0.42, ease: 'power2.out' }, 4.12);
+      tl.fromTo(portal.material, { opacity: 0.0 }, { opacity: 1.0, duration: 0.55, ease: 'power2.out' }, 0.08);
+      tl.fromTo(portalHalo.material, { opacity: 0.0 }, { opacity: 1.0, duration: 0.62, ease: 'power2.out' }, 0.1);
+      tl.to(portal.scale, { x: 4.7, y: 4.7, z: 2.15, duration: 2.45, ease: 'expo.in' }, 0.95);
+      tl.to(portalHalo.scale, { x: 5.25, y: 5.25, z: 1.9, duration: 2.45, ease: 'expo.in' }, 0.95);
+      tl.to(renderer.domElement, { opacity: 0, duration: 0.28, ease: 'power2.in' }, 4.58);
     }
 
     if (this.refs && this.refs.veil) {
-      tl.fromTo(this.refs.veil, { opacity: 0 }, { opacity: 0.7, duration: 0.22, ease: 'power2.in' }, 0.12);
-      tl.to(this.refs.veil, { opacity: 0, duration: 0.18, ease: 'power2.out' }, 0.44);
+      this.refs.veil.style.mixBlendMode = 'screen';
+      this.refs.veil.style.background = 'radial-gradient(circle at 50% 46%, rgba(255,255,255,0.72) 0%, rgba(148,214,255,0.42) 30%, rgba(10,16,34,0.0) 74%)';
+      tl.fromTo(this.refs.veil, { opacity: 0 }, { opacity: 0.32, duration: 0.54, ease: 'power2.in' }, 2.86);
+      tl.to(this.refs.veil, { opacity: 0, duration: 0.45, ease: 'power2.out' }, 3.62);
     }
 
-    if (this.shipRoot) {
+    if (this.refs && this.refs.stageRing && this.refs.stageSweep) {
+      tl.fromTo(this.refs.stageRing, { opacity: 0, scale: 0.55 }, { opacity: 0.95, scale: 1.5, duration: 1.0, ease: 'power2.out' }, 0.12);
+      tl.to(this.refs.stageRing, { opacity: 0.14, scale: 2.25, duration: 2.15, ease: 'expo.in' }, 1.12);
+      tl.fromTo(this.refs.stageSweep, { opacity: 0, xPercent: -110 }, { opacity: 0.56, xPercent: 95, duration: 0.7, ease: 'power2.inOut' }, 0.8);
+      tl.to(this.refs.stageSweep, { opacity: 0, duration: 0.4, ease: 'power2.out' }, 1.65);
+    }
+
+    if (this.refs && this.refs.exitShip) {
+      const ship = this.refs.exitShip;
+      const shipWake = this.refs.exitShipWake;
+      const shipCore = this.refs.exitShipCore;
+      const shipBody = this.refs.exitShipBody;
+      const shipNose = this.refs.exitShipNose;
+      const shipWingA = this.refs.exitShipWingA;
+      const shipWingB = this.refs.exitShipWingB;
+      tl.set(ship, { display: 'block', opacity: 0 }, 0);
+      tl.set([shipBody, shipNose, shipWingA, shipWingB, shipCore], { opacity: 1 }, 0);
+      if (shipWake) {
+        tl.set(shipWake, { opacity: 0, scaleX: 0.15, scaleY: 0.15 }, 0);
+        tl.fromTo(shipWake, { opacity: 0, scaleX: 0.18, scaleY: 0.15 }, { opacity: 0.88, scaleX: 1.3, scaleY: 1, duration: 0.28, ease: 'power2.out' }, 0.16);
+        tl.to(shipWake, { opacity: 0.42, scaleX: 2.0, scaleY: 1.04, duration: 1.08, ease: 'power2.inOut' }, 0.62);
+        tl.to(shipWake, { opacity: 0, duration: 0.44, ease: 'power2.out' }, 2.78);
+      }
+      tl.fromTo(ship, { opacity: 0, xPercent: -96, yPercent: 28, scale: 0.74, rotate: -16 }, { opacity: 1, xPercent: -26, yPercent: 2, scale: 1.0, rotate: -4, duration: 0.94, ease: 'sine.out' }, 0.12);
+      tl.to(ship, { xPercent: 6, yPercent: -6, scale: 1.08, rotate: 4, duration: 0.86, ease: 'power2.inOut' }, 1.02);
+      tl.to(ship, { xPercent: 34, yPercent: -14, scale: 0.92, rotate: 13, duration: 0.82, ease: 'power2.inOut' }, 1.9);
+      tl.to(ship, { xPercent: 78, yPercent: -24, scale: 0.45, opacity: 0, rotate: 24, duration: 0.7, ease: 'power3.in' }, 3.02);
+      tl.set(ship, { display: 'none' }, 3.86);
+    }
+
+    if (!this.shipRoot && this.three && this.three.scene) {
+      const tempShipRoot = new THREE.Group();
+      tempShipRoot.visible = true;
+      tempShipRoot.position.set(-3.75, -1.38, 2.95);
+      tempShipRoot.rotation.set(0.1, Math.PI * 0.93, -0.14);
+      tempShipRoot.scale.set(6.0, 6.0, 6.0);
+
+      const tempBody = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.2, 0.14, 1.02, 12, 1, false),
+        new THREE.MeshStandardMaterial({
+          color: 0xdff7ff,
+          emissive: 0x2f7fff,
+          emissiveIntensity: 1.7,
+          metalness: 0.78,
+          roughness: 0.18
+        })
+      );
+      tempBody.rotation.z = Math.PI / 2;
+      tempShipRoot.add(tempBody);
+
+      const tempNose = new THREE.Mesh(
+        new THREE.ConeGeometry(0.16, 0.38, 12),
+        new THREE.MeshStandardMaterial({
+          color: 0xf7fcff,
+          emissive: 0x73d8ff,
+          emissiveIntensity: 1.3,
+          metalness: 0.72,
+          roughness: 0.08
+        })
+      );
+      tempNose.rotation.z = -Math.PI / 2;
+      tempNose.position.x = 0.75;
+      tempShipRoot.add(tempNose);
+
+      const tempBeacon = new THREE.Mesh(
+        new THREE.SphereGeometry(0.13, 16, 12),
+        new THREE.MeshBasicMaterial({
+          color: 0xe8fbff,
+          transparent: true,
+          opacity: 1,
+          blending: THREE.AdditiveBlending,
+          depthWrite: false
+        })
+      );
+      tempBeacon.position.set(0.84, 0.04, 0.02);
+      tempShipRoot.add(tempBeacon);
+
+      const tempWake = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.04, 0.24, 1.9, 12, 1, true),
+        new THREE.MeshBasicMaterial({
+          color: 0x7fdfff,
+          transparent: true,
+          opacity: 0,
+          blending: THREE.AdditiveBlending,
+          depthWrite: false
+        })
+      );
+      tempWake.rotation.z = Math.PI / 2;
+      tempWake.position.set(-1.0, 0.02, 0);
+      tempWake.scale.set(0.18, 0.14, 0.14);
+      tempShipRoot.add(tempWake);
+
+      this.three.scene.add(tempShipRoot);
+      this.shipRoot = tempShipRoot;
+      this.shipBeacon = tempBeacon;
+      this.shipWake = tempWake;
+      this.shipModelLoaded = true;
+    }
+
+    if (this.shipRoot && this.shipModelLoaded) {
       this.shipRoot.visible = true;
-      this.shipRoot.position.set(0.25, -0.18, -7.8);
-      this.shipRoot.rotation.set(0.12, Math.PI * 1.02, -0.04);
-      this.shipRoot.scale.set(1, 1, 1);
-      tl.to(this.shipRoot.position, { x: 0.02, y: -0.08, z: -4.35, duration: 0.58, ease: 'expo.in' }, 0.06);
-      tl.to(this.shipRoot.rotation, { x: -0.02, y: Math.PI * 1.12, z: 0.08, duration: 0.58, ease: 'expo.in' }, 0.06);
-      tl.to(this.shipRoot.scale, { x: 0.14, y: 0.14, z: 0.14, duration: 0.3, ease: 'power3.in' }, 0.46);
-      tl.set(this.shipRoot, { visible: false }, 0.7);
+      if (this.shipWake) {
+        this.shipWake.visible = true;
+        this.shipWake.material.opacity = 0;
+        this.shipWake.scale.set(0.18, 0.14, 0.14);
+      }
+      if (this.shipBeacon) {
+        this.shipBeacon.visible = true;
+        this.shipBeacon.material.opacity = 0.98;
+        this.shipBeacon.scale.set(1, 1, 1);
+      }
+      // Ship should read as a high-speed approach, then a banked dive through the portal.
+      this.shipRoot.position.set(-3.92, -1.46, 3.02);
+      this.shipRoot.rotation.set(0.12, Math.PI * 0.9, -0.16);
+      this.shipRoot.scale.set(6.2, 6.2, 6.2);
+
+      const shipMats = [];
+      this.shipRoot.traverse((node) => {
+        if (!node || !node.isMesh || !node.material) return;
+        const mats = Array.isArray(node.material) ? node.material : [node.material];
+        mats.forEach((mat) => {
+          if (!mat || typeof mat.emissiveIntensity !== 'number') return;
+          const baseIntensity = typeof mat._warpBaseEmissiveIntensity === 'number' ? mat._warpBaseEmissiveIntensity : mat.emissiveIntensity;
+          mat._warpBaseEmissiveIntensity = baseIntensity;
+          shipMats.push({ mat, baseIntensity });
+        });
+      });
+      shipMats.forEach(({ mat, baseIntensity }) => {
+        tl.fromTo(mat, { emissiveIntensity: baseIntensity * 4.2 }, { emissiveIntensity: baseIntensity * 2.6, duration: 1.26, ease: 'power2.out' }, 0.06);
+        tl.to(mat, { emissiveIntensity: baseIntensity * 1.18, duration: 0.44, ease: 'power2.out' }, 4.06);
+      });
+
+      if (this.shipWake) {
+        tl.fromTo(this.shipWake.material, { opacity: 0 }, { opacity: 0.78, duration: 0.3, ease: 'power2.out' }, 0.14);
+        tl.fromTo(this.shipWake.scale, { x: 0.12, y: 0.12, z: 0.12 }, { x: 1.45, y: 1.1, z: 1.1, duration: 1.38, ease: 'power2.out' }, 0.14);
+        tl.to(this.shipWake.scale, { x: 2.0, y: 1.16, z: 1.16, duration: 1.12, ease: 'power1.inOut' }, 1.54);
+        tl.to(this.shipWake.material, { opacity: 0.12, duration: 0.42, ease: 'power2.out' }, 3.72);
+        tl.set(this.shipWake, { visible: false }, 4.18);
+      }
+
+      // Phase 1: visible approach across frame.
+      tl.fromTo(this.shipRoot.position, { x: -2.02, y: -1.16, z: 2.18 }, { x: -1.02, y: -0.9, z: 1.62, duration: 1.12, ease: 'sine.inOut' }, 0.08);
+      tl.to(this.shipRoot.rotation, { x: 0.05, y: Math.PI * 0.98, z: -0.08, duration: 1.12, ease: 'sine.inOut' }, 0.08);
+      tl.to(this.shipRoot.scale, { x: 5.9, y: 5.9, z: 5.9, duration: 1.12, ease: 'power2.out' }, 0.08);
+
+      // Phase 2: bank hard toward the wormhole while staying readable.
+      tl.to(this.shipRoot.position, { x: 0.12, y: -0.44, z: -0.86, duration: 1.18, ease: 'power2.inOut' }, 1.16);
+      tl.to(this.shipRoot.rotation, { x: -0.08, y: Math.PI * 1.1, z: 0.34, duration: 1.18, ease: 'power2.inOut' }, 1.16);
+      tl.to(this.shipRoot.scale, { x: 4.9, y: 4.9, z: 4.9, duration: 1.18, ease: 'power2.out' }, 1.16);
+
+      // Phase 3: punch through the center and only shrink once the ship is fully committed.
+      tl.to(this.shipRoot.position, { x: 0.74, y: -0.14, z: -2.72, duration: 1.22, ease: 'expo.in' }, 2.34);
+      tl.to(this.shipRoot.rotation, { x: -0.14, y: Math.PI * 1.22, z: 0.46, duration: 1.22, ease: 'power2.inOut' }, 2.34);
+      tl.to(this.shipRoot.scale, { x: 4.05, y: 4.05, z: 4.05, duration: 0.74, ease: 'power2.out' }, 2.34);
+      tl.to(this.shipRoot.scale, { x: 0.42, y: 0.42, z: 0.42, duration: 0.52, ease: 'power3.in' }, 3.26);
+      tl.to(this.shipRoot.position, { x: 1.0, y: 0.0, z: -5.48, duration: 0.62, ease: 'power3.in' }, 3.34);
+      tl.set(this.shipRoot, { visible: false }, 4.02);
     }
 
+    // Disable blades for ESC warp so ship and wormhole stay visually clean.
     if (this.refs && this.refs.bladeA && this.refs.bladeB) {
-      tl.fromTo(this.refs.bladeA, { xPercent: -150, opacity: 0 }, { xPercent: 130, opacity: 0.62, duration: 0.24, ease: 'power4.in' }, 0.08);
-      tl.fromTo(this.refs.bladeB, { xPercent: 150, opacity: 0 }, { xPercent: -130, opacity: 0.58, duration: 0.24, ease: 'power4.in' }, 0.1);
-      tl.to([this.refs.bladeA, this.refs.bladeB], { opacity: 0, duration: 0.14, ease: 'power2.out' }, 0.36);
+      tl.set([this.refs.bladeA, this.refs.bladeB], { opacity: 0 }, 0);
     }
 
     if (activeScene) {
-      tl.to(activeScene, { opacity: 0, scale: 1.05, filter: 'blur(10px)', duration: 0.42, ease: 'power3.in' }, 0.12);
+      tl.to(activeScene, { opacity: 0, scale: 1.03, filter: 'blur(6px)', duration: 0.52, ease: 'power2.inOut' }, 0.0);
     }
 
     if (this.refs && this.refs.endFlash) {
       tl.set(this.refs.endFlash, {
         display: 'block',
-        background: 'radial-gradient(circle at 50% 45%, rgba(255,255,255,0.98) 0%, rgba(255,255,255,0.72) 34%, rgba(220,235,255,0.3) 58%, rgba(8,12,28,0.0) 100%)'
-      }, 0.45);
-      tl.fromTo(this.refs.endFlash, { opacity: 0 }, { opacity: 1, duration: 0.12, ease: 'power2.in' }, 0.46);
-      tl.to(this.refs.endFlash, { opacity: 0, duration: 0.2, ease: 'power2.out' }, 0.6);
-      tl.set(this.refs.endFlash, { display: 'none' }, 0.82);
+        background: 'radial-gradient(circle at 50% 45%, rgba(255,255,255,1.0) 0%, rgba(235,246,255,0.9) 34%, rgba(160,210,255,0.34) 60%, rgba(8,12,28,0.0) 100%)'
+      }, 4.22);
+      tl.fromTo(this.refs.endFlash, { opacity: 0 }, { opacity: 1, duration: 0.18, ease: 'power2.in' }, 4.24);
+      tl.to(this.refs.endFlash, { opacity: 0, duration: 0.34, ease: 'power2.out' }, 4.42);
+      tl.set(this.refs.endFlash, { display: 'none' }, 4.76);
     }
+
+    tl.to({}, { duration: 0.01 }, 4.76);
   }
 
   next() {
@@ -294,8 +506,21 @@ class PresentationMode {
       <div class="pfs-stage-ring"></div>
       <div class="pfs-stage-sweep"></div>
       <div class="pfs-stage-noise"></div>
+      <div class="pfs-stage-trace"></div>
     `;
     root.appendChild(transitionStage);
+
+    const exitShip = document.createElement('div');
+    exitShip.className = 'pfs-exit-ship';
+    exitShip.innerHTML = `
+      <div class="pfs-exit-ship-wake"></div>
+      <div class="pfs-exit-ship-body"></div>
+      <div class="pfs-exit-ship-nose"></div>
+      <div class="pfs-exit-ship-wing pfs-exit-ship-wing--a"></div>
+      <div class="pfs-exit-ship-wing pfs-exit-ship-wing--b"></div>
+      <div class="pfs-exit-ship-core"></div>
+    `;
+    root.appendChild(exitShip);
 
     const endFlash = document.createElement('div');
     endFlash.className = 'pfs-end-flash';
@@ -445,6 +670,14 @@ class PresentationMode {
       stageRing: transitionStage.querySelector('.pfs-stage-ring'),
       stageSweep: transitionStage.querySelector('.pfs-stage-sweep'),
       stageNoise: transitionStage.querySelector('.pfs-stage-noise'),
+      stageTrace: transitionStage.querySelector('.pfs-stage-trace'),
+      exitShip,
+      exitShipWake: exitShip.querySelector('.pfs-exit-ship-wake'),
+      exitShipBody: exitShip.querySelector('.pfs-exit-ship-body'),
+      exitShipNose: exitShip.querySelector('.pfs-exit-ship-nose'),
+      exitShipWingA: exitShip.querySelector('.pfs-exit-ship-wing--a'),
+      exitShipWingB: exitShip.querySelector('.pfs-exit-ship-wing--b'),
+      exitShipCore: exitShip.querySelector('.pfs-exit-ship-core'),
       endFlash,
       bladeA,
       bladeB,
@@ -939,6 +1172,16 @@ class PresentationMode {
 
   _onKeyDown(event) {
     if (!this.isOpen) return;
+    const target = event.target;
+    const isEditableTarget =
+      target &&
+      (
+        target.isContentEditable ||
+        /^(INPUT|TEXTAREA|SELECT)$/.test(target.tagName || '') ||
+        (target.closest && target.closest('[contenteditable="true"]'))
+      );
+    if (isEditableTarget) return;
+    if (event.ctrlKey || event.metaKey || event.altKey) return;
     if (event.key === 'Escape') {
       event.preventDefault();
       this.close('esc');
@@ -1019,11 +1262,14 @@ class PresentationMode {
     if (!this.isOpen) return;
     this._refreshSceneScroll(this.scenes[this.current]);
     if (!this.three) return;
-    const { camera, renderer } = this.three;
+    const { camera, renderer, composer } = this.three;
     camera.aspect = window.innerWidth / window.innerHeight;
     camera.updateProjectionMatrix();
     renderer.setSize(window.innerWidth, window.innerHeight);
     renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.8));
+    if (composer && typeof composer.setSize === 'function') {
+      composer.setSize(window.innerWidth, window.innerHeight);
+    }
   }
 
   _onPointerMove(event) {
@@ -1172,40 +1418,178 @@ class PresentationMode {
     scene.add(shipWrap);
     this.shipRoot = shipWrap;
 
-    const loader = new OBJLoader();
-    loader.load(
-      './assets/models/interstellar-runner/Package/InterstellarRunner.obj',
-      (obj) => {
-        obj.traverse((child) => {
-          if (!child.isMesh) return;
-          const mat = new THREE.MeshStandardMaterial({
-            color: 0x9ecbff,
-            emissive: 0x173a72,
-            metalness: 0.78,
-            roughness: 0.28
-          });
-          child.material = mat;
-          child.castShadow = false;
-          child.receiveShadow = false;
-        });
-
-        const box = new THREE.Box3().setFromObject(obj);
-        const size = new THREE.Vector3();
-        const center = new THREE.Vector3();
-        box.getSize(size);
-        box.getCenter(center);
-        obj.position.sub(center);
-        const maxDim = Math.max(size.x, size.y, size.z) || 1;
-        const target = 1.2;
-        const scale = target / maxDim;
-        obj.scale.setScalar(scale);
-        shipWrap.add(obj);
-      },
-      undefined,
-      () => {
-        // Keep running without model if load fails.
-      }
+    const fallbackShip = new THREE.Group();
+    fallbackShip.name = 'fallbackShip';
+    const shipBody = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.22, 0.16, 1.08, 12, 1, false),
+      new THREE.MeshStandardMaterial({
+        color: 0xe5f7ff,
+        emissive: 0x2a78d8,
+        emissiveIntensity: 1.5,
+        metalness: 0.82,
+        roughness: 0.18
+      })
     );
+    shipBody.rotation.z = Math.PI / 2;
+    fallbackShip.add(shipBody);
+
+    const nose = new THREE.Mesh(
+      new THREE.ConeGeometry(0.18, 0.42, 12),
+      new THREE.MeshStandardMaterial({
+        color: 0xf3fbff,
+        emissive: 0x4eb7ff,
+        emissiveIntensity: 1.1,
+        metalness: 0.7,
+        roughness: 0.1
+      })
+    );
+    nose.rotation.z = -Math.PI / 2;
+    nose.position.x = 0.8;
+    fallbackShip.add(nose);
+
+    const canopy = new THREE.Mesh(
+      new THREE.SphereGeometry(0.16, 16, 12),
+      new THREE.MeshStandardMaterial({
+        color: 0x10182d,
+        emissive: 0x6db8ff,
+        emissiveIntensity: 0.8,
+        metalness: 0.28,
+        roughness: 0.06,
+        transparent: true,
+        opacity: 0.9
+      })
+    );
+    canopy.position.set(0.54, 0.08, 0.02);
+    canopy.scale.set(1.0, 0.72, 0.88);
+    fallbackShip.add(canopy);
+
+    const wingMat = new THREE.MeshStandardMaterial({
+      color: 0xa9d2ff,
+      emissive: 0x134f9c,
+      emissiveIntensity: 0.9,
+      metalness: 0.74,
+      roughness: 0.2
+    });
+    const wingGeo = new THREE.BoxGeometry(0.56, 0.06, 0.16);
+    const wingL = new THREE.Mesh(wingGeo, wingMat);
+    wingL.position.set(-0.08, -0.08, 0.28);
+    wingL.rotation.z = -0.28;
+    fallbackShip.add(wingL);
+    const wingR = wingL.clone();
+    wingR.position.z = -0.28;
+    wingR.rotation.z = 0.28;
+    fallbackShip.add(wingR);
+
+    const tailFin = new THREE.Mesh(
+      new THREE.BoxGeometry(0.12, 0.34, 0.42),
+      new THREE.MeshStandardMaterial({
+        color: 0x7bcfff,
+        emissive: 0x0f4f9d,
+        emissiveIntensity: 1.0,
+        metalness: 0.7,
+        roughness: 0.16
+      })
+    );
+    tailFin.position.set(-0.75, 0.1, 0);
+    tailFin.rotation.z = 0.1;
+    fallbackShip.add(tailFin);
+
+    const engineGlow = new THREE.Mesh(
+      new THREE.SphereGeometry(0.08, 14, 10),
+      new THREE.MeshBasicMaterial({
+        color: 0x8fe8ff,
+        transparent: true,
+        opacity: 0.95
+      })
+    );
+    engineGlow.position.set(-0.98, 0, 0);
+    fallbackShip.add(engineGlow);
+
+    fallbackShip.scale.set(0.72, 0.72, 0.72);
+    const shipBeacon = new THREE.Mesh(
+      new THREE.SphereGeometry(0.14, 16, 12),
+      new THREE.MeshBasicMaterial({
+        color: 0xe8fbff,
+        transparent: true,
+        opacity: 0.98,
+        blending: THREE.AdditiveBlending,
+        depthWrite: false
+      })
+    );
+    shipBeacon.position.set(0.88, 0.05, 0.02);
+    fallbackShip.add(shipBeacon);
+
+    const shipWake = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.04, 0.24, 1.85, 12, 1, true),
+      new THREE.MeshBasicMaterial({
+        color: 0x7fdfff,
+        transparent: true,
+        opacity: 0,
+        blending: THREE.AdditiveBlending,
+        depthWrite: false
+      })
+    );
+    shipWake.rotation.z = Math.PI / 2;
+    shipWake.position.set(-1.0, 0.02, 0);
+    shipWake.scale.set(0.12, 0.12, 0.12);
+    shipWake.visible = false;
+    fallbackShip.add(shipWake);
+    shipWrap.add(fallbackShip);
+    this.shipFallback = fallbackShip;
+    this.shipBeacon = shipBeacon;
+    this.shipWake = shipWake;
+    this.shipModelLoaded = true;
+
+    const loader = new OBJLoader();
+    const modelPaths = [
+      '/assets/models/interstellar-runner/Package/InterstellarRunner.obj',
+      './assets/models/interstellar-runner/Package/InterstellarRunner.obj'
+    ];
+    const tryLoad = (idx) => {
+      const src = modelPaths[idx];
+      if (!src) {
+        this.shipModelLoaded = false;
+        return;
+      }
+        loader.load(
+          src,
+          (obj) => {
+            if (this.shipFallback) this.shipFallback.visible = false;
+            if (this.shipBeacon) this.shipBeacon.visible = false;
+            if (this.shipWake) this.shipWake.visible = false;
+            obj.traverse((child) => {
+              if (!child.isMesh) return;
+              const mat = new THREE.MeshStandardMaterial({
+                color: 0xc6e5ff,
+                emissive: 0x2a6ec8,
+              emissiveIntensity: 2.1,
+              metalness: 0.78,
+              roughness: 0.24,
+              side: THREE.DoubleSide
+            });
+            child.material = mat;
+            child.castShadow = false;
+            child.receiveShadow = false;
+          });
+
+          const box = new THREE.Box3().setFromObject(obj);
+          const size = new THREE.Vector3();
+          const center = new THREE.Vector3();
+          box.getSize(size);
+          box.getCenter(center);
+          obj.position.sub(center);
+          const maxDim = Math.max(size.x, size.y, size.z) || 1;
+          const target = 1.6;
+          const scale = target / maxDim;
+          obj.scale.setScalar(scale);
+          shipWrap.add(obj);
+          this.shipModelLoaded = true;
+          },
+          undefined,
+          () => tryLoad(idx + 1)
+      );
+    };
+    tryLoad(0);
   }
 
   _initThree() {
@@ -1215,6 +1599,9 @@ class PresentationMode {
     const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
     renderer.setSize(window.innerWidth, window.innerHeight);
     renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.8));
+    renderer.outputColorSpace = THREE.SRGBColorSpace;
+    renderer.toneMapping = THREE.ACESFilmicToneMapping;
+    renderer.toneMappingExposure = 1.12;
     renderer.domElement.style.opacity = '0';
     host.appendChild(renderer.domElement);
 
@@ -1223,6 +1610,17 @@ class PresentationMode {
     const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 200);
     camera.position.set(0, 0.35, 8.25);
     this.cameraHome = { x: 0, y: 0.35, z: 8.25 };
+
+    const composer = new EffectComposer(renderer);
+    const renderPass = new RenderPass(scene, camera);
+    const bloomPass = new UnrealBloomPass(
+      new THREE.Vector2(window.innerWidth, window.innerHeight),
+      this.rehearsalMode ? 0.26 : 0.62,
+      0.9,
+      0.22
+    );
+    composer.addPass(renderPass);
+    composer.addPass(bloomPass);
 
     const lightA = new THREE.DirectionalLight(0xff7adf, 1.1);
     lightA.position.set(3, 4, 2);
@@ -1306,6 +1704,25 @@ class PresentationMode {
       })
     );
     scene.add(tunnelStars);
+
+    const warpRings = new THREE.Group();
+    for (let i = 0; i < 15; i += 1) {
+      const ring = new THREE.Mesh(
+        new THREE.TorusGeometry(1.7 + (i * 0.12), 0.02 + ((i % 3) * 0.004), 10, 64),
+        new THREE.MeshBasicMaterial({
+          color: i % 2 ? 0x7fd8ff : 0xff85d8,
+          transparent: true,
+          opacity: 0,
+          blending: THREE.AdditiveBlending
+        })
+      );
+      ring.position.set(0, -0.08, -4 - (i * 1.45));
+      ring.rotation.x = 0.32;
+      ring.userData.baseZ = ring.position.z;
+      warpRings.add(ring);
+    }
+    warpRings.visible = false;
+    scene.add(warpRings);
 
     const particleSphereGeo = new THREE.BufferGeometry();
     const particleCount = 1600;
@@ -1512,7 +1929,7 @@ class PresentationMode {
     finaleGroup.position.set(1.9, -0.4, -4.75);
     scene.add(finaleGroup);
 
-    this.three = { renderer, scene, camera, portal, portalHalo, stars, tunnelStars, particleSphere };
+    this.three = { renderer, composer, bloomPass, scene, camera, portal, portalHalo, stars, tunnelStars, warpRings, particleSphere };
     this.threeGroups = { chipGroup, researchGroup, connectionsGroup, implicationsGroup, finaleGroup };
     this._loadInterstellarRunner(scene);
     this._setThreeWorld(0, 1);
@@ -1522,7 +1939,7 @@ class PresentationMode {
 
   _setThreeWorld(index, intensity = 1) {
     if (!this.three) return;
-    const { camera, portal, portalHalo, scene, tunnelStars, particleSphere, renderer } = this.three;
+    const { camera, portal, portalHalo, scene, tunnelStars, warpRings, particleSphere, renderer, bloomPass } = this.three;
     const { chipGroup, researchGroup, connectionsGroup, implicationsGroup, finaleGroup } = this.threeGroups;
     const profile = EXPERIENCE_PROFILES[index] || EXPERIENCE_PROFILES[0];
     const mode = profile.three;
@@ -1542,11 +1959,12 @@ class PresentationMode {
       });
     };
 
-    show(chipGroup, mode === 'chip', 0.0, 0.0);
-    show(researchGroup, mode === 'research', 0.0, 0.0);
-    show(connectionsGroup, mode === 'connections', 0.0, 0.0);
-    show(implicationsGroup, mode === 'implications', 0.0, 0.0);
-    show(finaleGroup, mode === 'finale', 0.0, 0.0);
+    // Keep a subtle ambient 3D layer in resting slide state.
+    show(chipGroup, mode === 'chip', 0.24, 0.035);
+    show(researchGroup, mode === 'research', 0.24, 0.035);
+    show(connectionsGroup, mode === 'connections', 0.26, 0.04);
+    show(implicationsGroup, mode === 'implications', 0.26, 0.04);
+    show(finaleGroup, mode === 'finale', 0.24, 0.035);
 
     if (window.gsap) {
       const camTargets = [
@@ -1563,23 +1981,36 @@ class PresentationMode {
       const target = camTargets[index] || camTargets[0];
       gsap.to(camera.position, { ...target, duration: 0.65, ease: 'power2.out' });
       gsap.to(portal.scale, {
-        x: mode === 'finale' ? 1.08 : 1,
-        y: mode === 'finale' ? 1.08 : 1,
+        x: mode === 'finale' ? 1.12 : 1.02,
+        y: mode === 'finale' ? 1.12 : 1.02,
         z: 1,
         duration: 0.55,
         ease: 'power2.out'
       });
       gsap.to(portalHalo.scale, {
-        x: mode === 'finale' ? 1.14 : 1,
-        y: mode === 'finale' ? 1.14 : 1,
+        x: mode === 'finale' ? 1.22 : 1.06,
+        y: mode === 'finale' ? 1.22 : 1.06,
         z: 1,
         duration: 0.55,
         ease: 'power2.out'
       });
       const fogTarget = mode === 'finale' ? 0.034 : mode === 'connections' ? 0.052 : 0.045;
       gsap.to(scene.fog, { density: fogTarget, duration: 0.6, ease: 'power2.out' });
+      if (bloomPass) {
+        gsap.to(
+          bloomPass,
+          {
+            strength: this.escapeWarpActive ? 1.3 : mode === 'finale' ? 0.82 : this.rehearsalMode ? 0.24 : 0.62,
+            radius: mode === 'finale' ? 0.95 : 0.88,
+            threshold: 0.22,
+            duration: 0.6,
+            ease: 'power2.out'
+          }
+        );
+      }
+      const resting = !this.threeTransitionActive && !this.escapeWarpActive;
       gsap.to(tunnelStars.material, {
-        opacity: 0,
+        opacity: resting ? (mode === 'finale' ? 0.2 : 0.16) : 0,
         duration: 0.55,
         ease: 'power2.out'
       });
@@ -1589,17 +2020,27 @@ class PresentationMode {
         ease: 'power2.out'
       });
       gsap.to(portal.material, {
-        opacity: 0,
+        opacity: resting ? (mode === 'finale' ? 0.18 : 0.11) : 0,
         duration: 0.35,
         ease: 'power2.out'
       });
       gsap.to(portalHalo.material, {
-        opacity: 0,
+        opacity: resting ? (mode === 'finale' ? 0.12 : 0.07) : 0,
         duration: 0.35,
         ease: 'power2.out'
       });
-      if (!this.threeTransitionActive && renderer && renderer.domElement) {
-        gsap.to(renderer.domElement, { opacity: 0, duration: 0.2, ease: 'power2.out' });
+      if (renderer && renderer.domElement) {
+        gsap.to(renderer.domElement, {
+          opacity: resting ? (this.rehearsalMode ? 0.42 : 0.66) : 0,
+          duration: 0.28,
+          ease: 'power2.out'
+        });
+      }
+      if (warpRings) {
+        const cinematicWarp =
+          this.escapeWarpActive
+          || (this.threeTransitionActive && (this.threeTransitionStyle === 'warp' || this.threeTransitionStyle === 'finale'));
+        warpRings.visible = cinematicWarp;
       }
     }
   }
@@ -1630,7 +2071,7 @@ class PresentationMode {
     if (mode === 'research') this._setGroupOpacity(researchGroup, 0.75);
     if (mode === 'connections') this._setGroupOpacity(connectionsGroup, 0.78);
     if (mode === 'implications') this._setGroupOpacity(implicationsGroup, 0.78);
-    if (mode === 'finale') this._setGroupOpacity(finaleGroup, 0.85);
+    if (mode === 'finale') this._setGroupOpacity(finaleGroup, 0.32);
   }
 
   _particleShapeForSlide(index) {
@@ -1645,6 +2086,20 @@ class PresentationMode {
     if (!this.particleMorph || !this.three) return;
     const { particleSphere } = this.three;
     const state = this.particleMorph;
+    if (style !== 'warp' && style !== 'finale') {
+      state.mix = 0;
+      state.target = 0;
+      state.material.opacity = 0;
+      particleSphere.visible = false;
+      return;
+    }
+    if (style === 'finale') {
+      state.mix = 0;
+      state.target = 0;
+      state.material.opacity = 0;
+      particleSphere.visible = false;
+      return;
+    }
     const fromKey = state.activeKey || 'portal';
     const toKey = this._particleShapeForSlide(nextIndex);
     state.from = state.shapes[fromKey] || state.shapes.portal;
@@ -1652,16 +2107,16 @@ class PresentationMode {
     state.activeKey = toKey;
     state.mix = 0;
     state.target = 1;
-    state.twist = style === 'warp' ? 1.4 : style === 'finale' ? 2.1 : 0.75;
+    state.twist = 0.22;
     state.noisePhase = 0;
     particleSphere.visible = true;
 
-    const rise = style === 'finale' ? 1.0 : style === 'warp' ? 0.95 : 0.8;
-    tl.fromTo(state, { mix: 0 }, { mix: 1, duration: style === 'finale' ? 0.72 : 0.54, ease: 'expo.out' }, 0.02);
+    const rise = 0.03;
+    tl.fromTo(state, { mix: 0 }, { mix: 1, duration: 0.42, ease: 'power2.out' }, 0.02);
     tl.fromTo(
       state.material,
-      { opacity: rise, size: 0.023 },
-      { opacity: 0, size: style === 'finale' ? 0.01 : 0.016, duration: style === 'finale' ? 0.66 : 0.5, ease: 'power2.out' },
+      { opacity: rise, size: 0.012 },
+      { opacity: 0, size: 0.008, duration: 0.38, ease: 'power2.out' },
       0.04
     );
   }
@@ -1676,7 +2131,7 @@ class PresentationMode {
     const dt = Math.min(0.05, (now - this.lastTick) / 1000);
     this.lastTick = now;
 
-    const { renderer, scene, camera, portal, portalHalo, stars, tunnelStars, particleSphere } = this.three;
+    const { renderer, composer, scene, camera, portal, portalHalo, stars, tunnelStars, warpRings, particleSphere } = this.three;
     const { chipGroup, researchGroup, connectionsGroup, implicationsGroup, finaleGroup } = this.threeGroups;
 
     const isIdlePhase = !this.threeTransitionActive && !this.escapeWarpActive;
@@ -1706,7 +2161,8 @@ class PresentationMode {
       const to = pm.to;
       const cur = pm.current;
       const mix = Math.max(0, Math.min(1, pm.mix));
-      if (this.threeTransitionActive || pm.points.visible) {
+      const allowMorph = this.threeTransitionStyle === 'warp' || this.threeTransitionStyle === 'finale' || this.escapeWarpActive;
+      if (allowMorph && (this.threeTransitionActive || pm.points.visible)) {
         const inv = 1 - mix;
         pm.noisePhase = (pm.noisePhase || 0) + dt * (this.threeTransitionActive ? 2.4 : 0.8);
         for (let i = 0; i < cur.length; i += 1) {
@@ -1715,12 +2171,33 @@ class PresentationMode {
         }
         pm.geometry.attributes.position.needsUpdate = true;
       }
-      particleSphere.rotation.y += dt * (this.threeTransitionActive ? 1.15 : 0.05);
-      particleSphere.rotation.x += dt * (this.threeTransitionActive ? 0.55 : 0.02);
-      particleSphere.scale.x = 0.55 + mix * 0.6;
-      particleSphere.scale.y = 0.55 + mix * 0.6;
+      particleSphere.rotation.y += dt * (allowMorph && this.threeTransitionActive ? 0.42 : 0.02);
+      particleSphere.rotation.x += dt * (allowMorph && this.threeTransitionActive ? 0.16 : 0.01);
+      particleSphere.scale.x = allowMorph ? (0.44 + mix * 0.18) : 0.2;
+      particleSphere.scale.y = allowMorph ? (0.44 + mix * 0.18) : 0.2;
       particleSphere.scale.z = 1;
-      particleSphere.visible = this.threeTransitionActive || pm.material.opacity > 0.01;
+      particleSphere.visible = allowMorph && (this.threeTransitionActive || pm.material.opacity > 0.01);
+    }
+
+    if (warpRings) {
+      const cinematicWarp =
+        this.escapeWarpActive
+        || (this.threeTransitionActive && (this.threeTransitionStyle === 'warp' || this.threeTransitionStyle === 'finale'));
+      const ringSpeed = this.escapeWarpActive ? 15.8 : cinematicWarp ? 8.4 : 0.8;
+      warpRings.visible = cinematicWarp || this.threeMode === 'finale';
+      warpRings.children.forEach((ring, idx) => {
+        ring.position.z += dt * ringSpeed * (1 + (idx * 0.02));
+        if (ring.position.z > 3.2) ring.position.z = -25 - (idx * 1.25);
+        const depthFade = 1 - Math.min(1, Math.max(0, (ring.position.z + 1.4) / 6.8));
+      const targetOpacity =
+          this.escapeWarpActive ? (0.14 * depthFade)
+          : cinematicWarp ? (0.06 * depthFade)
+          : this.threeMode === 'finale' ? (0.03 * depthFade)
+          : 0.0;
+        if (ring.material) {
+          ring.material.opacity += (targetOpacity - ring.material.opacity) * Math.min(1, dt * 6.5);
+        }
+      });
     }
 
     const modeSpeed =
@@ -1741,31 +2218,25 @@ class PresentationMode {
       camera.position.x += (targetCamX - camera.position.x) * Math.min(1, dt * 2.8);
       camera.position.y += (targetCamY - camera.position.y) * Math.min(1, dt * 2.8);
     }
-    if (this.shipRoot && this.shipRoot.visible) {
+    if (this.shipRoot && this.shipRoot.visible && !this.escapeWarpActive && !this.threeTransitionActive) {
       this.shipRoot.rotation.z += (this.pointer.x * 0.12 - this.shipRoot.rotation.z) * Math.min(1, dt * 4.2);
       this.shipRoot.rotation.x += ((-0.04 + this.pointer.y * 0.08) - this.shipRoot.rotation.x) * Math.min(1, dt * 3.6);
     }
 
-    // Hard gate: 3D transition layers must never leak into resting slide state.
+    // Resting mode: keep subtle portal/tunnel ambience while disabling intrusive effects.
     if (!this.threeTransitionActive && !this.escapeWarpActive) {
-      const { chipGroup, researchGroup, connectionsGroup, implicationsGroup, finaleGroup } = this.threeGroups || {};
-      this._setGroupOpacity(chipGroup, 0);
-      this._setGroupOpacity(researchGroup, 0);
-      this._setGroupOpacity(connectionsGroup, 0);
-      this._setGroupOpacity(implicationsGroup, 0);
-      this._setGroupOpacity(finaleGroup, 0);
-      portal.material.opacity = 0;
-      portalHalo.material.opacity = 0;
-      tunnelStars.material.opacity = 0;
+      if (renderer && renderer.domElement && renderer.domElement.style.opacity === '0') {
+        renderer.domElement.style.opacity = this.rehearsalMode ? '0.42' : '0.66';
+      }
       if (this.particleMorph && this.particleMorph.material) {
         this.particleMorph.material.opacity = 0;
+        if (this.particleMorph.points) this.particleMorph.points.visible = false;
       }
-      if (renderer && renderer.domElement && renderer.domElement.style.opacity !== '0') {
-        renderer.domElement.style.opacity = '0';
-      }
+      if (this.shipRoot) this.shipRoot.visible = false;
     }
 
-    renderer.render(scene, camera);
+    if (composer) composer.render();
+    else renderer.render(scene, camera);
     this.raf = requestAnimationFrame(() => this._renderThree());
   }
 
@@ -1773,7 +2244,7 @@ class PresentationMode {
     if (this.raf) cancelAnimationFrame(this.raf);
     this.raf = 0;
     if (!this.three) return;
-    const { renderer, scene } = this.three;
+    const { renderer, composer, scene } = this.three;
     scene.traverse((obj) => {
       if (obj.geometry) obj.geometry.dispose();
       if (obj.material) {
@@ -1781,6 +2252,7 @@ class PresentationMode {
         else obj.material.dispose();
       }
     });
+    if (composer && typeof composer.dispose === 'function') composer.dispose();
     renderer.dispose();
     if (renderer.domElement && renderer.domElement.parentNode) {
       renderer.domElement.parentNode.removeChild(renderer.domElement);
@@ -1791,7 +2263,7 @@ class PresentationMode {
 
   _resetThreeTransitionState(particleKey = null) {
     if (!this.three) return;
-    const { renderer, portal, portalHalo, camera } = this.three;
+    const { renderer, portal, portalHalo, warpRings, camera } = this.three;
     const { chipGroup, researchGroup, connectionsGroup, implicationsGroup, finaleGroup } = this.threeGroups;
 
     this._setGroupOpacity(chipGroup, 0);
@@ -1802,10 +2274,14 @@ class PresentationMode {
 
     portal.material.opacity = 0;
     portalHalo.material.opacity = 0;
+    portal.visible = true;
+    portalHalo.visible = true;
     portal.scale.set(1, 1, 1);
     portalHalo.scale.set(1, 1, 1);
     this.threeTransitionActive = false;
+    this.threeTransitionStyle = 'none';
     this.escapeWarpActive = false;
+    if (this.overlay) this.overlay.classList.remove('pfs-exit-warp');
     if (renderer && renderer.domElement) renderer.domElement.style.opacity = '0';
     if (camera && this.cameraHome) {
       camera.position.set(this.cameraHome.x, this.cameraHome.y, this.cameraHome.z);
@@ -1814,6 +2290,23 @@ class PresentationMode {
     if (this.refs && this.refs.endFlash) this.refs.endFlash.style.display = 'none';
     if (this.overlay) this.overlay.classList.remove('pfs-hyperspace-active');
     if (this.shipRoot) this.shipRoot.visible = false;
+    if (this.shipWake) {
+      this.shipWake.visible = false;
+      this.shipWake.material.opacity = 0;
+      this.shipWake.scale.set(0.18, 0.14, 0.14);
+    }
+    if (this.shipBeacon) {
+      this.shipBeacon.visible = false;
+      this.shipBeacon.material.opacity = 0;
+      this.shipBeacon.scale.set(1, 1, 1);
+    }
+    if (warpRings) {
+      warpRings.visible = false;
+      warpRings.children.forEach((ring) => {
+        ring.position.z = typeof ring.userData.baseZ === 'number' ? ring.userData.baseZ : ring.position.z;
+        if (ring.material) ring.material.opacity = 0;
+      });
+    }
 
     if (this.particleMorph && this.particleMorph.points) {
       this.particleMorph.points.visible = false;

@@ -30,11 +30,30 @@
     });
   }
 
+  function isActivityActive() {
+    // Presentation mode open
+    if (window.PresentationMode && window.PresentationMode.isOpen) return true;
+    if (document.body && document.body.classList.contains('presentation-open')) return true;
+    // Any video element actively playing
+    var videos = document.querySelectorAll('video');
+    for (var i = 0; i < videos.length; i++) {
+      if (!videos[i].paused && !videos[i].ended && videos[i].readyState > 2) return true;
+    }
+    // Any audio element actively playing
+    var audios = document.querySelectorAll('audio');
+    for (var j = 0; j < audios.length; j++) {
+      if (!audios[j].paused && !audios[j].ended) return true;
+    }
+    // Speech synthesis in progress (presentation narration/assistant voice)
+    if (window.speechSynthesis && window.speechSynthesis.speaking) return true;
+    return false;
+  }
+
   function resetIdleTimer() {
     if (idleTimer) clearTimeout(idleTimer);
     idleTimer = setTimeout(function() {
       var desktop = document.getElementById('desktop');
-      if (desktop && desktop.classList.contains('visible')) {
+      if (desktop && desktop.classList.contains('visible') && !isActivityActive()) {
         activateScreensaver();
       }
     }, IDLE_TIMEOUT);
@@ -42,6 +61,7 @@
 
   function activateScreensaver() {
     if (screensaverActive) return;
+    if (isActivityActive()) return;
     screensaverActive = true;
 
     var canvas = screensaverCanvas;
@@ -101,6 +121,7 @@
   function dismissScreensaver() {
     screensaverActive = false;
     if (screensaverAnimId) cancelAnimationFrame(screensaverAnimId);
+    screensaverAnimId = null;
     if (screensaverCanvas) screensaverCanvas.style.display = 'none';
   }
 

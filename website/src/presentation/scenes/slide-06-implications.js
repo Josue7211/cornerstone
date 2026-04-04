@@ -66,12 +66,13 @@ export function createSlide06ImplicationsScene({ mode, scene }) {
         gsap.killTweensOf(nodes);
         gsap.fromTo(
           nodes,
-          { opacity: 0, x: -18, rotateY: -14, force3D: true },
+          { opacity: 0, y: 16, scale: 0.965, rotateX: -12, force3D: true, transformPerspective: 900 },
           {
             opacity: 1,
-            x: 0,
-            rotateY: 0,
-            duration: 0.58,
+            y: 0,
+            scale: 1,
+            rotateX: 0,
+            duration: 0.54,
             ease: 'power3.out',
             stagger: 0.06,
             force3D: true,

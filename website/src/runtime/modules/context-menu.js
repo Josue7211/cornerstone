@@ -60,9 +60,9 @@ export function initContextMenuModule(options = {}) {
     div.appendChild(titleEl);
 
     var lines = [
-      'Josue Aparcedo Gonzalez',
-      'IDS2891 Cornerstone - Spring 2026',
-      'Florida SouthWestern State College',
+      'Project Author',
+      'Open-source release',
+      'Self-hosted build',
       '',
       'Built with Three.js, GSAP, and Vanilla JS',
       'Research: 13,455 words - 35 APA sources',

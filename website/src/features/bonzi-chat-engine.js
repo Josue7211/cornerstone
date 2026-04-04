@@ -5,8 +5,13 @@
   var core = window.BonziCore || {};
   var DEFAULT_OLLAMA_MODEL = core.DEFAULT_OLLAMA_MODEL || 'qwen3.5:0.8b';
   var DEFAULT_NUM_CTX = core.DEFAULT_NUM_CTX || 4096;
+  var DEFAULT_OPENAI_ENDPOINT = (core.getDefaultHostedEndpoint ? core.getDefaultHostedEndpoint('/api/openai') : '/api/openai');
+  var DEFAULT_OPENAI_MODEL = 'gpt-4o-mini';
   var MODEL_STORAGE_KEY = core.MODEL_STORAGE_KEY || 'bonzi.ollamaModel';
   var ENDPOINT_STORAGE_KEY = core.ENDPOINT_STORAGE_KEY || 'bonzi.ollamaEndpoint';
+  var OPENAI_MODEL_STORAGE_KEY = 'win95.openaiModel';
+  var OPENAI_ENDPOINT_STORAGE_KEY = 'win95.openaiEndpoint';
+  var LEGACY_OPENAI_BEARER_STORAGE_KEY = 'win95.openaiBearer';
   var sanitizeModelAlias = core.sanitizeModelAlias || function(text) {
     return String(text || '').toLowerCase().replace(/[^a-z0-9._-]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 48) || 'local-model';
   };
@@ -21,6 +26,12 @@
       else localStorage.setItem(key, value);
     } catch (_) {}
   };
+  var readStoredValue = core.readStoredValue || function(key) {
+    try { return String(localStorage.getItem(key) || '').trim(); } catch (_) { return ''; }
+  };
+  var clearStoredValue = core.clearStoredValue || function(key) {
+    try { localStorage.removeItem(key); } catch (_) {}
+  };
   var getEndpointCandidates = core.getEndpointCandidates || function(primaryEndpoint) {
     var cleaned = String(primaryEndpoint || '').trim().replace(/\/$/, '');
     return cleaned ? [cleaned] : [];
@@ -28,6 +39,84 @@
 
   function sleep(ms) {
     return new Promise(function(resolve) { setTimeout(resolve, ms); });
+  }
+
+  function parseBoolean(value, fallback) {
+    var normalized = String(value == null ? '' : value).trim().toLowerCase();
+    if (!normalized) return fallback;
+    if (['1', 'true', 'yes', 'on'].indexOf(normalized) !== -1) return true;
+    if (['0', 'false', 'no', 'off'].indexOf(normalized) !== -1) return false;
+    return fallback;
+  }
+
+  function getOpenAiFallbackConfig() {
+    var params = new URLSearchParams(window.location.search || '');
+    var sharedCfg = window.WIN95_AI || {};
+    var endpoint = String(
+      params.get('openaiEndpoint')
+      || sharedCfg.openaiEndpoint
+      || readStoredValue(OPENAI_ENDPOINT_STORAGE_KEY)
+      || DEFAULT_OPENAI_ENDPOINT
+    ).trim().replace(/\/$/, '');
+    var model = String(
+      params.get('openaiModel')
+      || sharedCfg.openaiModel
+      || readStoredValue(OPENAI_MODEL_STORAGE_KEY)
+      || DEFAULT_OPENAI_MODEL
+    ).trim();
+    var enabled = parseBoolean(params.get('openaiFallback') || sharedCfg.openaiFallback, true);
+    clearStoredValue(LEGACY_OPENAI_BEARER_STORAGE_KEY);
+    return {
+      enabled: enabled,
+      endpoint: endpoint || DEFAULT_OPENAI_ENDPOINT,
+      model: model || DEFAULT_OPENAI_MODEL
+    };
+  }
+
+  async function queryOpenAiFallback(prompt, systemPrompt) {
+    var cfg = getOpenAiFallbackConfig();
+    if (!cfg.enabled) throw new Error('OpenAI fallback disabled');
+    var endpointList = getEndpointCandidates(cfg.endpoint);
+    var lastError = null;
+
+    for (var i = 0; i < endpointList.length; i += 1) {
+      var endpoint = endpointList[i];
+      try {
+        var abortController = new AbortController();
+        var timeoutId = setTimeout(function() { abortController.abort(); }, 30000);
+        var headers = { 'Content-Type': 'application/json' };
+        var res = await fetch(endpoint + '/v1/chat/completions', {
+          method: 'POST',
+          headers: headers,
+          body: JSON.stringify({
+            model: cfg.model,
+            messages: [
+              { role: 'system', content: String(systemPrompt || '') },
+              { role: 'user', content: String(prompt || '') }
+            ],
+            temperature: 0.8
+          }),
+          signal: abortController.signal
+        });
+        clearTimeout(timeoutId);
+        if (!res.ok) {
+          var details = await res.text().catch(function() { return ''; });
+          throw new Error('OpenAI unavailable (' + res.status + '): ' + (details || res.statusText || 'Unknown error'));
+        }
+        var payload = await res.json().catch(function() { return {}; });
+        var choices = payload && Array.isArray(payload.choices) ? payload.choices : [];
+        var message = choices[0] && choices[0].message ? choices[0].message : null;
+        var text = message && typeof message.content === 'string' ? message.content : '';
+        if (!String(text || '').trim()) throw new Error('OpenAI returned empty response');
+        writeStoredValue(OPENAI_ENDPOINT_STORAGE_KEY, endpoint);
+        writeStoredValue(OPENAI_MODEL_STORAGE_KEY, cfg.model);
+        return String(text).trim();
+      } catch (err) {
+        lastError = err;
+      }
+    }
+
+    throw lastError || new Error('OpenAI fallback request failed');
   }
 
   function setTypingState(controller, msgEl, active) {
@@ -239,7 +328,15 @@
         ? ' Mixed-content block likely: page is HTTPS but Ollama endpoint is HTTP.'
         : '';
     var detail = lastError && lastError.message ? lastError.message : 'Failed to fetch';
-    throw new Error(detail + mixedContentHint);
+    var primaryError = new Error(detail + mixedContentHint);
+    var fallbackCfg = getOpenAiFallbackConfig();
+    if (!fallbackCfg.enabled) throw primaryError;
+    try {
+      return await queryOpenAiFallback(prompt, systemPrompt);
+    } catch (fallbackErr) {
+      var fallbackDetail = fallbackErr && fallbackErr.message ? fallbackErr.message : 'OpenAI fallback failed';
+      throw new Error(primaryError.message + ' | Fallback: ' + fallbackDetail);
+    }
   }
 
   window.BonziChatEngine = {

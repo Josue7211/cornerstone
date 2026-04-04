@@ -155,6 +155,27 @@ function escapeHtml(value) {
     .replace(/"/g, '&quot;');
 }
 
+function escapeJsString(value) {
+  return String(value || '')
+    .replace(/\\/g, '\\\\')
+    .replace(/'/g, '\\\'')
+    .replace(/\r/g, '\\r')
+    .replace(/\n/g, '\\n')
+    .replace(/\u2028/g, '\\u2028')
+    .replace(/\u2029/g, '\\u2029');
+}
+
+function sanitizeArchiveUrl(value) {
+  var raw = String(value || '').trim();
+  if (!raw) return '';
+  if (raw.toLowerCase() === 'about:win98-inside' || raw.toLowerCase() === 'win98 inside win98') return 'about:win98-inside';
+  try {
+    var parsed = new URL(raw, typeof window !== 'undefined' && window.location ? window.location.href : 'https://example.com/');
+    if (parsed.protocol === 'http:' || parsed.protocol === 'https:') return parsed.toString();
+  } catch (_) {}
+  return '';
+}
+
 function buildGoogle1999Doc() {
   return [
     '<!doctype html>',
@@ -332,7 +353,18 @@ function buildYoutube2005Doc() {
     'btn.style.background = "#fff";',
     'btn.style.cursor = "pointer";',
     'btn.style.padding = "8px";',
-    'btn.innerHTML = "<div style=\\"font-size:13px;font-weight:bold;color:#111;\\">"+item.title+"</div><div style=\\"font-size:11px;color:#666;margin-top:3px;\\">"+item.meta+"</div>";',
+    'var titleEl = document.createElement("div");',
+    'titleEl.style.fontSize = "13px";',
+    'titleEl.style.fontWeight = "bold";',
+    'titleEl.style.color = "#111";',
+    'titleEl.textContent = item.title;',
+    'var metaEl = document.createElement("div");',
+    'metaEl.style.fontSize = "11px";',
+    'metaEl.style.color = "#666";',
+    'metaEl.style.marginTop = "3px";',
+    'metaEl.textContent = item.meta;',
+    'btn.appendChild(titleEl);',
+    'btn.appendChild(metaEl);',
     'btn.addEventListener("click", function(){ setActive(idx); player.play().catch(function(){}); });',
     'list.appendChild(btn);',
     '});',
@@ -459,7 +491,7 @@ function buildArchiveSearchResultsDoc(query, engine) {
     return [
       '<div style="margin-bottom:18px;">',
       '<div style="color:#008000;font-size:12px;">Result ' + (index + 1) + ' of ' + matched.length + '</div>',
-      '<a href="#" onclick="parent.Win95IEOpenArchive && parent.Win95IEOpenArchive(\'' + escapeHtml(waybackUrl) + '\'); return false;" style="color:#00c;font-size:20px;text-decoration:underline;">' + escapeHtml(item.title) + '</a>',
+      '<a href="#" onclick="parent.Win95IEOpenArchive && parent.Win95IEOpenArchive(\'' + escapeJsString(waybackUrl) + '\'); return false;" style="color:#00c;font-size:20px;text-decoration:underline;">' + escapeHtml(item.title) + '</a>',
       '<div style="color:#006621;font-size:13px;margin:2px 0 4px;">' + escapeHtml(item.url) + '</div>',
       '<div style="font-size:15px;line-height:1.35;color:#222;">' + escapeHtml(item.snippet) + '</div>',
       '</div>'
@@ -801,9 +833,14 @@ function normalizeArchiveTarget(rawValue) {
     };
   }
   if (raw.indexOf('web.archive.org/web/') !== -1) {
+    if (!/^https?:\/\//i.test(raw)) raw = 'https://' + raw.replace(/^\/+/, '');
+    raw = sanitizeArchiveUrl(raw);
+    if (!raw) return null;
     return { archiveUrl: raw, displayValue: raw, sourceUrl: raw, title: raw };
   }
   if (!/^https?:\/\//i.test(raw)) raw = 'https://' + raw.replace(/^\/+/, '');
+  raw = sanitizeArchiveUrl(raw);
+  if (!raw) return null;
   return {
     archiveUrl: 'https://web.archive.org/web/19991130235959/' + raw,
     displayValue: raw,
@@ -814,6 +851,7 @@ function normalizeArchiveTarget(rawValue) {
     return {
       presets: presets,
       escapeHtml: escapeHtml,
+      escapeJsString: escapeJsString,
       buildGoogle1999Doc: buildGoogle1999Doc,
       buildYahoo1998Doc: buildYahoo1998Doc,
       buildAltaVista1999Doc: buildAltaVista1999Doc,
@@ -826,7 +864,8 @@ function normalizeArchiveTarget(rawValue) {
       parseWaybackTarget: parseWaybackTarget,
       suggestAddressInput: suggestAddressInput,
       resolveArchiveTarget: resolveArchiveTarget,
-      normalizeArchiveTarget: normalizeArchiveTarget
+      normalizeArchiveTarget: normalizeArchiveTarget,
+      sanitizeArchiveUrl: sanitizeArchiveUrl
     };
   }
 

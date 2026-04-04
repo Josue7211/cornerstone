@@ -1,6 +1,6 @@
 # Research Consultations — Project Check-in 2
-**Josue Aparcedo Gonzalez**
-**IDS2891 Cornerstone — Spring 2026**
+**Project Author**
+**IDS2891 Cornerstone — 2026**
 
 ---
 

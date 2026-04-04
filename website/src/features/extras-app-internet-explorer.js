@@ -35,6 +35,25 @@
         .replace(/>/g, '&gt;')
         .replace(/"/g, '&quot;');
     };
+    var escapeJsString = ieData.escapeJsString || function(value) {
+      return String(value || '')
+        .replace(/\\/g, '\\\\')
+        .replace(/'/g, '\\\'')
+        .replace(/\r/g, '\\r')
+        .replace(/\n/g, '\\n')
+        .replace(/\u2028/g, '\\u2028')
+        .replace(/\u2029/g, '\\u2029');
+    };
+    var sanitizeArchiveUrl = ieData.sanitizeArchiveUrl || function(value) {
+      var raw = String(value || '').trim();
+      if (!raw) return '';
+      if (raw.toLowerCase() === 'about:win98-inside' || raw.toLowerCase() === 'win98 inside win98') return 'about:win98-inside';
+      try {
+        var parsed = new URL(raw, window.location && window.location.href ? window.location.href : 'https://example.com/');
+        if (parsed.protocol === 'http:' || parsed.protocol === 'https:') return parsed.toString();
+      } catch (_) {}
+      return '';
+    };
     var buildGoogle1999Doc = ieData.buildGoogle1999Doc || function() { return '<!doctype html><html><body>Google 1999 unavailable.</body></html>'; };
     var buildYahoo1998Doc = ieData.buildYahoo1998Doc || function() { return '<!doctype html><html><body>Yahoo 1998 unavailable.</body></html>'; };
     var buildAltaVista1999Doc = ieData.buildAltaVista1999Doc || function() { return '<!doctype html><html><body>AltaVista 1999 unavailable.</body></html>'; };
@@ -77,9 +96,14 @@
       var raw = String(rawValue || '').trim();
       if (!raw) raw = presets[0].url;
       if (raw.indexOf('web.archive.org/web/') !== -1) {
+        if (!/^https?:\/\//i.test(raw)) raw = 'https://' + raw.replace(/^\/+/, '');
+        raw = sanitizeArchiveUrl(raw);
+        if (!raw) return null;
         return { archiveUrl: raw, displayValue: raw, sourceUrl: raw, title: raw };
       }
       if (!/^https?:\/\//i.test(raw)) raw = 'https://' + raw.replace(/^\/+/, '');
+      raw = sanitizeArchiveUrl(raw);
+      if (!raw) return null;
       return {
         archiveUrl: 'https://web.archive.org/web/19991130235959/' + raw,
         displayValue: raw,
@@ -190,8 +214,8 @@
         var value = escapeHtml(item.displayValue || item.sourceUrl || '');
         var archiveUrl = escapeHtml(item.archiveUrl || '');
         var clickJs = archiveUrl
-          ? "parent.Win95IEOpenArchive && parent.Win95IEOpenArchive('" + archiveUrl + "')"
-          : "parent.Win95IEHandleSearch && parent.Win95IEHandleSearch('" + value + "')";
+          ? "parent.Win95IEOpenArchive && parent.Win95IEOpenArchive('" + escapeJsString(item.archiveUrl || '') + "')"
+          : "parent.Win95IEHandleSearch && parent.Win95IEHandleSearch('" + escapeJsString(item.displayValue || item.sourceUrl || '') + "')";
         return [
           '<div style="padding:10px 0;border-bottom:1px solid #d5d5d5;">',
           '<div style="font-size:12px;color:#666;">#' + (idx + 1) + '</div>',
@@ -217,8 +241,8 @@
         var value = escapeHtml(item.displayValue || item.sourceUrl || '');
         var archiveUrl = escapeHtml(item.archiveUrl || '');
         var clickJs = archiveUrl
-          ? "parent.Win95IEOpenArchive && parent.Win95IEOpenArchive('" + archiveUrl + "')"
-          : "parent.Win95IEHandleSearch && parent.Win95IEHandleSearch('" + value + "')";
+          ? "parent.Win95IEOpenArchive && parent.Win95IEOpenArchive('" + escapeJsString(item.archiveUrl || '') + "')"
+          : "parent.Win95IEHandleSearch && parent.Win95IEHandleSearch('" + escapeJsString(item.displayValue || item.sourceUrl || '') + "')";
         return [
           '<div style="padding:10px 0;border-bottom:1px solid #d5d5d5;">',
           '<div style="font-size:12px;color:#666;">Favorite #' + (idx + 1) + '</div>',
@@ -1174,12 +1198,8 @@
     };
     window[ARCHIVE_HANDLER_NAME] = function(url) {
       if (!url) return;
-      navigateTo({
-        archiveUrl: String(url),
-        displayValue: String(url),
-        sourceUrl: String(url),
-        title: String(url)
-      });
+      var normalized = normalizeArchiveTarget(url);
+      if (normalized) navigateTo(normalized);
     };
 
     backBtn.addEventListener('click', function() {

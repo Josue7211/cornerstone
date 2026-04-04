@@ -1,4 +1,4 @@
-reflection.txt - Josue Aparcedo Gonzalez
+reflection.txt - Project Author
 ========================================
 
 When I started this project, I had a simple question:
@@ -41,4 +41,4 @@ The thesis is not theoretical. It is running right now,
 on consumer hardware, in open-source ecosystems, on
 devices people already own.
 
--- J.A.G., Spring 2026
+-- P.A., 2026

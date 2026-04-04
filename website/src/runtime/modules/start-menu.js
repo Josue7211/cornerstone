@@ -355,7 +355,7 @@ export function createStartMenuController(deps = {}) {
     const footer = document.createElement('div');
     footer.className = 'start-menu-footer';
     const footerSpan = document.createElement('span');
-    footerSpan.textContent = '\u00A9 2026 Josue Aparcedo Gonzalez';
+    footerSpan.textContent = '\u00A9 2026 From Pixels to Intelligence';
     footer.appendChild(footerSpan);
     menu.appendChild(footer);
   

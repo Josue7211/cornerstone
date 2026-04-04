@@ -1,6 +1,6 @@
 # IDS2891 Cornerstone - Assignment 2: Interest Web
-**Josue Aparcedo Gonzalez**
-**Florida SouthWestern State College - Spring 2026**
+**Project Author**
+**the college - 2026**
 
 ---
 

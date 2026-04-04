@@ -2,14 +2,26 @@ export function createAISystem() {
   function getDefaultHostedEndpoint(path) {
     const cleanedPath = String(path || '').replace(/^\/*/, '/');
     if (typeof window === 'undefined' || !window.location || !window.location.origin) return cleanedPath;
+    const host = String(window.location.hostname || '').toLowerCase();
+    const isLoopback = host === 'localhost' || host === '127.0.0.1' || host === '::1';
+    if (isLoopback) {
+      const sharedCfg = window.WIN95_AI || {};
+      const proxyOrigin = String(sharedCfg.proxyOrigin || '').trim().replace(/\/$/, '');
+      if (proxyOrigin) return proxyOrigin + cleanedPath;
+      return 'http://127.0.0.1:3015' + cleanedPath;
+    }
     return window.location.origin.replace(/\/$/, '') + cleanedPath;
   }
   const DEFAULT_OLLAMA_ENDPOINT = getDefaultHostedEndpoint('/api/ollama');
   const DEFAULT_OLLAMA_MODEL = 'qwen3.5:0.8b';
   const DEFAULT_CLIPPY_NUM_CTX = 4096;
   const DEFAULT_TTS_ENDPOINT = getDefaultHostedEndpoint('/api/tts');
+  const DEFAULT_OPENAI_ENDPOINT = getDefaultHostedEndpoint('/api/openai');
+  const DEFAULT_OPENAI_MODEL = 'gpt-4o-mini';
   const OLLAMA_MODEL_STORAGE_KEY = 'bonzi.ollamaModel';
   const OLLAMA_ENDPOINT_STORAGE_KEY = 'bonzi.ollamaEndpoint';
+  const OPENAI_MODEL_STORAGE_KEY = 'win95.openaiModel';
+  const OPENAI_ENDPOINT_STORAGE_KEY = 'win95.openaiEndpoint';
   const TTS_ENDPOINT_STORAGE_KEY = 'win95.ttsEndpoint';
   const TTS_ENGINE_STORAGE_KEY = 'win95.ttsEngine';
   const TTS_BONZI_VOICE_STORAGE_KEY = 'win95.ttsVoiceBonzi';
@@ -578,6 +590,29 @@ export function createAISystem() {
       model: model || DEFAULT_OLLAMA_MODEL
     };
   }
+
+  function getOpenAiFallbackConfig() {
+    const params = new URLSearchParams(window.location.search || '');
+    const sharedCfg = window.WIN95_AI || {};
+    const enabled = parseBooleanConfig(
+      cleanAiConfigValue(params.get('openaiFallback'))
+        || cleanAiConfigValue(sharedCfg.openaiFallback),
+      true
+    );
+    const endpoint = cleanAiConfigValue(params.get('openaiEndpoint'))
+      || cleanAiConfigValue(sharedCfg.openaiEndpoint)
+      || readAiStoredValue(OPENAI_ENDPOINT_STORAGE_KEY)
+      || DEFAULT_OPENAI_ENDPOINT;
+    const model = cleanAiConfigValue(params.get('openaiModel'))
+      || cleanAiConfigValue(sharedCfg.openaiModel)
+      || readAiStoredValue(OPENAI_MODEL_STORAGE_KEY)
+      || DEFAULT_OPENAI_MODEL;
+    return {
+      enabled,
+      endpoint: normalizeHostedEndpoint(endpoint, '/api/openai').replace(/\/$/, ''),
+      model: model || DEFAULT_OPENAI_MODEL
+    };
+  }
   
   async function getLocalAiStatus() {
     const config = getClippyAiConfig();
@@ -627,12 +662,56 @@ export function createAISystem() {
       error: lastError && lastError.message ? lastError.message : 'Unavailable'
     };
   }
-  
-  async function queryClippyOllama(prompt, systemPrompt) {
+
+  async function prewarmLocalModel() {
     const config = getClippyAiConfig();
     const endpoints = getAiEndpointCandidates(config.endpoint);
     let lastError = null;
-  
+
+    for (const endpoint of endpoints) {
+      try {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 8000);
+        const res = await fetch(endpoint + '/api/generate', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            model: config.model,
+            prompt: 'warmup',
+            system: 'System warmup request. Return a short plain text token.',
+            options: {
+              num_ctx: DEFAULT_CLIPPY_NUM_CTX
+            },
+            keep_alive: '20m',
+            stream: false
+          }),
+          signal: controller.signal
+        });
+        clearTimeout(timeoutId);
+
+        if (!res.ok) {
+          const details = await res.text().catch(function () { return ''; });
+          throw new Error('Ollama prewarm failed (' + res.status + '): ' + (details || res.statusText || 'Unknown error'));
+        }
+        await res.json().catch(function () { return {}; });
+        return {
+          ok: true,
+          endpoint: endpoint,
+          model: config.model
+        };
+      } catch (err) {
+        lastError = err;
+      }
+    }
+
+    const detail = lastError && lastError.message ? lastError.message : 'Warmup failed';
+    throw new Error(detail);
+  }
+
+  async function queryClippyLocal(prompt, systemPrompt, config) {
+    const endpoints = getAiEndpointCandidates(config.endpoint);
+    let lastError = null;
+
     for (const endpoint of endpoints) {
       try {
         const controller = new AbortController();
@@ -652,17 +731,17 @@ export function createAISystem() {
           signal: controller.signal
         });
         clearTimeout(timeoutId);
-  
+
         if (!res.ok) {
-          const details = await res.text().catch(function() { return ''; });
+          const details = await res.text().catch(function () { return ''; });
           throw new Error('Ollama unavailable (' + res.status + '): ' + (details || res.statusText || 'Unknown error'));
         }
-  
+
         const reader = res.body.getReader();
         const decoder = new TextDecoder();
         let fullText = '';
         let buffer = '';
-  
+
         while (true) {
           const next = await reader.read();
           if (next.done) {
@@ -685,7 +764,7 @@ export function createAISystem() {
             if (data && data.response) fullText += data.response;
           }
         }
-  
+
         if (buffer.trim()) {
           let tail = null;
           try {
@@ -696,18 +775,19 @@ export function createAISystem() {
           if (tail && tail.error) throw new Error(String(tail.error));
           if (tail && tail.response) fullText += tail.response;
         }
-  
+
         if (!fullText.trim()) throw new Error('Empty response');
         return {
           text: fullText.trim(),
           endpoint: endpoint,
-          model: config.model
+          model: config.model,
+          provider: 'ollama'
         };
       } catch (err) {
         lastError = err;
       }
     }
-  
+
     const mixedContentHint =
       window.location.protocol === 'https:' && String(config.endpoint).startsWith('http://')
         ? ' Mixed-content block likely: page is HTTPS but Ollama endpoint is HTTP.'
@@ -715,11 +795,79 @@ export function createAISystem() {
     const detail = lastError && lastError.message ? lastError.message : 'Failed to fetch';
     throw new Error(detail + mixedContentHint);
   }
+
+  async function queryOpenAiFallback(prompt, systemPrompt, fallbackConfig) {
+    const endpoints = getAiEndpointCandidates(fallbackConfig.endpoint);
+    let lastError = null;
+
+    for (const endpoint of endpoints) {
+      try {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 30000);
+        const headers = { 'Content-Type': 'application/json' };
+        const res = await fetch(endpoint + '/v1/chat/completions', {
+          method: 'POST',
+          headers,
+          body: JSON.stringify({
+            model: fallbackConfig.model || DEFAULT_OPENAI_MODEL,
+            messages: [
+              { role: 'system', content: String(systemPrompt || '') },
+              { role: 'user', content: String(prompt || '') }
+            ],
+            temperature: 0.7
+          }),
+          signal: controller.signal
+        });
+        clearTimeout(timeoutId);
+        if (!res.ok) {
+          const details = await res.text().catch(function () { return ''; });
+          throw new Error('OpenAI unavailable (' + res.status + '): ' + (details || res.statusText || 'Unknown error'));
+        }
+        const payload = await res.json();
+        const choices = Array.isArray(payload && payload.choices) ? payload.choices : [];
+        const message = choices[0] && choices[0].message;
+        const text = message && typeof message.content === 'string' ? message.content : '';
+        if (!text.trim()) throw new Error('OpenAI returned empty response');
+        writeAiStoredValue(OPENAI_ENDPOINT_STORAGE_KEY, endpoint);
+        writeAiStoredValue(OPENAI_MODEL_STORAGE_KEY, fallbackConfig.model || DEFAULT_OPENAI_MODEL);
+        return {
+          text: text.trim(),
+          endpoint: endpoint,
+          model: fallbackConfig.model || DEFAULT_OPENAI_MODEL,
+          provider: 'openai'
+        };
+      } catch (err) {
+        lastError = err;
+      }
+    }
+
+    throw lastError || new Error('OpenAI fallback failed');
+  }
+
+  async function queryClippyOllama(prompt, systemPrompt) {
+    const localConfig = getClippyAiConfig();
+    const fallbackConfig = getOpenAiFallbackConfig();
+
+    try {
+      return await queryClippyLocal(prompt, systemPrompt, localConfig);
+    } catch (localError) {
+      if (!fallbackConfig.enabled) throw localError;
+      try {
+        return await queryOpenAiFallback(prompt, systemPrompt, fallbackConfig);
+      } catch (fallbackError) {
+        const localMsg = localError && localError.message ? localError.message : 'Local model failed';
+        const fallbackMsg = fallbackError && fallbackError.message ? fallbackError.message : 'OpenAI fallback failed';
+        throw new Error(localMsg + ' | Fallback: ' + fallbackMsg);
+      }
+    }
+  }
   
 
   return {
     getClippyAiConfig,
+    getOpenAiFallbackConfig,
     getLocalAiStatus,
-    queryClippyOllama
+    queryClippyOllama,
+    prewarmLocalModel
   };
 }

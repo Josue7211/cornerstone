@@ -94,7 +94,7 @@
     regLabel.appendChild(regLabelSpan);
     info1.appendChild(regLabel);
 
-    ['Josue Aparcedo Gonzalez', 'IDS2891 Cornerstone - FSW College', 'Spring 2026'].forEach(function(t) {
+    ['Project Author', 'Open-source release', 'Open-source release'].forEach(function(t) {
       var row = document.createElement('div');
       row.className = 'sysprops-row indent';
       row.textContent = t;

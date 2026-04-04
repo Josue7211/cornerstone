@@ -64,21 +64,48 @@ export function createSlide08PrepScene({ mode, scene }) {
     },
     enter() {
       if (window.gsap && nodes.length) {
-        gsap.killTweensOf(nodes);
-        gsap.fromTo(
-          nodes,
-          { opacity: 0, y: 18, scale: 0.985, force3D: true },
-          {
-            opacity: 1,
-            y: 0,
-            scale: 1,
-            duration: 0.56,
-            ease: 'power3.out',
-            stagger: 0.05,
-            force3D: true,
-            clearProps: 'transform,opacity'
-          }
-        );
+        const title = scene.querySelector('h2');
+        const note = scene.querySelector('.slide-ending-note');
+        const cards = Array.from(scene.querySelectorAll('.prep-item'));
+        const motionNodes = [title, note, ...cards].filter(Boolean);
+        gsap.killTweensOf(motionNodes);
+
+        if (title) {
+          gsap.fromTo(
+            title,
+            { opacity: 0, y: 16, filter: 'blur(1.2px)', force3D: true },
+            { opacity: 1, y: 0, filter: 'blur(0px)', duration: 0.44, ease: 'power3.out', force3D: true, clearProps: 'transform,opacity,filter' }
+          );
+        }
+        if (note) {
+          gsap.fromTo(
+            note,
+            { opacity: 0, x: 14, y: 6, scale: 0.99, force3D: true },
+            { opacity: 1, x: 0, y: 0, scale: 1, duration: 0.34, ease: 'power2.out', delay: 0.14, force3D: true, clearProps: 'transform,opacity' }
+          );
+        }
+        if (cards.length) {
+          cards.forEach((card, index) => {
+            const drift = index % 2 === 0 ? -1 : 1;
+            const isFinal = index === cards.length - 1;
+            gsap.fromTo(
+              card,
+              { opacity: 0, x: drift * 20, y: 16, scale: 0.975, filter: 'blur(1px)', force3D: true },
+              {
+                opacity: 1,
+                x: 0,
+                y: 0,
+                scale: 1,
+                filter: 'blur(0px)',
+                duration: isFinal ? 0.58 : 0.46,
+                delay: 0.06 + (index * 0.05),
+                ease: isFinal ? 'power3.out' : 'power2.out',
+                force3D: true,
+                clearProps: 'transform,opacity,filter'
+              }
+            );
+          });
+        }
       }
       if (items.length) setActiveItem(0, false);
     },

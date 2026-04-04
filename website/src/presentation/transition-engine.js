@@ -17,6 +17,8 @@ const SIGNATURE_BY_SLIDE = [
 ];
 
 const UNLOCK_BY_STYLE = {
+  push: { min: 0.46, max: 0.72, add: 0.07, resetLead: 0.09, failSafeMs: 960 },
+  trace: { min: 0.36, max: 0.56, add: 0.04, resetLead: 0.06, failSafeMs: 780 },
   warp: { min: 0.48, max: 0.78, add: 0.08, resetLead: 0.09, failSafeMs: 1020 },
   iris: { min: 0.42, max: 0.64, add: 0.04, resetLead: 0.07, failSafeMs: 900 },
   shard: { min: 0.44, max: 0.68, add: 0.05, resetLead: 0.08, failSafeMs: 940 },
@@ -132,6 +134,7 @@ class TransitionEngine {
       m.refs.stageNoise.style.opacity = '0';
     }
     m._resetThreeTransitionState(m._particleShapeForSlide(target));
+    m._setThreeWorld(target, 1);
     if (this.activeContentTl) {
       this.activeContentTl.kill();
       this.activeContentTl = null;
@@ -209,8 +212,9 @@ class TransitionEngine {
     const direction = target > prevIndex ? 1 : -1;
     const signature = SIGNATURE_BY_SLIDE[target] || SIGNATURE_BY_SLIDE[0];
     const style = TRANSITION_STYLE_BY_SLIDE[target] || 'warp';
-    m._setThreeWorld(target, immediate ? 0.95 : 1);
-    const threeDuration = 0;
+    const cinematicThree = style === 'warp' || style === 'push' || style === 'finale' || (prevIndex < 0 && target === 0);
+    m._setThreeWorld(target, cinematicThree ? (immediate ? 0.95 : 1) : 0);
+    const threeDuration = this.runThreeSceneIntro(prevIndex, target, direction, immediate, signature);
     m.lastSlideSwitchAt = performance.now();
     m._playBonziIntro(target);
     if (typeof m.playMidPresentationHeckle === 'function') {
@@ -247,7 +251,7 @@ class TransitionEngine {
       Math.max(
         unlockProfile.min,
         (transitionDuration || 0) + unlockProfile.add,
-        (threeDuration || 0) + 0.12
+        Math.min(unlockProfile.max, (threeDuration || 0) * 0.42 + 0.12)
       )
     );
     const unlockMs = immediate ? 0 : Math.round(computedUnlock * 1000);
@@ -315,54 +319,127 @@ class TransitionEngine {
     const tl = gsap.timeline();
     this.activeContentTl = tl;
     const styleOffsets = {
-      warp: { out: 0.12, in: 0.28, gap: 0.04, intro: 0.08, oldY: -5, newY: 8, oldScale: 0.995, oldXLead: 3, oldXExit: -8, newX: 9 },
-      iris: { out: 0.1, in: 0.24, gap: 0.03, intro: 0.07, oldY: -3, newY: 6, oldScale: 0.997, oldXLead: 2, oldXExit: -6, newX: 8 },
-      shard: { out: 0.11, in: 0.26, gap: 0.04, intro: 0.08, oldY: -4, newY: 7, oldScale: 0.996, oldXLead: 3, oldXExit: -8, newX: 9 },
-      katana: { out: 0.09, in: 0.22, gap: 0.03, intro: 0.06, oldY: -2, newY: 6, oldScale: 0.998, oldXLead: 0, oldXExit: -12, newX: 11 },
-      parallax: { out: 0.11, in: 0.27, gap: 0.04, intro: 0.08, oldY: -4, newY: 7, oldScale: 0.996, oldXLead: 3, oldXExit: -8, newX: 9 },
-      pulse: { out: 0.1, in: 0.25, gap: 0.03, intro: 0.07, oldY: -3, newY: 6, oldScale: 0.997, oldXLead: 2, oldXExit: -6, newX: 8 },
-      scanline: { out: 0.09, in: 0.22, gap: 0.03, intro: 0.06, oldY: -2, newY: 5, oldScale: 0.998, oldXLead: 1, oldXExit: -6, newX: 7 },
-      finale: { out: 0.13, in: 0.3, gap: 0.05, intro: 0.1, oldY: -6, newY: 10, oldScale: 0.994, oldXLead: 4, oldXExit: -10, newX: 12 }
-    }[style] || { out: 0.11, in: 0.26, gap: 0.04, intro: 0.08, oldY: -4, newY: 7, oldScale: 0.996, oldXLead: 3, oldXExit: -8, newX: 9 };
+      push: { out: 0.26, in: 0.44, gap: 0.08, intro: 0.16, oldY: 0, newY: 0, oldScale: 1, oldXLead: 0, oldXExit: 0, newX: 0 },
+      trace: { out: 0.14, in: 0.28, gap: 0.06, intro: 0.1, oldY: 0, newY: 0, oldScale: 1, oldXLead: 0, oldXExit: 0, newX: 0 },
+      warp: { out: 0.22, in: 0.48, gap: 0.1, intro: 0.18, oldY: -3, newY: 6, oldScale: 0.998, oldXLead: 1, oldXExit: -4, newX: 5 },
+      iris: { out: 0.2, in: 0.42, gap: 0.09, intro: 0.14, oldY: -3, newY: 5, oldScale: 0.998, oldXLead: 1, oldXExit: -4, newX: 5 },
+      shard: { out: 0.2, in: 0.44, gap: 0.09, intro: 0.14, oldY: -3, newY: 5, oldScale: 0.998, oldXLead: 1, oldXExit: -4, newX: 5 },
+      katana: { out: 0.16, in: 0.36, gap: 0.06, intro: 0.08, oldY: -1, newY: 3, oldScale: 0.999, oldXLead: 2, oldXExit: -8, newX: 8 },
+      parallax: { out: 0.24, in: 0.5, gap: 0.1, intro: 0.16, oldY: -4, newY: 8, oldScale: 0.997, oldXLead: 2, oldXExit: -5, newX: 8 },
+      pulse: { out: 0.14, in: 0.34, gap: 0.05, intro: 0.1, oldY: -1, newY: 2, oldScale: 1, oldXLead: 0, oldXExit: -2, newX: 2 },
+      scanline: { out: 0.12, in: 0.3, gap: 0.04, intro: 0.08, oldY: 2, newY: -4, oldScale: 1, oldXLead: 0, oldXExit: 1, newX: -1 },
+      finale: { out: 0.24, in: 0.5, gap: 0.1, intro: 0.16, oldY: -4, newY: 7, oldScale: 0.996, oldXLead: 1, oldXExit: -6, newX: 7 }
+    }[style] || { out: 0.2, in: 0.42, gap: 0.09, intro: 0.14, oldY: -3, newY: 5, oldScale: 0.998, oldXLead: 1, oldXExit: -4, newX: 5 };
     const durOut = Math.max(styleOffsets.out, styleOffsets.out * contentMult);
     const durIn = Math.max(styleOffsets.in, styleOffsets.in * contentMult);
+    const outEaseByStyle = {
+      push: 'expo.in',
+      trace: 'power3.in',
+      warp: 'power2.inOut',
+      iris: 'sine.inOut',
+      shard: 'power2.inOut',
+      katana: 'power3.inOut',
+      parallax: 'sine.inOut',
+      pulse: 'power2.inOut',
+      scanline: 'sine.inOut',
+      finale: 'expo.inOut'
+    };
+    const inEaseByStyle = {
+      push: 'expo.out',
+      trace: 'power3.out',
+      warp: 'expo.out',
+      iris: 'power2.out',
+      shard: 'expo.out',
+      katana: 'power3.out',
+      parallax: 'power2.out',
+      pulse: 'power2.out',
+      scanline: 'sine.out',
+      finale: 'expo.out'
+    };
     const nextController = m.sceneControllers[nextIndex];
 
     applyTransitionFlavor(m.refs, tl, style, direction);
 
-    if (oldScene && oldScene !== newScene) {
-      tl.to(
-        oldScene,
-        { x: direction * styleOffsets.oldXLead, duration: 0.05, ease: 'power1.out', force3D: true },
-        0
-      );
-    }
-
-    if (oldScene && oldScene !== newScene) {
+    if (style === 'push') {
+      // Old slide recedes into Z — perspective foreshortening, no X/Y drift
+      if (oldScene && oldScene !== newScene) {
+        tl.fromTo(
+          oldScene,
+          { opacity: 1, z: 0, rotationX: 0, filter: 'blur(0px)', transformPerspective: 1100, force3D: true },
+          { opacity: 0, z: -320, rotationX: 4, filter: 'blur(3px)', duration: durOut, ease: outEaseByStyle.push, force3D: true },
+          0
+        );
+        tl.set(oldScene, { visibility: 'hidden', pointerEvents: 'none' }, durOut + 0.02);
+      }
+      // New slide approaches from depth
       tl.fromTo(
-        oldScene,
-        { opacity: 1, y: 0, scale: 1, force3D: true },
-        { opacity: 0, x: direction * styleOffsets.oldXExit, y: styleOffsets.oldY, scale: styleOffsets.oldScale, duration: durOut, ease: 'power2.out', force3D: true },
-        0.04
+        newScene,
+        { opacity: 0, z: -500, rotationX: -5, filter: 'blur(4px)', transformPerspective: 1100, scale: 0.86, force3D: true },
+        { opacity: 1, z: 0, rotationX: 0, filter: 'blur(0px)', scale: 1, duration: durIn, ease: inEaseByStyle.push, force3D: true, clearProps: 'x,y,z,scale,rotationX,rotationY,rotationZ,filter,transform,transformPerspective' },
+        oldScene && oldScene !== newScene ? styleOffsets.gap : 0
       );
-      tl.set(oldScene, { visibility: 'hidden', pointerEvents: 'none' }, durOut + 0.02);
-    }
+    } else if (style === 'trace') {
+      // Trace wipe: old slides out fast, new slides in fast — the trace line is the visual event
+      if (oldScene && oldScene !== newScene) {
+        tl.fromTo(
+          oldScene,
+          { opacity: 1, x: 0, filter: 'blur(0px)', force3D: true },
+          { opacity: 0, x: -12 * direction, filter: 'blur(1.5px)', duration: durOut, ease: outEaseByStyle.trace, force3D: true },
+          0
+        );
+        tl.set(oldScene, { visibility: 'hidden', pointerEvents: 'none' }, durOut + 0.02);
+      }
+      tl.fromTo(
+        newScene,
+        { opacity: 0, x: 16 * direction, filter: 'blur(1px)', force3D: true },
+        { opacity: 1, x: 0, filter: 'blur(0px)', duration: durIn, ease: inEaseByStyle.trace, force3D: true, clearProps: 'x,y,scale,rotationX,rotationY,rotationZ,skewX,skewY,filter,clipPath,transform' },
+        oldScene && oldScene !== newScene ? styleOffsets.gap : 0
+      );
+    } else {
+      if (oldScene && oldScene !== newScene) {
+        tl.to(
+          oldScene,
+          { x: direction * styleOffsets.oldXLead, duration: 0.08, ease: 'sine.out', force3D: true },
+          0
+        );
+      }
 
-    tl.fromTo(
-      newScene,
-      { opacity: 0, x: direction * styleOffsets.newX, y: styleOffsets.newY, scale: 1.004, force3D: true },
-      {
-        opacity: 1,
-        x: 0,
-        y: 0,
-        scale: 1,
-        duration: durIn,
-        ease: 'power3.out',
-        force3D: true,
-        clearProps: 'x,y,scale,rotationX,rotationY,rotationZ,skewX,skewY,filter,clipPath,transform'
-      },
-      oldScene && oldScene !== newScene ? styleOffsets.gap : 0
-    );
+      if (oldScene && oldScene !== newScene) {
+        tl.fromTo(
+          oldScene,
+          { opacity: 1, y: 0, scale: 1, filter: 'blur(0px)', force3D: true },
+          {
+            opacity: 0,
+            x: direction * styleOffsets.oldXExit,
+            y: styleOffsets.oldY,
+            scale: styleOffsets.oldScale,
+            filter: 'blur(2px)',
+            duration: durOut,
+            ease: outEaseByStyle[style] || 'power2.inOut',
+            force3D: true
+          },
+          0.04
+        );
+        tl.set(oldScene, { visibility: 'hidden', pointerEvents: 'none' }, durOut + 0.02);
+      }
+
+      tl.fromTo(
+        newScene,
+        { opacity: 0, x: direction * styleOffsets.newX, y: styleOffsets.newY, scale: 1.005, filter: 'blur(1.5px)', force3D: true },
+        {
+          opacity: 1,
+          x: 0,
+          y: 0,
+          scale: 1,
+          filter: 'blur(0px)',
+          duration: durIn,
+          ease: inEaseByStyle[style] || 'expo.out',
+          force3D: true,
+          clearProps: 'x,y,scale,rotationX,rotationY,rotationZ,skewX,skewY,filter,clipPath,transform'
+        },
+        oldScene && oldScene !== newScene ? styleOffsets.gap : 0
+      );
+    }
 
     const introTl = this.animateSceneContentIn(newScene, nextIndex, direction, false, sig);
     this._scheduleSceneEnter(nextController, oldScene && oldScene !== newScene ? styleOffsets.intro : 0.08, tl);
@@ -470,9 +547,9 @@ class TransitionEngine {
     const sig = signature || SIGNATURE_BY_SLIDE[index] || SIGNATURE_BY_SLIDE[0];
     const contentMult = sig.content || 1;
     const { fromVars, toVars } = buildContentMotion(style, direction);
-    toVars.duration = Math.max(0.34, Math.min(0.46, (toVars.duration || 0.5) * contentMult * 0.9));
+    toVars.duration = Math.max(0.4, Math.min(0.62, (toVars.duration || 0.5) * contentMult * 0.92));
     if (toVars.stagger && typeof toVars.stagger.each === 'number') {
-      toVars.stagger = { ...toVars.stagger, each: Math.min(0.032, toVars.stagger.each * Math.max(0.84, contentMult * 0.82)) };
+      toVars.stagger = { ...toVars.stagger, each: Math.min(0.038, toVars.stagger.each * Math.max(0.88, contentMult * 0.86)) };
     }
 
     gsap.set(animated, { opacity: 1, force3D: true, clearProps: 'x,y,scale,rotation,rotationX,rotationY,filter,skewX,transform' });
@@ -504,24 +581,28 @@ class TransitionEngine {
     const tl = gsap.timeline();
     if (m.overlay) {
       m.overlay.classList.add('pfs-hyperspace-active');
-      tl.to(m.overlay, { duration: 0.01, onComplete: () => m.overlay.classList.remove('pfs-hyperspace-active') }, isFirstEntry ? 0.56 : 0.42);
+      const hyperspaceHold = isFirstEntry ? 0.94 : (style === 'warp' || style === 'finale' ? 0.78 : 0.66);
+      tl.to(m.overlay, { duration: 0.01, onComplete: () => m.overlay.classList.remove('pfs-hyperspace-active') }, hyperspaceHold);
     }
     applyTransitionFlavor(m.refs, tl, style, direction, { nextIndex, prevIndex, mode });
 
     const styleTuning = {
-      iris: { camPunch: 1.0, camDuration: 1.04, portalSpin: 0.94, haloSpin: 0.86, flash: 0.92 },
-      warp: { camPunch: 1.54, camDuration: 1.34, portalSpin: 1.35, haloSpin: 1.12, flash: 1.3 },
-      katana: { camPunch: 0.95, camDuration: 1.02, portalSpin: 1.62, haloSpin: 1.34, flash: 1.0 },
-      shard: { camPunch: 1.08, camDuration: 1.08, portalSpin: 1.32, haloSpin: 1.14, flash: 1.08 },
-      parallax: { camPunch: 1.0, camDuration: 1.02, portalSpin: 1.08, haloSpin: 0.9, flash: 0.92 },
-      pulse: { camPunch: 0.9, camDuration: 0.96, portalSpin: 1.12, haloSpin: 1.0, flash: 1.02 },
-      scanline: { camPunch: 0.84, camDuration: 0.94, portalSpin: 1.0, haloSpin: 0.92, flash: 0.92 },
-      finale: { camPunch: 1.85, camDuration: 1.5, portalSpin: 2.02, haloSpin: 1.68, flash: 1.5 }
+      push: { camPunch: 1.0, camDuration: 1.18, portalSpin: 0.88, haloSpin: 0.76, flash: 0.82 },
+      trace: { camPunch: 0.78, camDuration: 0.96, portalSpin: 1.1, haloSpin: 0.94, flash: 0.9 },
+      iris: { camPunch: 0.9, camDuration: 1.12, portalSpin: 0.86, haloSpin: 0.78, flash: 0.84 },
+      warp: { camPunch: 1.08, camDuration: 1.28, portalSpin: 0.92, haloSpin: 0.8, flash: 0.72 },
+      katana: { camPunch: 0.84, camDuration: 1.1, portalSpin: 1.36, haloSpin: 1.12, flash: 0.9 },
+      shard: { camPunch: 0.96, camDuration: 1.16, portalSpin: 1.14, haloSpin: 1.0, flash: 0.94 },
+      parallax: { camPunch: 0.88, camDuration: 1.1, portalSpin: 0.96, haloSpin: 0.82, flash: 0.84 },
+      pulse: { camPunch: 0.8, camDuration: 1.04, portalSpin: 0.98, haloSpin: 0.88, flash: 0.88 },
+      scanline: { camPunch: 0.76, camDuration: 1.0, portalSpin: 0.9, haloSpin: 0.84, flash: 0.84 },
+      finale: { camPunch: 0.92, camDuration: 1.22, portalSpin: 0.74, haloSpin: 0.62, flash: 0.48 }
     };
     const tune = styleTuning[style] || { camPunch: 0.52, camDuration: 0.58, portalSpin: 0.72, haloSpin: 0.62, flash: 0.68 };
 
     // Prevent tween overlap from previous transitions.
     gsap.killTweensOf(camera.position);
+    gsap.killTweensOf(camera);
     gsap.killTweensOf(portal.rotation);
     gsap.killTweensOf(portalHalo.rotation);
     gsap.killTweensOf(portal.scale);
@@ -530,11 +611,23 @@ class TransitionEngine {
     const baseCamX = camera.position.x;
     const baseCamY = camera.position.y;
     const baseCamZ = camera.position.z;
+    const baseFov = camera.fov;
+    const cinematicThree = isFirstEntry || style === 'warp' || style === 'finale';
 
     // Anticipation beat before impact to avoid snap/teleport feel.
     tl.to(
       camera.position,
-      { z: baseCamZ + 0.18, x: baseCamX - (0.04 * direction), y: baseCamY + 0.03, duration: 0.14 * threeMult, ease: 'power2.out' },
+      { z: baseCamZ + 0.14, x: baseCamX - (0.03 * direction), y: baseCamY + 0.02, duration: 0.16 * threeMult, ease: 'sine.out' },
+      0
+    );
+    tl.to(
+      camera,
+      {
+        fov: baseFov + (isFirstEntry ? 7.5 : 5.2),
+        duration: 0.22 * threeMult,
+        ease: 'power2.out',
+        onUpdate: () => camera.updateProjectionMatrix()
+      },
       0
     );
     const anticipScale = style === 'iris' ? 0.98 : 0.94;
@@ -550,20 +643,30 @@ class TransitionEngine {
     tl.to(
       camera.position,
       {
-        z: baseCamZ + (isFirstEntry ? 1.2 : tune.camPunch),
-        x: baseCamX - ((isFirstEntry ? 0.24 : 0.18) * direction),
-        y: baseCamY + 0.08,
-        duration: 0.18 * threeMult,
-        ease: 'power2.out'
+        z: baseCamZ + (isFirstEntry ? 0.8 : tune.camPunch),
+        x: baseCamX - ((isFirstEntry ? 0.16 : 0.18) * direction),
+        y: baseCamY + 0.06,
+        duration: 0.22 * threeMult,
+        ease: 'sine.out'
       },
       0.12 * threeMult
     );
     tl.to(
       camera.position,
-      { z: baseCamZ, x: baseCamX, y: baseCamY, duration: (isFirstEntry ? 1.5 : tune.camDuration) * threeMult, ease: 'expo.out' },
-      0.28 * threeMult
+      { z: baseCamZ, x: baseCamX, y: baseCamY, duration: (isFirstEntry ? 1.72 : tune.camDuration) * threeMult, ease: 'sine.out' },
+      0.3 * threeMult
     );
-    tl.to(camera.position, { x: baseCamX + (0.08 * direction), duration: 0.2 * threeMult, yoyo: true, repeat: 2, ease: 'power1.inOut' }, 0.34 * threeMult);
+    tl.to(
+      camera,
+      {
+        fov: baseFov,
+        duration: (isFirstEntry ? 1.2 : 1.0) * threeMult,
+        ease: 'power2.out',
+        onUpdate: () => camera.updateProjectionMatrix()
+      },
+      0.3 * threeMult
+    );
+    tl.to(camera.position, { x: baseCamX + (0.02 * direction), duration: 0.2 * threeMult, yoyo: true, repeat: 1, ease: 'sine.inOut' }, 0.38 * threeMult);
     tl.fromTo(
       portal.rotation,
       { z: portal.rotation.z - (tune.portalSpin * direction) },
@@ -576,49 +679,53 @@ class TransitionEngine {
       { z: portalHalo.rotation.z, duration: 1.14 * threeMult, ease: 'power3.out' },
       0.05
     );
-    const pulsePeak =
-      mode === 'finale' ? 1.0
-      : mode === 'connections' ? 0.9
-      : mode === 'implications' ? 0.88
-      : mode === 'research' ? 0.86
-      : 0.82;
-    tl.fromTo(portal.material, { opacity: pulsePeak * tune.flash }, { opacity: 0, duration: (isFirstEntry ? 1.22 : 0.98) * threeMult, ease: 'power2.out' }, 0);
-    tl.fromTo(portalHalo.material, { opacity: pulsePeak * 0.62 * tune.flash }, { opacity: 0, duration: (isFirstEntry ? 1.22 : 1.0) * threeMult, ease: 'power2.out' }, 0.06);
-    if (renderer && renderer.domElement) {
-      tl.fromTo(renderer.domElement, { opacity: 0 }, { opacity: 1, duration: 0.14 * threeMult, ease: 'power2.in' }, 0);
-      tl.to(renderer.domElement, { opacity: 0, duration: (isFirstEntry ? 0.86 : 0.74) * threeMult, ease: 'expo.out' }, (isFirstEntry ? 0.62 : 0.54) * threeMult);
+    if (cinematicThree) {
+      const pulsePeak =
+        isFirstEntry ? 0.58
+        : mode === 'finale' ? 0.42
+        : 0.82;
+      tl.fromTo(portal.material, { opacity: pulsePeak * tune.flash }, { opacity: 0, duration: (isFirstEntry ? 1.22 : 0.98) * threeMult, ease: 'power2.out' }, 0);
+      tl.fromTo(portalHalo.material, { opacity: pulsePeak * 0.62 * tune.flash }, { opacity: 0, duration: (isFirstEntry ? 1.22 : 1.0) * threeMult, ease: 'power2.out' }, 0.06);
+      if (renderer && renderer.domElement) {
+        tl.fromTo(renderer.domElement, { opacity: 0 }, { opacity: 0.92, duration: 0.22 * threeMult, ease: 'power2.in' }, 0);
+        tl.to(
+          renderer.domElement,
+          { opacity: 0, duration: (isFirstEntry ? 0.76 : 0.8) * threeMult, ease: 'sine.out' },
+          (isFirstEntry ? 1.02 : 0.84) * threeMult
+        );
+      }
+    } else if (renderer && renderer.domElement) {
+      portal.visible = false;
+      portalHalo.visible = false;
+      tl.set(renderer.domElement, { opacity: 0 }, 0);
+      tl.set(portal.material, { opacity: 0 }, 0);
+      tl.set(portalHalo.material, { opacity: 0 }, 0);
     }
 
     m._startParticleMorph(nextIndex, style, tl);
-    if (m.shipRoot && (style === 'warp' || style === 'finale')) {
-      m.shipRoot.visible = true;
-      m.shipRoot.position.set(0.5 * direction, -0.2, -7.2);
-      m.shipRoot.rotation.set(0.1, Math.PI + (0.22 * direction), 0.04 * direction);
-      m.shipRoot.scale.set(0.85, 0.85, 0.85);
-      tl.to(m.shipRoot.position, { x: 0.05 * direction, y: -0.1, z: -4.8, duration: isFirstEntry ? 0.9 : 0.72, ease: 'expo.out' }, 0.02);
-      tl.to(m.shipRoot.rotation, { x: -0.04, y: Math.PI + (0.04 * direction), z: -0.02 * direction, duration: isFirstEntry ? 0.9 : 0.72, ease: 'expo.out' }, 0.02);
-      tl.to(m.shipRoot.scale, { x: 0.24, y: 0.24, z: 0.24, duration: 0.56, ease: 'power3.in' }, isFirstEntry ? 0.92 : 0.82);
-      tl.set(m.shipRoot, { visible: false }, isFirstEntry ? 1.52 : 1.34);
-    }
+    // Ship is reserved for ESC exit warp only.
+    if (m.shipRoot) m.shipRoot.visible = false;
 
     if (mode === 'chip') {
-      tl.fromTo(chipGroup.position, { x: chipGroup.position.x - 1.0, y: chipGroup.position.y - 0.18 }, { x: chipGroup.position.x, y: chipGroup.position.y, duration: 0.62, ease: 'expo.out' }, 0.04);
-      tl.fromTo(chipGroup.rotation, { y: chipGroup.rotation.y - 1.0 }, { y: chipGroup.rotation.y, duration: 0.68, ease: 'power3.out' }, 0.04);
+      tl.fromTo(chipGroup.scale, { x: 0.86, y: 0.86, z: 0.86 }, { x: 1, y: 1, z: 1, duration: 0.62, ease: 'power2.out' }, 0.04);
+      tl.fromTo(chipGroup.rotation, { y: chipGroup.rotation.y - 0.38 }, { y: chipGroup.rotation.y, duration: 0.68, ease: 'power2.out' }, 0.04);
     } else if (mode === 'research') {
-      tl.fromTo(researchGroup.rotation, { y: researchGroup.rotation.y + 1.2, x: -0.24 }, { y: researchGroup.rotation.y, x: 0, duration: 0.72, ease: 'expo.out' }, 0.02);
-      tl.fromTo(researchGroup.position, { y: researchGroup.position.y + 0.45 }, { y: researchGroup.position.y, duration: 0.62, ease: 'power3.out' }, 0.04);
+      tl.fromTo(researchGroup.scale, { x: 0.86, y: 0.86, z: 0.86 }, { x: 1, y: 1, z: 1, duration: 0.64, ease: 'power2.out' }, 0.03);
+      tl.fromTo(researchGroup.rotation, { y: researchGroup.rotation.y + 0.42 }, { y: researchGroup.rotation.y, duration: 0.7, ease: 'power2.out' }, 0.03);
     } else if (mode === 'connections') {
-      tl.fromTo(connectionsGroup.rotation, { y: connectionsGroup.rotation.y + (Math.PI * 0.5 * direction) }, { y: connectionsGroup.rotation.y, duration: 0.72, ease: 'expo.out' }, 0.03);
-      tl.fromTo(connectionsGroup.position, { y: connectionsGroup.position.y - 0.4 }, { y: connectionsGroup.position.y, duration: 0.62, ease: 'power3.out' }, 0.03);
+      tl.fromTo(connectionsGroup.scale, { x: 0.84, y: 0.84, z: 0.84 }, { x: 1, y: 1, z: 1, duration: 0.66, ease: 'power2.out' }, 0.03);
+      tl.fromTo(connectionsGroup.rotation, { y: connectionsGroup.rotation.y + (Math.PI * 0.24 * direction) }, { y: connectionsGroup.rotation.y, duration: 0.72, ease: 'power2.out' }, 0.03);
     } else if (mode === 'implications') {
-      tl.fromTo(implicationsGroup.position, { y: implicationsGroup.position.y + 0.62 }, { y: implicationsGroup.position.y, duration: 0.68, ease: 'expo.out' }, 0.03);
-      tl.fromTo(implicationsGroup.rotation, { y: implicationsGroup.rotation.y - 0.45 }, { y: implicationsGroup.rotation.y, duration: 0.62, ease: 'power3.out' }, 0.03);
+      tl.fromTo(implicationsGroup.scale, { x: 0.86, y: 0.86, z: 0.86 }, { x: 1, y: 1, z: 1, duration: 0.64, ease: 'power2.out' }, 0.03);
+      tl.fromTo(implicationsGroup.rotation, { y: implicationsGroup.rotation.y - 0.22 }, { y: implicationsGroup.rotation.y, duration: 0.68, ease: 'power2.out' }, 0.03);
     } else if (mode === 'finale') {
-      tl.fromTo(finaleGroup.scale, { x: 0.4, y: 0.4, z: 0.4 }, { x: 1, y: 1, z: 1, duration: 0.65, ease: 'expo.out' }, 0.02);
-      tl.fromTo(finaleGroup.rotation, { y: finaleGroup.rotation.y - Math.PI * 0.8 }, { y: finaleGroup.rotation.y, duration: 0.78, ease: 'power3.out' }, 0.02);
+      tl.fromTo(finaleGroup.scale, { x: 0.8, y: 0.8, z: 0.8 }, { x: 1, y: 1, z: 1, duration: 0.72, ease: 'power2.out' }, 0.03);
+      tl.fromTo(finaleGroup.rotation, { y: finaleGroup.rotation.y - Math.PI * 0.22 }, { y: finaleGroup.rotation.y, duration: 0.74, ease: 'power2.out' }, 0.03);
     }
 
     tl.call(() => {
+      camera.fov = baseFov;
+      camera.updateProjectionMatrix();
       m._resetThreeTransitionState(m._particleShapeForSlide(nextIndex));
       m.initialIntroPlayed = true;
     });

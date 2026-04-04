@@ -1,6 +1,6 @@
 # Revision and Reflection
-**Josue Aparcedo Gonzalez**
-**IDS2891 Cornerstone — Spring 2026**
+**Project Author**
+**IDS2891 Cornerstone — 2026**
 
 ---
 
@@ -10,7 +10,7 @@ The cloud-first era of artificial intelligence is a temporary phase in computing
 
 I did not start there. I started with a much narrower question: how did a chip designed to render video game graphics end up running the world's artificial intelligence? That question felt technical, bounded, and manageable. The research that followed proved me wrong on all three counts.
 
-The thesis emerged from a collision between academic research and personal experience. Background work through the FSW Libraries — especially Jouppi et al.'s (2017) landmark paper on Google's Tensor Processing Unit — gave me the technical foundation. But it was hands-on experience building my own desktop PC with an NVIDIA RTX 4070 Ti SUPER and running AI models locally through Ollama that transformed the thesis from academic to something I actually believed. I was not reading about democratization from a distance. I was living it. The research expanded outward from there — from pure hardware analysis into the psychology of why people trust cloud services over local ones, the geopolitics of U.S.-China semiconductor export controls, the economics of the AI chip market, and the long trajectory toward artificial general intelligence. The thesis grew to fit the evidence: the cloud-first moment is not permanent, and the hardware proving that is already in people's homes (Jouppi et al., 2017; Data Center Knowledge, 2025; CRV Science, 2024).
+The thesis emerged from a collision between academic research and personal experience. Background work through the the college Libraries — especially Jouppi et al.'s (2017) landmark paper on Google's Tensor Processing Unit — gave me the technical foundation. But it was hands-on experience building my own desktop PC with an NVIDIA RTX 4070 Ti SUPER and running AI models locally through Ollama that transformed the thesis from academic to something I actually believed. I was not reading about democratization from a distance. I was living it. The research expanded outward from there — from pure hardware analysis into the psychology of why people trust cloud services over local ones, the geopolitics of U.S.-China semiconductor export controls, the economics of the AI chip market, and the long trajectory toward artificial general intelligence. The thesis grew to fit the evidence: the cloud-first moment is not permanent, and the hardware proving that is already in people's homes (Jouppi et al., 2017; Data Center Knowledge, 2025; CRV Science, 2024).
 
 ---
 

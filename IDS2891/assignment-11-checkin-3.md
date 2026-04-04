@@ -1,6 +1,6 @@
 # Project Check-in 3
-**Josue Aparcedo Gonzalez**
-**IDS2891 Cornerstone — Spring 2026**
+**Project Author**
+**IDS2891 Cornerstone — 2026**
 
 ---
 
@@ -13,7 +13,7 @@ How has the GPU architecture evolved from a graphics rendering device to an AI a
 This project traces AI hardware architecture from the introduction of the first GPU (NVIDIA GeForce 256, 1999) through the development of CUDA (2007), tensor cores (2017), and dedicated AI accelerators like Google's TPU and Apple's Neural Engine, concluding with an analysis of where specialized hardware is headed. The genre is a multimodal interactive website combining visual architecture schematics, animated data-flow comparisons, and a timeline-based narrative. A concise research paper accompanies the website to synthesize findings in written form. The research boundaries are defined by hardware architecture — I am not investigating AI algorithms, software frameworks, or specific AI applications, but rather the physical silicon and design choices that enable them.
 
 ### Background Research
-Background research has been conducted using FSW library databases (Credo Reference, ACM Digital Library), Google Scholar, and industry sources. Key findings include: NVIDIA's CUDA platform was the pivotal technology that made GPUs programmable for general-purpose computing (CRV Science, 2024); Google's TPU uses a systolic array architecture fundamentally different from both CPUs and GPUs, achieving 15–30x better performance per watt on neural network inference (Jouppi et al., 2017); NPUs represent a third architectural category optimized for energy-efficient on-device AI inference (IBM, 2024); and the AI chip market is projected to reach $164 billion by 2029 (UST, 2024). Additional sources include NVIDIA technical blogs tracing GPU architecture from Fermi through Blackwell (Bitdeer, 2024) and academic surveys comparing TPU performance across AI workloads (Sanmartín & Prohaska, 2023).
+Background research has been conducted using the college library databases (Credo Reference, ACM Digital Library), Google Scholar, and industry sources. Key findings include: NVIDIA's CUDA platform was the pivotal technology that made GPUs programmable for general-purpose computing (CRV Science, 2024); Google's TPU uses a systolic array architecture fundamentally different from both CPUs and GPUs, achieving 15–30x better performance per watt on neural network inference (Jouppi et al., 2017); NPUs represent a third architectural category optimized for energy-efficient on-device AI inference (IBM, 2024); and the AI chip market is projected to reach $164 billion by 2029 (UST, 2024). Additional sources include NVIDIA technical blogs tracing GPU architecture from Fermi through Blackwell (Bitdeer, 2024) and academic surveys comparing TPU performance across AI workloads (Sanmartín & Prohaska, 2023).
 
 ---
 
@@ -41,7 +41,7 @@ My audience — college students and tech-curious individuals — interacts with
 ## Research Process and Plan
 
 ### Initial Research Steps
-1. Search FSW library databases (ACM Digital Library, IEEE Xplore) for peer-reviewed papers on GPU architecture evolution and AI accelerator design
+1. Search the college library databases (ACM Digital Library, IEEE Xplore) for peer-reviewed papers on GPU architecture evolution and AI accelerator design
 2. Access NVIDIA technical blogs and whitepapers for primary-source architectural documentation
 3. Use Google Scholar to find survey papers comparing CPU, GPU, TPU, and NPU architectures
 4. Review industry analyst reports on AI chip market trends and projections

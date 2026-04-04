@@ -495,7 +495,7 @@
       }
     }
 
-    function showPreview(item) {
+  function showPreview(item) {
       preview.classList.add('active');
       if (!item) {
         preview.textContent = 'Select a file to preview. Double-click to open.';
@@ -516,7 +516,25 @@
       }
       var ext = String(item.name || '').split('.').pop().toLowerCase();
       if (['png', 'jpg', 'jpeg', 'gif', 'webp'].indexOf(ext) !== -1 && item.url) {
-        preview.innerHTML = '<div>Image preview: ' + item.name + '</div><img src="' + item.url + '" alt="' + item.name + '" style="margin-top:6px;max-width:100%;max-height:180px;object-fit:contain;">';
+        var safeUrl = '';
+        try {
+          var parsed = new URL(String(item.url || ''), window.location && window.location.href ? window.location.href : 'https://example.com/');
+          if (parsed.protocol === 'http:' || parsed.protocol === 'https:' || parsed.protocol === 'blob:') {
+            safeUrl = parsed.toString();
+          }
+        } catch (_) {}
+        preview.textContent = '';
+        var label = document.createElement('div');
+        label.textContent = 'Image preview: ' + item.name;
+        var img = document.createElement('img');
+        img.src = safeUrl || 'about:blank';
+        img.alt = String(item.name || 'Image preview');
+        img.style.marginTop = '6px';
+        img.style.maxWidth = '100%';
+        img.style.maxHeight = '180px';
+        img.style.objectFit = 'contain';
+        preview.appendChild(label);
+        preview.appendChild(img);
         return;
       }
       if (['mp3', 'wav', 'ogg'].indexOf(ext) !== -1) {
@@ -576,25 +594,50 @@
       activePropertiesDialog = null;
     }
 
+    function appendDialogRow(parent, text) {
+      var row = document.createElement('div');
+      row.className = 'explorer-modal-row';
+      row.textContent = text == null ? '' : String(text);
+      parent.appendChild(row);
+      return row;
+    }
+
     function showConfirmDialog(title, message, onConfirm) {
       closePropertiesDialog();
       var overlay = document.createElement('div');
       overlay.className = 'explorer-modal-overlay';
       var modal = document.createElement('div');
       modal.className = 'explorer-modal';
-      modal.innerHTML = [
-        '<div class="explorer-modal-titlebar"><span>' + title + '</span></div>',
-        '<div class="explorer-modal-body"><div class="explorer-modal-row">' + message + '</div></div>',
-        '<div class="explorer-modal-actions">',
-        '<button type="button" class="explorer-modal-ok">Yes</button>',
-        '<button type="button" class="explorer-modal-ok explorer-modal-cancel">No</button>',
-        '</div>'
-      ].join('');
+
+      var titlebar = document.createElement('div');
+      titlebar.className = 'explorer-modal-titlebar';
+      var titleSpan = document.createElement('span');
+      titleSpan.textContent = String(title || '');
+      titlebar.appendChild(titleSpan);
+      modal.appendChild(titlebar);
+
+      var body = document.createElement('div');
+      body.className = 'explorer-modal-body';
+      appendDialogRow(body, message);
+      modal.appendChild(body);
+
+      var actions = document.createElement('div');
+      actions.className = 'explorer-modal-actions';
+      var yesBtn = document.createElement('button');
+      yesBtn.type = 'button';
+      yesBtn.className = 'explorer-modal-ok';
+      yesBtn.textContent = 'Yes';
+      var noBtn = document.createElement('button');
+      noBtn.type = 'button';
+      noBtn.className = 'explorer-modal-ok explorer-modal-cancel';
+      noBtn.textContent = 'No';
+      actions.appendChild(yesBtn);
+      actions.appendChild(noBtn);
+      modal.appendChild(actions);
+
       overlay.appendChild(modal);
       container.appendChild(overlay);
       activePropertiesDialog = overlay;
-      var yesBtn = modal.querySelector('.explorer-modal-ok');
-      var noBtn = modal.querySelector('.explorer-modal-cancel');
       function close() { closePropertiesDialog(); }
       if (yesBtn) yesBtn.addEventListener('click', function() {
         close();
@@ -613,23 +656,41 @@
       overlay.className = 'explorer-modal-overlay';
       var modal = document.createElement('div');
       modal.className = 'explorer-modal';
-      modal.innerHTML = [
-        '<div class="explorer-modal-titlebar"><span>' + title + '</span></div>',
-        '<div class="explorer-modal-body">',
-        '<div class="explorer-modal-row">' + label + '</div>',
-        '<input type="text" class="explorer-modal-input" value="' + String(initialValue || '').replace(/"/g, '&quot;') + '">',
-        '</div>',
-        '<div class="explorer-modal-actions">',
-        '<button type="button" class="explorer-modal-ok">OK</button>',
-        '<button type="button" class="explorer-modal-ok explorer-modal-cancel">Cancel</button>',
-        '</div>'
-      ].join('');
+
+      var titlebar = document.createElement('div');
+      titlebar.className = 'explorer-modal-titlebar';
+      var titleSpan = document.createElement('span');
+      titleSpan.textContent = String(title || '');
+      titlebar.appendChild(titleSpan);
+      modal.appendChild(titlebar);
+
+      var body = document.createElement('div');
+      body.className = 'explorer-modal-body';
+      appendDialogRow(body, label);
+      var input = document.createElement('input');
+      input.type = 'text';
+      input.className = 'explorer-modal-input';
+      input.value = String(initialValue || '');
+      body.appendChild(input);
+      modal.appendChild(body);
+
+      var actions = document.createElement('div');
+      actions.className = 'explorer-modal-actions';
+      var okBtn = document.createElement('button');
+      okBtn.type = 'button';
+      okBtn.className = 'explorer-modal-ok';
+      okBtn.textContent = 'OK';
+      var cancelBtn = document.createElement('button');
+      cancelBtn.type = 'button';
+      cancelBtn.className = 'explorer-modal-ok explorer-modal-cancel';
+      cancelBtn.textContent = 'Cancel';
+      actions.appendChild(okBtn);
+      actions.appendChild(cancelBtn);
+      modal.appendChild(actions);
+
       overlay.appendChild(modal);
       container.appendChild(overlay);
       activePropertiesDialog = overlay;
-      var input = modal.querySelector('.explorer-modal-input');
-      var okBtn = modal.querySelector('.explorer-modal-ok');
-      var cancelBtn = modal.querySelector('.explorer-modal-cancel');
       function close() { closePropertiesDialog(); }
       function submit() {
         var value = String(input && input.value || '').trim();
@@ -663,21 +724,38 @@
       overlay.className = 'explorer-modal-overlay';
       var modal = document.createElement('div');
       modal.className = 'explorer-modal';
-      modal.innerHTML = [
-        '<div class="explorer-modal-titlebar"><span>Properties</span></div>',
-        '<div class="explorer-modal-body">',
-        '<div class="explorer-modal-name">' + item.name + '</div>',
-        '<div class="explorer-modal-row"><strong>Path:</strong> ' + fullPath + '</div>',
-        '<div class="explorer-modal-row"><strong>Type:</strong> ' + typeText + '</div>',
-        '<div class="explorer-modal-row"><strong>Size:</strong> ' + sizeText + '</div>',
-        '<div class="explorer-modal-row"><strong>Modified:</strong> ' + modifiedText + '</div>',
-        '</div>',
-        '<div class="explorer-modal-actions"><button type="button" class="explorer-modal-ok">OK</button></div>'
-      ].join('');
+
+      var titlebar = document.createElement('div');
+      titlebar.className = 'explorer-modal-titlebar';
+      var titleSpan = document.createElement('span');
+      titleSpan.textContent = 'Properties';
+      titlebar.appendChild(titleSpan);
+      modal.appendChild(titlebar);
+
+      var body = document.createElement('div');
+      body.className = 'explorer-modal-body';
+      var nameRow = document.createElement('div');
+      nameRow.className = 'explorer-modal-name';
+      nameRow.textContent = String(item.name || '');
+      body.appendChild(nameRow);
+      appendDialogRow(body, 'Path: ' + fullPath);
+      appendDialogRow(body, 'Type: ' + typeText);
+      appendDialogRow(body, 'Size: ' + sizeText);
+      appendDialogRow(body, 'Modified: ' + modifiedText);
+      modal.appendChild(body);
+
+      var actions = document.createElement('div');
+      actions.className = 'explorer-modal-actions';
+      var okBtn = document.createElement('button');
+      okBtn.type = 'button';
+      okBtn.className = 'explorer-modal-ok';
+      okBtn.textContent = 'OK';
+      actions.appendChild(okBtn);
+      modal.appendChild(actions);
+
       overlay.appendChild(modal);
       container.appendChild(overlay);
       activePropertiesDialog = overlay;
-      var okBtn = modal.querySelector('.explorer-modal-ok');
       if (okBtn) {
         okBtn.addEventListener('click', function() { closePropertiesDialog(); });
         okBtn.focus();

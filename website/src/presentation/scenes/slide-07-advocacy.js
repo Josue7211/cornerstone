@@ -63,21 +63,46 @@ export function createSlide07AdvocacyScene({ mode, scene }) {
     },
     enter() {
       if (window.gsap && nodes.length) {
-        gsap.killTweensOf(nodes);
-        gsap.fromTo(
-          nodes,
-          { opacity: 0, x: -24, y: 8, force3D: true },
-          {
-            opacity: 1,
-            x: 0,
-            y: 0,
-            duration: 0.52,
-            ease: 'power3.out',
-            stagger: 0.055,
-            force3D: true,
-            clearProps: 'transform,opacity'
-          }
-        );
+        const title = scene.querySelector('h2');
+        const body = Array.from(scene.querySelectorAll('.slide-body'));
+        const items = Array.from(scene.querySelectorAll('.advocacy-point'));
+        const motionNodes = [title, ...body, ...items].filter(Boolean);
+        gsap.killTweensOf(motionNodes);
+        if (title) {
+          gsap.fromTo(
+            title,
+            { opacity: 0, y: 14, filter: 'blur(1px)', force3D: true },
+            { opacity: 1, y: 0, filter: 'blur(0px)', duration: 0.38, ease: 'power3.out', force3D: true, clearProps: 'transform,opacity,filter' }
+          );
+        }
+        if (body.length) {
+          gsap.fromTo(
+            body,
+            { opacity: 0, x: -14, y: 8, scale: 0.99, filter: 'blur(0.9px)', force3D: true },
+            { opacity: 1, x: 0, y: 0, scale: 1, filter: 'blur(0px)', duration: 0.42, ease: 'power2.out', stagger: 0.04, force3D: true, clearProps: 'transform,opacity,filter' }
+          );
+        }
+        if (items.length) {
+          items.forEach((item, index) => {
+            const drift = index % 2 === 0 ? 1 : -1;
+            gsap.fromTo(
+              item,
+              { opacity: 0, x: drift * 18, y: 12, scale: 0.975, filter: 'blur(1px)', force3D: true },
+              {
+                opacity: 1,
+                x: 0,
+                y: 0,
+                scale: 1,
+                filter: 'blur(0px)',
+                duration: 0.44,
+                delay: 0.06 + (index * 0.04),
+                ease: 'power3.out',
+                force3D: true,
+                clearProps: 'transform,opacity,filter'
+              }
+            );
+          });
+        }
       }
       if (items.length) setActiveItem(0, false);
     },

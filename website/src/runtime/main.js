@@ -87,6 +87,9 @@ const aiSystem = createAISystem();
 const getClippyAiConfig = (...args) => aiSystem.getClippyAiConfig(...args);
 const getLocalAiStatus = (...args) => aiSystem.getLocalAiStatus(...args);
 const queryClippyOllama = (...args) => aiSystem.queryClippyOllama(...args);
+if (aiSystem && typeof aiSystem.prewarmLocalModel === 'function') {
+  aiSystem.prewarmLocalModel().catch(() => {});
+}
 let notepadSystem = null;
 const iconHelper = (typeof window !== 'undefined' && window.Win95Shared) ? window.Win95Shared : null;
 
@@ -847,7 +850,7 @@ const APP_CONFIG = {
 
       terminalRuntime.appendBlock(session, [
         'From Pixels to Intelligence OS [Version 2.026.04]',
-        '(C) 2026 Josue Aparcedo Gonzalez. All Rights Reserved.',
+        '(C) 2026 From Pixels to Intelligence. All Rights Reserved.',
         '',
         'Workspace: ' + (session.workspacePath || session.currentPath),
         'Type "help" for classroom commands.',

@@ -1,6 +1,6 @@
 # Research Documentation
-**Josue Aparcedo Gonzalez**
-**IDS2891 Cornerstone — Spring 2026**
+**Project Author**
+**IDS2891 Cornerstone — 2026**
 
 ---
 
@@ -28,7 +28,7 @@ IDS2891 provided the interdisciplinary framework that connected these technical 
 
 ## Process and Plan
 
-The research began, as required, in the FSW Libraries. Credo Reference provided the foundational definitions that established vocabulary and scope: Glassner's (2012) encyclopedia entry on GPUs gave a clear starting definition of parallel architecture, and Daintith and Wright's (2008) entry on parallel processing provided context for why that architecture matters computationally. Marcovitz (2018) situated the hardware story inside the broader fourth industrial revolution framing. These tertiary sources were not the heart of the research, but they were the necessary entry point — they told me what the established consensus was before I went looking for where the edges were.
+The research began, as required, in the the college Libraries. Credo Reference provided the foundational definitions that established vocabulary and scope: Glassner's (2012) encyclopedia entry on GPUs gave a clear starting definition of parallel architecture, and Daintith and Wright's (2008) entry on parallel processing provided context for why that architecture matters computationally. Marcovitz (2018) situated the hardware story inside the broader fourth industrial revolution framing. These tertiary sources were not the heart of the research, but they were the necessary entry point — they told me what the established consensus was before I went looking for where the edges were.
 
 The most important single source in the entire project is Jouppi et al.'s (2017) landmark paper describing Google's Tensor Processing Unit, which has been cited over 5,000 times in the academic literature. Reading it directly — not summaries of it — gave me the technical foundation for understanding why specialized AI chips exist and what "15 to 30 times better performance per watt" actually means at an architectural level. Sanmartín and Prohaska's (2023) arXiv survey expanded that into a broader analysis of TPU applications across AI workloads. These peer-reviewed sources became the spine of the technical argument.
 

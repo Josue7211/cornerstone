@@ -1,10 +1,12 @@
-tunnel: 1046f991-691e-4d73-85b1-744765a9c4ac
-credentials-file: /home/josue/.cloudflared/1046f991-691e-4d73-85b1-744765a9c4ac.json
+# Copy this file locally and replace the placeholders with your own tunnel
+# UUID, credentials file, and hostname.
+tunnel: YOUR_TUNNEL_UUID
+credentials-file: /path/to/your/cloudflared-credentials.json
 
 ingress:
-  - hostname: cornerstone.aparcedo.org
+  - hostname: your-site.example
     path: /api/.*
     service: http://127.0.0.1:3015
-  - hostname: cornerstone.aparcedo.org
+  - hostname: your-site.example
     service: http://127.0.0.1:3000
   - service: http_status:404

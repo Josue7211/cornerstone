@@ -1,39 +1,38 @@
-# From Pixels to Intelligence — IDS2891 Cornerstone
+# From Pixels to Intelligence
 
-**Author:** Josue Aparcedo Gonzalez  
-**Course:** IDS2891 — Cornerstone at Florida SouthWestern State College  
-**Topic:** AI Hardware Architecture
+An interactive Win95-style research project about the evolution of AI hardware, from CPUs to GPUs to purpose-built accelerators, and the social effects of that shift.
 
 ![Screenshot](screenshot.png)
 
-## Overview
+## License
 
-Research project exploring the evolution of AI hardware — from CPUs to GPUs to purpose-built accelerators (TPUs, NPUs) — and its societal implications in accessibility, energy consumption, and workforce displacement.
+This repository is licensed under the [Apache License 2.0](LICENSE).
 
-The final deliverable is an interactive Win95-themed website that presents the research through a fully simulated desktop environment, complete with working apps: File Explorer, Internet Explorer (with retro web snapshots), MS Paint, Terminal, and a custom presentation mode.
+## What’s Here
 
-## Structure
+- `website/` - the browser-based presentation and desktop simulation
+- `ops/` - local broker, proxy, and deployment scripts
+- `IDS2891/` - course-era research artifacts and drafts
 
-```
-cornerstone/
-├── website/          # Interactive presentation website (Three.js + GSAP)
-│   ├── index.html    # Main entry point
-│   ├── style.css     # Styles
-│   └── src/
-│       └── presentation/   # Slide scenes, transitions, effects
-├── IDS2891/          # Assignment submissions (17 assignments)
-└── ops/              # Scripts and tooling
-```
+## Local Use
 
-## Website
+Open `website/index.html` directly in a browser, or serve the `website/` directory from any static web server.
 
-Built with:
-- **Three.js** — 3D visuals and scene rendering
-- **GSAP** — animations and transitions
-- Custom presentation engine with slide scenes, transition effects, and content motion
+For the local AI proxy:
 
-Open `website/index.html` in a browser — no build step required (ES modules + import maps).
+- copy `.env.example` to a local `.env`
+- set `OPENAI_API_KEY` only if you need the proxy to reach OpenAI
+- keep the proxy on loopback unless you intentionally expose it
+- treat `ops/cornerstone-cloudflared.yml` as a local template and replace the placeholders with your own tunnel settings
 
-## Assignments
+## Security Model
 
-All 17 course assignments are in `IDS2891/`, including research questions, source buckets, short proposal, check-ins, final presentation plan, research documentation, and revision reflection.
+This project is designed for self-hosted use.
+
+- The broker should keep secrets off the agent side.
+- The proxy defaults to loopback-only binding.
+- Private runtime values belong in local environment files, not in git.
+
+## Contributing
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) for the development workflow and safety notes.
