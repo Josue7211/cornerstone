@@ -6,7 +6,7 @@ An interactive Win95-style research project about the evolution of AI hardware, 
 
 ## License
 
-This repository is licensed under the [Apache License 2.0](LICENSE).
+This repository is licensed under the [GNU Affero General Public License v3](LICENSE).
 
 ## What’s Here
 
