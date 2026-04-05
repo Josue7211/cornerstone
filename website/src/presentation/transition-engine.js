@@ -5,28 +5,28 @@ import { applyTransitionFlavor } from './effects/transition-flavors.js';
 const DIRECTOR_SLOWDOWN = 1.0;
 
 const SIGNATURE_BY_SLIDE = [
-  { content: 1.08, three: 1.1, unlock: 1.22 }, // title
-  { content: 1.02, three: 1.02, unlock: 1.08 },
-  { content: 1.04, three: 1.04, unlock: 1.1 },
-  { content: 1.03, three: 1.05, unlock: 1.12 },
-  { content: 1.06, three: 1.07, unlock: 1.16 }, // connections
-  { content: 1.04, three: 1.05, unlock: 1.1 },
-  { content: 1.03, three: 1.06, unlock: 1.12 },
-  { content: 1.03, three: 1.03, unlock: 1.1 },
-  { content: 1.1, three: 1.12, unlock: 1.24 } // finale
+  { content: 1.02, three: 1.04, unlock: 1.12 }, // title
+  { content: 0.99, three: 0.98, unlock: 1.02 },
+  { content: 1.0, three: 1.0, unlock: 1.04 },
+  { content: 1.0, three: 1.0, unlock: 1.06 },
+  { content: 1.02, three: 1.02, unlock: 1.08 }, // connections
+  { content: 1.0, three: 1.0, unlock: 1.04 },
+  { content: 1.0, three: 1.01, unlock: 1.06 },
+  { content: 0.99, three: 0.99, unlock: 1.04 },
+  { content: 1.04, three: 1.06, unlock: 1.14 } // finale
 ];
 
 const UNLOCK_BY_STYLE = {
-  push: { min: 0.46, max: 0.72, add: 0.07, resetLead: 0.09, failSafeMs: 960 },
-  trace: { min: 0.36, max: 0.56, add: 0.04, resetLead: 0.06, failSafeMs: 780 },
-  warp: { min: 0.48, max: 0.78, add: 0.08, resetLead: 0.09, failSafeMs: 1020 },
-  iris: { min: 0.42, max: 0.64, add: 0.04, resetLead: 0.07, failSafeMs: 900 },
-  shard: { min: 0.44, max: 0.68, add: 0.05, resetLead: 0.08, failSafeMs: 940 },
-  katana: { min: 0.4, max: 0.62, add: 0.04, resetLead: 0.07, failSafeMs: 860 },
-  parallax: { min: 0.44, max: 0.66, add: 0.05, resetLead: 0.08, failSafeMs: 920 },
-  pulse: { min: 0.42, max: 0.64, add: 0.05, resetLead: 0.07, failSafeMs: 900 },
-  scanline: { min: 0.4, max: 0.6, add: 0.04, resetLead: 0.07, failSafeMs: 840 },
-  finale: { min: 0.52, max: 0.82, add: 0.1, resetLead: 0.1, failSafeMs: 1080 }
+  push: { min: 0.4, max: 0.62, add: 0.05, resetLead: 0.08, failSafeMs: 860 },
+  trace: { min: 0.3, max: 0.48, add: 0.03, resetLead: 0.05, failSafeMs: 700 },
+  warp: { min: 0.42, max: 0.68, add: 0.06, resetLead: 0.08, failSafeMs: 920 },
+  iris: { min: 0.36, max: 0.56, add: 0.04, resetLead: 0.06, failSafeMs: 820 },
+  shard: { min: 0.38, max: 0.58, add: 0.04, resetLead: 0.07, failSafeMs: 860 },
+  katana: { min: 0.34, max: 0.52, add: 0.03, resetLead: 0.06, failSafeMs: 780 },
+  parallax: { min: 0.38, max: 0.58, add: 0.04, resetLead: 0.07, failSafeMs: 840 },
+  pulse: { min: 0.36, max: 0.56, add: 0.04, resetLead: 0.06, failSafeMs: 820 },
+  scanline: { min: 0.34, max: 0.5, add: 0.03, resetLead: 0.06, failSafeMs: 760 },
+  finale: { min: 0.46, max: 0.72, add: 0.08, resetLead: 0.09, failSafeMs: 980 }
 };
 
 class TransitionEngine {
@@ -64,7 +64,7 @@ class TransitionEngine {
     scene.style.clipPath = '';
     scene.style.transform = '';
     const nodes = scene.querySelectorAll(
-      '.slide-num, .slide-tag, h2, .slide-body, .slide-thesis, .slide-connections, .slide-implications, .slide-advocacy-points, .slide-prep, .slide-qa, .rq-item, .method-card, .persp-item, .connection-item, .impl-item, .advocacy-point, .prep-item'
+      '.slide-num, .slide-tag, h2, .slide-subtitle-big, .slide-body, .slide-thesis, .slide-connections, .slide-implications, .slide-advocacy-points, .slide-prep, .slide-qa, .slide-meta-info, .slide-preview, .slide-kicker-card, .reflection-item, .slide-ending-note, .rq-item, .method-card, .persp-item, .connection-item, .impl-item, .advocacy-point, .prep-item'
     );
     nodes.forEach((el) => {
       el.style.opacity = '1';
@@ -212,7 +212,7 @@ class TransitionEngine {
     const direction = target > prevIndex ? 1 : -1;
     const signature = SIGNATURE_BY_SLIDE[target] || SIGNATURE_BY_SLIDE[0];
     const style = TRANSITION_STYLE_BY_SLIDE[target] || 'warp';
-    const cinematicThree = style === 'warp' || style === 'push' || style === 'finale' || (prevIndex < 0 && target === 0);
+    const cinematicThree = style === 'warp' || style === 'finale' || (prevIndex < 0 && target === 0);
     m._setThreeWorld(target, cinematicThree ? (immediate ? 0.95 : 1) : 0);
     const threeDuration = this.runThreeSceneIntro(prevIndex, target, direction, immediate, signature);
     m.lastSlideSwitchAt = performance.now();
@@ -319,17 +319,17 @@ class TransitionEngine {
     const tl = gsap.timeline();
     this.activeContentTl = tl;
     const styleOffsets = {
-      push: { out: 0.26, in: 0.44, gap: 0.08, intro: 0.16, oldY: 0, newY: 0, oldScale: 1, oldXLead: 0, oldXExit: 0, newX: 0 },
-      trace: { out: 0.14, in: 0.28, gap: 0.06, intro: 0.1, oldY: 0, newY: 0, oldScale: 1, oldXLead: 0, oldXExit: 0, newX: 0 },
-      warp: { out: 0.22, in: 0.48, gap: 0.1, intro: 0.18, oldY: -3, newY: 6, oldScale: 0.998, oldXLead: 1, oldXExit: -4, newX: 5 },
-      iris: { out: 0.2, in: 0.42, gap: 0.09, intro: 0.14, oldY: -3, newY: 5, oldScale: 0.998, oldXLead: 1, oldXExit: -4, newX: 5 },
-      shard: { out: 0.2, in: 0.44, gap: 0.09, intro: 0.14, oldY: -3, newY: 5, oldScale: 0.998, oldXLead: 1, oldXExit: -4, newX: 5 },
-      katana: { out: 0.16, in: 0.36, gap: 0.06, intro: 0.08, oldY: -1, newY: 3, oldScale: 0.999, oldXLead: 2, oldXExit: -8, newX: 8 },
-      parallax: { out: 0.24, in: 0.5, gap: 0.1, intro: 0.16, oldY: -4, newY: 8, oldScale: 0.997, oldXLead: 2, oldXExit: -5, newX: 8 },
-      pulse: { out: 0.14, in: 0.34, gap: 0.05, intro: 0.1, oldY: -1, newY: 2, oldScale: 1, oldXLead: 0, oldXExit: -2, newX: 2 },
-      scanline: { out: 0.12, in: 0.3, gap: 0.04, intro: 0.08, oldY: 2, newY: -4, oldScale: 1, oldXLead: 0, oldXExit: 1, newX: -1 },
-      finale: { out: 0.24, in: 0.5, gap: 0.1, intro: 0.16, oldY: -4, newY: 7, oldScale: 0.996, oldXLead: 1, oldXExit: -6, newX: 7 }
-    }[style] || { out: 0.2, in: 0.42, gap: 0.09, intro: 0.14, oldY: -3, newY: 5, oldScale: 0.998, oldXLead: 1, oldXExit: -4, newX: 5 };
+      push: { out: 0.22, in: 0.38, gap: 0.06, intro: 0.12, oldY: 0, newY: 0, oldScale: 0.985, oldXLead: 0, oldXExit: 0, newX: 0 },
+      trace: { out: 0.12, in: 0.24, gap: 0.04, intro: 0.08, oldY: 0, newY: 0, oldScale: 1, oldXLead: 0, oldXExit: 0, newX: 0 },
+      warp: { out: 0.24, in: 0.42, gap: 0.08, intro: 0.12, oldY: 0, newY: 0, oldScale: 0.94, oldXLead: 0, oldXExit: 0, newX: 0 },
+      iris: { out: 0.18, in: 0.36, gap: 0.07, intro: 0.12, oldY: -2, newY: 4, oldScale: 0.996, oldXLead: 1, oldXExit: -3, newX: 4 },
+      shard: { out: 0.18, in: 0.38, gap: 0.07, intro: 0.12, oldY: -2, newY: 4, oldScale: 0.996, oldXLead: 1, oldXExit: -3, newX: 4 },
+      katana: { out: 0.14, in: 0.3, gap: 0.05, intro: 0.07, oldY: -1, newY: 2, oldScale: 0.998, oldXLead: 1, oldXExit: -5, newX: 5 },
+      parallax: { out: 0.2, in: 0.42, gap: 0.08, intro: 0.12, oldY: -3, newY: 6, oldScale: 0.995, oldXLead: 1, oldXExit: -4, newX: 6 },
+      pulse: { out: 0.14, in: 0.3, gap: 0.05, intro: 0.08, oldY: -1, newY: 2, oldScale: 1, oldXLead: 0, oldXExit: -1, newX: 1 },
+      scanline: { out: 0.12, in: 0.26, gap: 0.04, intro: 0.07, oldY: 1, newY: -3, oldScale: 1, oldXLead: 0, oldXExit: 1, newX: -1 },
+      finale: { out: 0.24, in: 0.46, gap: 0.09, intro: 0.12, oldY: -16, newY: 20, oldScale: 0.95, oldXLead: 0, oldXExit: 0, newX: 0 }
+    }[style] || { out: 0.18, in: 0.36, gap: 0.07, intro: 0.12, oldY: -2, newY: 4, oldScale: 0.996, oldXLead: 1, oldXExit: -3, newX: 4 };
     const durOut = Math.max(styleOffsets.out, styleOffsets.out * contentMult);
     const durIn = Math.max(styleOffsets.in, styleOffsets.in * contentMult);
     const outEaseByStyle = {
@@ -361,77 +361,105 @@ class TransitionEngine {
     applyTransitionFlavor(m.refs, tl, style, direction);
 
     if (style === 'push') {
-      // Old slide recedes into Z — perspective foreshortening, no X/Y drift
+      // Old slide slams back into Z — dramatic foreshortening
       if (oldScene && oldScene !== newScene) {
         tl.fromTo(
           oldScene,
-          { opacity: 1, z: 0, rotationX: 0, filter: 'blur(0px)', transformPerspective: 1100, force3D: true },
-          { opacity: 0, z: -320, rotationX: 4, filter: 'blur(3px)', duration: durOut, ease: outEaseByStyle.push, force3D: true },
+          { opacity: 1, z: 0, rotationX: 0, transformPerspective: 900, force3D: true },
+          { opacity: 0, z: -360, rotationX: 6, scale: 0.985, duration: durOut, ease: outEaseByStyle.push, force3D: true },
           0
         );
         tl.set(oldScene, { visibility: 'hidden', pointerEvents: 'none' }, durOut + 0.02);
       }
-      // New slide approaches from depth
+      // New slide punches in from deep Z
       tl.fromTo(
         newScene,
-        { opacity: 0, z: -500, rotationX: -5, filter: 'blur(4px)', transformPerspective: 1100, scale: 0.86, force3D: true },
-        { opacity: 1, z: 0, rotationX: 0, filter: 'blur(0px)', scale: 1, duration: durIn, ease: inEaseByStyle.push, force3D: true, clearProps: 'x,y,z,scale,rotationX,rotationY,rotationZ,filter,transform,transformPerspective' },
+        { opacity: 0, z: -560, rotationX: -8, transformPerspective: 900, scale: 0.88, force3D: true },
+        { opacity: 1, z: 0, rotationX: 0, scale: 1, duration: durIn, ease: inEaseByStyle.push, force3D: true, clearProps: 'x,y,z,scale,rotationX,rotationY,rotationZ,filter,transform,transformPerspective' },
         oldScene && oldScene !== newScene ? styleOffsets.gap : 0
       );
     } else if (style === 'trace') {
-      // Trace wipe: old slides out fast, new slides in fast — the trace line is the visual event
+      // Clip-path wipe: new scene revealed as the trace line sweeps across
+      const startClip = direction >= 0 ? 'inset(0 100% 0 0)' : 'inset(0 0% 0 100%)';
+      const endClip = 'inset(0 0% 0 0%)';
+      // Old scene fades out
       if (oldScene && oldScene !== newScene) {
         tl.fromTo(
           oldScene,
-          { opacity: 1, x: 0, filter: 'blur(0px)', force3D: true },
-          { opacity: 0, x: -12 * direction, filter: 'blur(1.5px)', duration: durOut, ease: outEaseByStyle.trace, force3D: true },
+          { opacity: 1, force3D: true },
+          { opacity: 0, duration: durOut, ease: outEaseByStyle.trace, force3D: true },
+          0
+        );
+        tl.set(oldScene, { visibility: 'hidden', pointerEvents: 'none' }, durOut + 0.02);
+      }
+      // New scene wipes in via clipPath — line in transition-flavors is the boundary
+      tl.fromTo(
+        newScene,
+        { opacity: 1, clipPath: startClip, force3D: true },
+        { opacity: 1, clipPath: endClip, duration: durIn, ease: inEaseByStyle.trace, force3D: true, clearProps: 'x,y,scale,rotationX,rotationY,rotationZ,skewX,skewY,filter,clipPath,transform' },
+        oldScene && oldScene !== newScene ? styleOffsets.gap : 0
+      );
+    } else if (style === 'warp') {
+      // Portal suck: old shrinks and fades, new expands from center
+      if (oldScene && oldScene !== newScene) {
+        tl.fromTo(
+          oldScene,
+          { opacity: 1, scale: 1, force3D: true },
+          { opacity: 0, scale: 0.94, duration: durOut, ease: 'power2.in', force3D: true },
           0
         );
         tl.set(oldScene, { visibility: 'hidden', pointerEvents: 'none' }, durOut + 0.02);
       }
       tl.fromTo(
         newScene,
-        { opacity: 0, x: 16 * direction, filter: 'blur(1px)', force3D: true },
-        { opacity: 1, x: 0, filter: 'blur(0px)', duration: durIn, ease: inEaseByStyle.trace, force3D: true, clearProps: 'x,y,scale,rotationX,rotationY,rotationZ,skewX,skewY,filter,clipPath,transform' },
+        { opacity: 0, scale: 0.93, force3D: true },
+        { opacity: 1, scale: 1, duration: durIn, ease: 'expo.out', force3D: true, clearProps: 'x,y,scale,rotationX,rotationY,rotationZ,skewX,skewY,filter,clipPath,transform' },
+        oldScene && oldScene !== newScene ? styleOffsets.gap : 0
+      );
+    } else if (style === 'finale') {
+      // Cinematic landing: old lifts and fades, new rises from below
+      if (oldScene && oldScene !== newScene) {
+        tl.fromTo(
+          oldScene,
+          { opacity: 1, scale: 1, y: 0, force3D: true },
+          { opacity: 0, scale: 0.95, y: -16, duration: durOut, ease: 'expo.in', force3D: true },
+          0
+        );
+        tl.set(oldScene, { visibility: 'hidden', pointerEvents: 'none' }, durOut + 0.02);
+      }
+      tl.fromTo(
+        newScene,
+        { opacity: 0, scale: 0.95, y: 20, force3D: true },
+        { opacity: 1, scale: 1, y: 0, duration: durIn, ease: 'expo.out', force3D: true, clearProps: 'x,y,scale,rotationX,rotationY,rotationZ,skewX,skewY,filter,clipPath,transform' },
         oldScene && oldScene !== newScene ? styleOffsets.gap : 0
       );
     } else {
       if (oldScene && oldScene !== newScene) {
-        tl.to(
-          oldScene,
-          { x: direction * styleOffsets.oldXLead, duration: 0.08, ease: 'sine.out', force3D: true },
-          0
-        );
-      }
-
-      if (oldScene && oldScene !== newScene) {
         tl.fromTo(
           oldScene,
-          { opacity: 1, y: 0, scale: 1, filter: 'blur(0px)', force3D: true },
+          { opacity: 1, y: 0, scale: 1, force3D: true },
           {
             opacity: 0,
             x: direction * styleOffsets.oldXExit,
             y: styleOffsets.oldY,
             scale: styleOffsets.oldScale,
-            filter: 'blur(2px)',
             duration: durOut,
             ease: outEaseByStyle[style] || 'power2.inOut',
             force3D: true
           },
-          0.04
+          0
         );
         tl.set(oldScene, { visibility: 'hidden', pointerEvents: 'none' }, durOut + 0.02);
       }
 
       tl.fromTo(
         newScene,
-        { opacity: 0, x: direction * styleOffsets.newX, y: styleOffsets.newY, scale: 1.005, filter: 'blur(1.5px)', force3D: true },
+        { opacity: 0, x: direction * styleOffsets.newX, y: styleOffsets.newY, scale: 1.005, force3D: true },
         {
           opacity: 1,
           x: 0,
           y: 0,
           scale: 1,
-          filter: 'blur(0px)',
           duration: durIn,
           ease: inEaseByStyle[style] || 'expo.out',
           force3D: true,
@@ -504,7 +532,7 @@ class TransitionEngine {
     if (!scene) return null;
     const title = scene.querySelector('h2');
     const meta = scene.querySelectorAll('.slide-num, .slide-tag');
-    const body = scene.querySelectorAll('.slide-body, .slide-thesis, .slide-connections, .slide-implications, .slide-advocacy-points, .slide-prep, .slide-qa');
+    const body = scene.querySelectorAll('.slide-subtitle-big, .slide-body, .slide-thesis, .slide-connections, .slide-implications, .slide-advocacy-points, .slide-prep, .slide-qa, .slide-meta-info, .slide-preview, .slide-ending-note');
     const rq = scene.querySelectorAll('.rq-item');
     const methods = scene.querySelectorAll('.method-card');
     const perspectives = scene.querySelectorAll('.persp-item');
@@ -512,11 +540,15 @@ class TransitionEngine {
     const implications = scene.querySelectorAll('.impl-item');
     const advocacy = scene.querySelectorAll('.advocacy-point');
     const prep = scene.querySelectorAll('.prep-item');
+    const kickers = scene.querySelectorAll('.slide-kicker-card');
+    const reflections = scene.querySelectorAll('.reflection-item');
 
     const all = [
       ...meta,
       title,
       ...body,
+      ...kickers,
+      ...reflections,
       ...rq,
       ...methods,
       ...perspectives,
@@ -552,7 +584,7 @@ class TransitionEngine {
       toVars.stagger = { ...toVars.stagger, each: Math.min(0.038, toVars.stagger.each * Math.max(0.88, contentMult * 0.86)) };
     }
 
-    gsap.set(animated, { opacity: 1, force3D: true, clearProps: 'x,y,scale,rotation,rotationX,rotationY,filter,skewX,transform' });
+    gsap.set(animated, { opacity: 0, force3D: true, clearProps: 'x,y,z,scale,rotation,rotationX,rotationY,filter,skewX,transform' });
     const tl = gsap.timeline();
     tl.fromTo(animated, fromVars, toVars, Math.max(0.06, 0.02 * contentMult));
     return tl;
@@ -570,7 +602,7 @@ class TransitionEngine {
     const profile = EXPERIENCE_PROFILES[nextIndex] || EXPERIENCE_PROFILES[0];
     const mode = profile.three;
     const isFirstEntry = prevIndex < 0 && nextIndex === 0 && !m.initialIntroPlayed;
-    const style = isFirstEntry ? 'warp' : (TRANSITION_STYLE_BY_SLIDE[nextIndex] || 'ignite');
+    const style = TRANSITION_STYLE_BY_SLIDE[nextIndex] || 'trace';
     const sig = signature || SIGNATURE_BY_SLIDE[nextIndex] || SIGNATURE_BY_SLIDE[0];
     const threeMult = (sig.three || 1) * DIRECTOR_SLOWDOWN;
     const { camera, portal, portalHalo, renderer } = m.three;
@@ -579,24 +611,23 @@ class TransitionEngine {
     m.threeTransitionActive = true;
 
     const tl = gsap.timeline();
-    if (m.overlay) {
+    if (m.overlay && style === 'finale') {
       m.overlay.classList.add('pfs-hyperspace-active');
-      const hyperspaceHold = isFirstEntry ? 0.94 : (style === 'warp' || style === 'finale' ? 0.78 : 0.66);
-      tl.to(m.overlay, { duration: 0.01, onComplete: () => m.overlay.classList.remove('pfs-hyperspace-active') }, hyperspaceHold);
+      tl.to(m.overlay, { duration: 0.01, onComplete: () => m.overlay.classList.remove('pfs-hyperspace-active') }, 0.62);
     }
     applyTransitionFlavor(m.refs, tl, style, direction, { nextIndex, prevIndex, mode });
 
     const styleTuning = {
-      push: { camPunch: 1.0, camDuration: 1.18, portalSpin: 0.88, haloSpin: 0.76, flash: 0.82 },
-      trace: { camPunch: 0.78, camDuration: 0.96, portalSpin: 1.1, haloSpin: 0.94, flash: 0.9 },
-      iris: { camPunch: 0.9, camDuration: 1.12, portalSpin: 0.86, haloSpin: 0.78, flash: 0.84 },
-      warp: { camPunch: 1.08, camDuration: 1.28, portalSpin: 0.92, haloSpin: 0.8, flash: 0.72 },
-      katana: { camPunch: 0.84, camDuration: 1.1, portalSpin: 1.36, haloSpin: 1.12, flash: 0.9 },
-      shard: { camPunch: 0.96, camDuration: 1.16, portalSpin: 1.14, haloSpin: 1.0, flash: 0.94 },
-      parallax: { camPunch: 0.88, camDuration: 1.1, portalSpin: 0.96, haloSpin: 0.82, flash: 0.84 },
-      pulse: { camPunch: 0.8, camDuration: 1.04, portalSpin: 0.98, haloSpin: 0.88, flash: 0.88 },
-      scanline: { camPunch: 0.76, camDuration: 1.0, portalSpin: 0.9, haloSpin: 0.84, flash: 0.84 },
-      finale: { camPunch: 0.92, camDuration: 1.22, portalSpin: 0.74, haloSpin: 0.62, flash: 0.48 }
+      push: { camPunch: 0.62, camDuration: 0.94, portalSpin: 0.54, haloSpin: 0.48, flash: 0.64 },
+      trace: { camPunch: 0.48, camDuration: 0.78, portalSpin: 0.74, haloSpin: 0.62, flash: 0.7 },
+      iris: { camPunch: 0.58, camDuration: 0.9, portalSpin: 0.58, haloSpin: 0.5, flash: 0.64 },
+      warp: { camPunch: 0.72, camDuration: 1.02, portalSpin: 0.6, haloSpin: 0.52, flash: 0.58 },
+      katana: { camPunch: 0.52, camDuration: 0.86, portalSpin: 0.92, haloSpin: 0.74, flash: 0.7 },
+      shard: { camPunch: 0.6, camDuration: 0.92, portalSpin: 0.78, haloSpin: 0.68, flash: 0.72 },
+      parallax: { camPunch: 0.56, camDuration: 0.9, portalSpin: 0.64, haloSpin: 0.54, flash: 0.64 },
+      pulse: { camPunch: 0.5, camDuration: 0.82, portalSpin: 0.66, haloSpin: 0.58, flash: 0.66 },
+      scanline: { camPunch: 0.46, camDuration: 0.8, portalSpin: 0.58, haloSpin: 0.52, flash: 0.62 },
+      finale: { camPunch: 0.62, camDuration: 0.98, portalSpin: 0.46, haloSpin: 0.4, flash: 0.4 }
     };
     const tune = styleTuning[style] || { camPunch: 0.52, camDuration: 0.58, portalSpin: 0.72, haloSpin: 0.62, flash: 0.68 };
 
@@ -607,31 +638,39 @@ class TransitionEngine {
     gsap.killTweensOf(portalHalo.rotation);
     gsap.killTweensOf(portal.scale);
     gsap.killTweensOf(portalHalo.scale);
+    gsap.killTweensOf(portal.material);
+    gsap.killTweensOf(portalHalo.material);
+    if (renderer && renderer.domElement) gsap.killTweensOf(renderer.domElement);
+    // Always reset portal opacity to 0 so interrupted transitions don't accumulate
+    gsap.set(portal.material, { opacity: 0 });
+    gsap.set(portalHalo.material, { opacity: 0 });
+    portal.visible = true;
+    portalHalo.visible = true;
 
     const baseCamX = camera.position.x;
     const baseCamY = camera.position.y;
     const baseCamZ = camera.position.z;
     const baseFov = camera.fov;
-    const cinematicThree = isFirstEntry || style === 'warp' || style === 'finale';
+    const cinematicThree = style === 'finale';
 
     // Anticipation beat before impact to avoid snap/teleport feel.
     tl.to(
       camera.position,
-      { z: baseCamZ + 0.14, x: baseCamX - (0.03 * direction), y: baseCamY + 0.02, duration: 0.16 * threeMult, ease: 'sine.out' },
+      { z: baseCamZ + 0.1, x: baseCamX - (0.02 * direction), y: baseCamY + 0.015, duration: 0.14 * threeMult, ease: 'sine.out' },
       0
     );
     tl.to(
       camera,
       {
-        fov: baseFov + (isFirstEntry ? 7.5 : 5.2),
-        duration: 0.22 * threeMult,
+        fov: baseFov + (isFirstEntry ? 3.2 : 2.6),
+        duration: 0.18 * threeMult,
         ease: 'power2.out',
         onUpdate: () => camera.updateProjectionMatrix()
       },
       0
     );
-    const anticipScale = style === 'iris' ? 0.98 : 0.94;
-    const reboundScale = style === 'iris' ? 1.06 : 1.0;
+    const anticipScale = style === 'iris' ? 0.985 : 0.965;
+    const reboundScale = style === 'iris' ? 1.03 : 1.0;
     tl.fromTo(
       portal.scale,
       { x: 1.02, y: 1.02, z: 1 },
@@ -643,63 +682,69 @@ class TransitionEngine {
     tl.to(
       camera.position,
       {
-        z: baseCamZ + (isFirstEntry ? 0.8 : tune.camPunch),
-        x: baseCamX - ((isFirstEntry ? 0.16 : 0.18) * direction),
-        y: baseCamY + 0.06,
-        duration: 0.22 * threeMult,
+        z: baseCamZ + (isFirstEntry ? 0.24 : tune.camPunch),
+        x: baseCamX - ((isFirstEntry ? 0.05 : 0.11) * direction),
+        y: baseCamY + 0.035,
+        duration: 0.18 * threeMult,
         ease: 'sine.out'
       },
       0.12 * threeMult
     );
     tl.to(
       camera.position,
-      { z: baseCamZ, x: baseCamX, y: baseCamY, duration: (isFirstEntry ? 1.72 : tune.camDuration) * threeMult, ease: 'sine.out' },
-      0.3 * threeMult
+      { z: baseCamZ, x: baseCamX, y: baseCamY, duration: (isFirstEntry ? 0.78 : tune.camDuration) * threeMult, ease: 'sine.out' },
+      0.24 * threeMult
     );
     tl.to(
       camera,
       {
         fov: baseFov,
-        duration: (isFirstEntry ? 1.2 : 1.0) * threeMult,
+        duration: (isFirstEntry ? 0.56 : 0.78) * threeMult,
         ease: 'power2.out',
         onUpdate: () => camera.updateProjectionMatrix()
       },
-      0.3 * threeMult
+      0.24 * threeMult
     );
-    tl.to(camera.position, { x: baseCamX + (0.02 * direction), duration: 0.2 * threeMult, yoyo: true, repeat: 1, ease: 'sine.inOut' }, 0.38 * threeMult);
+    tl.to(camera.position, { x: baseCamX + (0.012 * direction), duration: 0.16 * threeMult, yoyo: true, repeat: 1, ease: 'sine.inOut' }, 0.3 * threeMult);
     tl.fromTo(
       portal.rotation,
       { z: portal.rotation.z - (tune.portalSpin * direction) },
-      { z: portal.rotation.z, duration: 1.12 * threeMult, ease: 'power3.out' },
+      { z: portal.rotation.z, duration: 0.92 * threeMult, ease: 'power3.out' },
       0
     );
     tl.fromTo(
       portalHalo.rotation,
       { z: portalHalo.rotation.z + (tune.haloSpin * direction) },
-      { z: portalHalo.rotation.z, duration: 1.14 * threeMult, ease: 'power3.out' },
+      { z: portalHalo.rotation.z, duration: 0.94 * threeMult, ease: 'power3.out' },
       0.05
     );
     if (cinematicThree) {
       const pulsePeak =
-        isFirstEntry ? 0.58
-        : mode === 'finale' ? 0.42
-        : 0.82;
-      tl.fromTo(portal.material, { opacity: pulsePeak * tune.flash }, { opacity: 0, duration: (isFirstEntry ? 1.22 : 0.98) * threeMult, ease: 'power2.out' }, 0);
-      tl.fromTo(portalHalo.material, { opacity: pulsePeak * 0.62 * tune.flash }, { opacity: 0, duration: (isFirstEntry ? 1.22 : 1.0) * threeMult, ease: 'power2.out' }, 0.06);
+        isFirstEntry ? 0.28
+        : mode === 'finale' ? 0.52
+        : 0.68;
+      // Always animate from 0 (we reset above) to prevent accumulation
+      tl.to(portal.material, { opacity: pulsePeak * tune.flash, duration: 0.14 * threeMult, ease: 'power2.out' }, 0);
+      tl.to(portal.material, { opacity: 0, duration: (isFirstEntry ? 0.94 : 0.72) * threeMult, ease: 'power2.out' }, 0.16 * threeMult);
+      tl.to(portalHalo.material, { opacity: pulsePeak * 0.58 * tune.flash, duration: 0.14 * threeMult, ease: 'power2.out' }, 0.04);
+      tl.to(portalHalo.material, { opacity: 0, duration: (isFirstEntry ? 0.96 : 0.74) * threeMult, ease: 'power2.out' }, 0.18 * threeMult);
       if (renderer && renderer.domElement) {
-        tl.fromTo(renderer.domElement, { opacity: 0 }, { opacity: 0.92, duration: 0.22 * threeMult, ease: 'power2.in' }, 0);
+        tl.fromTo(renderer.domElement, { opacity: 0 }, { opacity: 0.76, duration: 0.18 * threeMult, ease: 'power2.in' }, 0);
         tl.to(
           renderer.domElement,
-          { opacity: 0, duration: (isFirstEntry ? 0.76 : 0.8) * threeMult, ease: 'sine.out' },
-          (isFirstEntry ? 1.02 : 0.84) * threeMult
+          { opacity: 0, duration: (isFirstEntry ? 0.3 : 0.58) * threeMult, ease: 'sine.out' },
+          (isFirstEntry ? 0.26 : 0.64) * threeMult
         );
       }
     } else if (renderer && renderer.domElement) {
-      portal.visible = false;
-      portalHalo.visible = false;
-      tl.set(renderer.domElement, { opacity: 0 }, 0);
-      tl.set(portal.material, { opacity: 0 }, 0);
-      tl.set(portalHalo.material, { opacity: 0 }, 0);
+      // Push/trace: brief portal flash so the Three.js canvas is visible during transition
+      const flashPeak = isFirstEntry ? 0.1 : (style === 'push' ? 0.4 : 0.28);
+      tl.to(portal.material, { opacity: flashPeak * tune.flash, duration: 0.08 * threeMult, ease: 'power3.out' }, 0);
+      tl.to(portal.material, { opacity: 0, duration: 0.18 * threeMult, ease: 'power2.out' }, 0.08 * threeMult);
+      tl.to(portalHalo.material, { opacity: flashPeak * 0.44 * tune.flash, duration: 0.08 * threeMult, ease: 'power3.out' }, 0.02);
+      tl.to(portalHalo.material, { opacity: 0, duration: 0.18 * threeMult, ease: 'power2.out' }, 0.1 * threeMult);
+      tl.fromTo(renderer.domElement, { opacity: 0 }, { opacity: isFirstEntry ? 0.22 : 0.5, duration: 0.1 * threeMult, ease: 'power2.in' }, 0);
+      tl.to(renderer.domElement, { opacity: 0, duration: 0.18 * threeMult, ease: 'power2.out' }, 0.1 * threeMult);
     }
 
     m._startParticleMorph(nextIndex, style, tl);

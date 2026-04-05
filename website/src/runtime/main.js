@@ -52,6 +52,8 @@ scene.add(particles);
 // ═══════════════════════════════════════════════════
 const state = { phase: 'boot' };
 let desktopActive = false;
+const ONBOARDING_STORAGE_KEY = 'ai98.onboarding.v1';
+let onboardingStarted = false;
 
 // ═══════════════════════════════════════════════════
 // BOOT SEQUENCE
@@ -442,6 +444,7 @@ function showWin95Desktop() {
   if (window.BonziBuddy && window.BonziBuddy.init) {
     window.BonziBuddy.init();
   }
+  scheduleDesktopOnboarding();
 
   // Initialize screensaver (Phase 17)
   if (window.Win95Extras && window.Win95Extras.initScreensaver) {
@@ -456,6 +459,83 @@ function showWin95Desktop() {
     window.dispatchEvent(readyEvent);
   }
   dispatchOsEvent('desktop_ready', { title: 'AI 98 OS Desktop' });
+}
+
+function shouldRunDesktopOnboarding() {
+  if (onboardingStarted) return false;
+  try {
+    const params = new URLSearchParams(window.location.search || '');
+    const forced = ['1', 'true', 'yes'].includes(String(params.get('onboarding') || params.get('intro') || '').toLowerCase());
+    if (forced) return true;
+    return localStorage.getItem(ONBOARDING_STORAGE_KEY) !== 'seen';
+  } catch (_) {
+    return true;
+  }
+}
+
+function markDesktopOnboardingSeen() {
+  try {
+    localStorage.setItem(ONBOARDING_STORAGE_KEY, 'seen');
+  } catch (_) {}
+}
+
+function getOnboardingDocument() {
+  return [
+    'AI 98 OS FIRST-RUN GUIDE',
+    '',
+    'Welcome. This project is a desktop, paper, presentation, and hardware demo in one app.',
+    '',
+    'Start here:',
+    '1. Open Research Paper to read the full argument.',
+    '2. Open Presentation for the live talk-track version.',
+    '3. Open Experience to play with the hardware demos and profiles.',
+    '',
+    'Assistants:',
+    '- Bonzi Buddy gives desktop hints and reacts to what you open.',
+    '- Clippy AI helps inside Notepad with outlines, rewrites, summaries, and APA polish.',
+    '',
+    'Useful moves:',
+    '- Double-click desktop icons to launch apps.',
+    '- Use the Start menu to find tools and recent apps.',
+    '- Open Notepad any time and use the Clippy AI button.',
+    '',
+    'If you want to explore the thesis fast, do Presentation first, then Experience, then Paper.',
+    '',
+    'This onboarding note is here so Clippy can greet you in-world instead of throwing a modal.'
+  ].join('\n');
+}
+
+function scheduleDesktopOnboarding() {
+  if (!shouldRunDesktopOnboarding()) return;
+  onboardingStarted = true;
+  markDesktopOnboardingSeen();
+
+  setTimeout(() => {
+    if (window.BonziBuddy && typeof window.BonziBuddy.showHint === 'function') {
+      window.BonziBuddy.showHint('Welcome to AI 98 OS. I will get you oriented without slowing you down.', 4600);
+    }
+  }, 800);
+
+  setTimeout(() => {
+    openNotepadDocument({
+      fileName: 'AI_98_First_Run_Guide.txt',
+      content: getOnboardingDocument(),
+      clippyFlash: true,
+      clippyFlashDelayMs: 900
+    });
+  }, 2200);
+
+  setTimeout(() => {
+    if (window.BonziBuddy && typeof window.BonziBuddy.showHint === 'function') {
+      window.BonziBuddy.showHint('The three anchors are Research Paper, Presentation, and Experience. That is the cleanest route through the project.', 6200);
+    }
+  }, 5200);
+
+  setTimeout(() => {
+    if (window.BonziBuddy && typeof window.BonziBuddy.showHint === 'function') {
+      window.BonziBuddy.showHint('Open Notepad any time if you want Clippy to help outline, summarize, or polish writing.', 5400);
+    }
+  }, 11800);
 }
 
 function updateClock() {
@@ -486,143 +566,43 @@ window._win95AnimateOpen = animateWindowOpen;
 // ─── GSAP WINDOW ANIMATIONS ──────────────────────
 function animateWindowOpen(appId, el) {
   if (!el || typeof gsap === 'undefined') return;
+  const profile = {
+    paper: { from: { opacity: 0, y: 26, scale: 0.965, filter: 'blur(7px)' }, to: { duration: 0.34, ease: 'power3.out' }, content: '.paper-abstract, .paper-section, .timeline-item, .paper-thesis, .paper-sources' },
+    pres: { from: { opacity: 0, y: 18, scale: 0.982, filter: 'blur(4px)' }, to: { duration: 0.26, ease: 'power2.out' }, content: '.pres-header, .pres-slide' },
+    exp: { from: { opacity: 0, y: 24, scale: 0.968, filter: 'blur(6px)' }, to: { duration: 0.32, ease: 'power3.out' }, content: '.panel-header, .arch-side, .pioneer, .exp-stat, .exp-meta' },
+    explorer: { from: { opacity: 0, y: 20, scale: 0.978 }, to: { duration: 0.24, ease: 'power2.out' } },
+    terminal: { from: { opacity: 0, y: 18, scale: 0.98 }, to: { duration: 0.22, ease: 'power2.out' } },
+    notepad: { from: { opacity: 0, y: 18, scale: 0.98 }, to: { duration: 0.24, ease: 'power2.out' }, content: '.notepad-topbar, .notepad-editor-pane, .notepad-assistant-pane' },
+    recycle: { from: { opacity: 0, y: 16, scale: 0.982 }, to: { duration: 0.22, ease: 'power2.out' } },
+    default: { from: { opacity: 0, y: 18, scale: 0.978 }, to: { duration: 0.24, ease: 'power2.out' } }
+  }[appId] || {
+    from: { opacity: 0, y: 18, scale: 0.978 },
+    to: { duration: 0.24, ease: 'power2.out' }
+  };
 
-  // Win98-style: short, subtle open motion.
+  const shell = el.querySelector('.win95-content') || el;
+  const contentNodes = profile.content ? Array.from(shell.querySelectorAll(profile.content)).slice(0, 10) : [];
+
   gsap.killTweensOf(el);
-  gsap.fromTo(el,
-    { opacity: 0, y: 6, scale: 0.985, transformOrigin: 'center top' },
-    { opacity: 1, y: 0, scale: 1, duration: 0.12, ease: 'power1.out' }
+  gsap.killTweensOf(contentNodes);
+  gsap.set(el, { clearProps: 'transform,opacity,filter' });
+  gsap.set(contentNodes, { clearProps: 'transform,opacity,filter' });
+
+  const tl = gsap.timeline();
+  tl.fromTo(
+    el,
+    { transformOrigin: 'center top', force3D: true, ...profile.from },
+    { opacity: 1, x: 0, y: 0, z: 0, scale: 1, rotateX: 0, rotateY: 0, filter: 'blur(0px)', force3D: true, clearProps: 'transform,opacity,filter', ...profile.to },
+    0
   );
-  return;
 
-  switch (appId) {
-    case 'paper': {
-      // Pixel scatter dissolve — child elements fly in from random positions
-      const children = el.querySelectorAll('.paper-section, .paper-abstract, .timeline-item');
-      if (children.length > 0) {
-        gsap.set(el, { opacity: 0 });
-        gsap.to(el, { opacity: 1, duration: 0.05 });
-        children.forEach(child => {
-          gsap.fromTo(child,
-            { x: (Math.random() - 0.5) * 200, y: (Math.random() - 0.5) * 200, opacity: 0, scale: 0.3 },
-            { x: 0, y: 0, opacity: 1, scale: 1, duration: 0.5 + Math.random() * 0.3,
-              ease: 'power3.out', delay: Math.random() * 0.2 }
-          );
-        });
-      } else {
-        // Fallback: elastic bounce
-        gsap.fromTo(el,
-          { scale: 0.3, opacity: 0, transformOrigin: 'center center' },
-          { scale: 1, opacity: 1, duration: 0.6, ease: 'elastic.out(1.2, 0.5)' }
-        );
-      }
-      break;
-    }
-
-    case 'pres': {
-      // 3D flip on Y axis
-      el.style.perspective = '1200px';
-      gsap.fromTo(el,
-        { rotationY: -90, opacity: 0, transformOrigin: 'left center' },
-        { rotationY: 0, opacity: 1, duration: 0.5, ease: 'power2.out' }
-      );
-      break;
-    }
-
-    case 'exp': {
-      // Glitch effect — chromatic shift flicker
-      const tl = gsap.timeline();
-      gsap.set(el, { opacity: 1, x: 0 });
-      tl.to(el, { x: -6, duration: 0.04, repeat: 4, yoyo: true, ease: 'none' });
-      tl.fromTo(el,
-        { filter: 'hue-rotate(0deg)' },
-        { filter: 'hue-rotate(360deg)', duration: 0.3, ease: 'none' }
-      );
-      tl.to(el, { filter: 'none', x: 0 });
-      gsap.fromTo(el,
-        { scaleX: 1.04, scaleY: 0.96 },
-        { scaleX: 1, scaleY: 1, duration: 0.3, ease: 'elastic.out(1, 0.5)' }
-      );
-      break;
-    }
-
-    case 'terminal': {
-      // Matrix rain burst
-      gsap.set(el, { opacity: 0, scale: 0.95 });
-      const chars = 'ABCDEF0123456789';
-      const numRains = 10;
-      for (let c = 0; c < numRains; c++) {
-        const span = document.createElement('span');
-        span.style.cssText = 'position:absolute;top:0;left:' + (c * 12) + 'px;color:#33ff33;font-family:"Space Mono",monospace;font-size:12px;pointer-events:none;z-index:1000;';
-        let txt = '';
-        for (let k = 0; k < 10; k++) txt += chars[Math.floor(Math.random() * chars.length)];
-        span.textContent = txt;
-        el.appendChild(span);
-        const h = el.clientHeight || 300;
-        gsap.fromTo(span,
-          { y: -20, opacity: 1 },
-          { y: h, opacity: 0, duration: 0.4 + Math.random() * 0.3, ease: 'none',
-            onComplete: () => { if (span.parentNode) span.remove(); } }
-        );
-      }
-      setTimeout(() => {
-        gsap.to(el, { opacity: 1, scale: 1, duration: 0.2, ease: 'power2.out' });
-      }, 300);
-      break;
-    }
-
-    case 'explorer': {
-      // Elastic bounce from center
-      gsap.fromTo(el,
-        { scale: 0.3, opacity: 0, transformOrigin: 'center center' },
-        { scale: 1, opacity: 1, duration: 0.6, ease: 'elastic.out(1.2, 0.5)' }
-      );
-      break;
-    }
-
-    case 'notepad': {
-      // Typewriter reveal — fade in window then type out textarea content
-      gsap.fromTo(el, { opacity: 0 }, { opacity: 1, duration: 0.1 });
-      const ta = el.querySelector('textarea');
-      if (ta) {
-        const fullText = ta.value;
-        ta.value = '';
-        ta.dispatchEvent(new Event('input'));
-        let idx = 0;
-        const batchSize = Math.ceil(fullText.length / 75); // ~1.5s max
-        const typeInterval = setInterval(() => {
-          idx = Math.min(idx + Math.max(1, batchSize), fullText.length);
-          ta.value = fullText.slice(0, idx);
-          ta.dispatchEvent(new Event('input'));
-          if (idx >= fullText.length) clearInterval(typeInterval);
-        }, 20);
-      }
-      break;
-    }
-
-    case 'recycle': {
-      // Items fall in from top
-      gsap.set(el, { opacity: 1 });
-      const contentArea = el.querySelector('.win95-content') || el;
-      const kids = contentArea.querySelectorAll('div > div, li');
-      if (kids.length > 0) {
-        gsap.fromTo(kids,
-          { y: -60, opacity: 0 },
-          { y: 0, opacity: 1, duration: 0.4, stagger: 0.12, ease: 'bounce.out' }
-        );
-      } else {
-        gsap.fromTo(el, { y: -20, opacity: 0 }, { y: 0, opacity: 1, duration: 0.3 });
-      }
-      break;
-    }
-
-    default: {
-      // Default: elastic bounce
-      gsap.fromTo(el,
-        { scale: 0.3, opacity: 0, transformOrigin: 'center center' },
-        { scale: 1, opacity: 1, duration: 0.6, ease: 'elastic.out(1.2, 0.5)' }
-      );
-    }
+  if (contentNodes.length) {
+    tl.fromTo(
+      contentNodes,
+      { opacity: 0, y: 8, scale: 0.996, filter: 'blur(2px)', force3D: true },
+      { opacity: 1, y: 0, scale: 1, filter: 'blur(0px)', duration: Math.min(0.22, (profile.to.duration || 0.24) + 0.02), ease: 'power2.out', stagger: 0.022, force3D: true, clearProps: 'transform,opacity,filter' },
+      0.04
+    );
   }
 }
 
@@ -1954,11 +1934,24 @@ document.addEventListener('keydown', e => {
 
 // Pioneer + arch demo handlers
 document.querySelectorAll('.pioneer').forEach(el => {
-  el.addEventListener('click', () => {
+  el.setAttribute('tabindex', '0');
+  const activatePioneer = () => {
+    document.querySelectorAll('.pioneer').forEach(card => card.classList.remove('is-active'));
+    el.classList.add('is-active');
     const info = document.getElementById('pioneerInfo');
     info.textContent = el.dataset.info;
     info.style.borderColor = 'var(--green)';
     info.style.color = 'var(--text)';
+    info.style.boxShadow = '0 18px 36px rgba(0, 0, 0, 0.2), 0 0 20px rgba(0, 255, 136, 0.08)';
+  };
+  el.addEventListener('click', () => {
+    activatePioneer();
+  });
+  el.addEventListener('keydown', (event) => {
+    if (event.key === 'Enter' || event.key === ' ') {
+      event.preventDefault();
+      activatePioneer();
+    }
   });
 });
 

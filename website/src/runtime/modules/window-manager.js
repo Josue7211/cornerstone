@@ -254,9 +254,7 @@ export function createWindowManager(deps = {}) {
       if (entry && !entry.minimized) {
         entry.el.classList.add('focused');
         entry.el.style.zIndex = ++this.zCounter;
-        entry.el.classList.remove('window-focus-flash');
-        void entry.el.offsetWidth;
-        entry.el.classList.add('window-focus-flash');
+        this._animateFocusPulse(entry.el);
         playWindowSound('focus');
         dispatchOsEvent('window_focus', { appId, title: entry.title });
       }
@@ -289,10 +287,8 @@ export function createWindowManager(deps = {}) {
       const pill = document.getElementById('pill-' + appId);
       if (pill) pill.classList.remove('minimized-state');
       this._animateFromTaskbar(entry.el, appId, () => {
-        entry.el.classList.remove('window-restore-pop');
-        void entry.el.offsetWidth;
-        entry.el.classList.add('window-restore-pop');
         entry.el.style.visibility = '';
+        this._animateRestorePop(entry.el);
         playWindowSound('restore');
         dispatchOsEvent('window_restore', { appId, title: entry.title });
         this.focusWindow(appId);
@@ -302,32 +298,64 @@ export function createWindowManager(deps = {}) {
     closeWindow(appId) {
       const entry = this.windows.get(appId);
       if (!entry) return;
-      if (entry.onClose) {
-        try {
-          entry.onClose();
-        } catch (err) {}
-      }
-      if (entry.audioEl) {
-        entry.audioEl.pause();
-        entry.audioEl.src = '';
-      }
-      const contentArea = entry.el.querySelector('.win95-content');
-      if (contentArea) {
-        const panel = contentArea.querySelector('.panel');
-        if (panel) {
-          panel.classList.remove('open');
-          panel.style.cssText = '';
-          document.body.appendChild(panel);
+      const finalizeClose = () => {
+        if (entry.onClose) {
+          try {
+            entry.onClose();
+          } catch (err) {}
         }
+        if (entry.audioEl) {
+          entry.audioEl.pause();
+          entry.audioEl.src = '';
+        }
+        const contentArea = entry.el.querySelector('.win95-content');
+        if (contentArea) {
+          const panel = contentArea.querySelector('.panel');
+          if (panel) {
+            panel.classList.remove('open');
+            panel.style.cssText = '';
+            document.body.appendChild(panel);
+          }
+        }
+        entry.el.remove();
+        this.windows.delete(appId);
+        if (appId === 'terminal') onTerminalClosed();
+        const pill = document.getElementById('pill-' + appId);
+        if (pill) pill.remove();
+        dispatchOsEvent('window_close', { appId, title: entry.title });
+        const remaining = Array.from(this.windows.keys()).pop();
+        if (remaining) this.focusWindow(remaining);
+      };
+
+      if (typeof window !== 'undefined' && window.gsap) {
+        const shell = entry.el.querySelector('.win95-content') || entry.el;
+        const contentNodes = Array.from(shell.children).slice(0, 10);
+        window.gsap.killTweensOf(entry.el);
+        window.gsap.killTweensOf(contentNodes);
+        const tl = window.gsap.timeline({ onComplete: finalizeClose });
+        if (contentNodes.length) {
+          tl.to(contentNodes, {
+            opacity: 0,
+            y: -8,
+            scale: 0.994,
+            filter: 'blur(4px)',
+            duration: 0.14,
+            stagger: 0.02,
+            ease: 'power2.in'
+          }, 0);
+        }
+        tl.to(entry.el, {
+          opacity: 0,
+          y: 16,
+          scale: 0.97,
+          filter: 'blur(7px)',
+          duration: 0.2,
+          ease: 'power2.in'
+        }, 0.02);
+        return;
       }
-      entry.el.remove();
-      this.windows.delete(appId);
-      if (appId === 'terminal') onTerminalClosed();
-      const pill = document.getElementById('pill-' + appId);
-      if (pill) pill.remove();
-      dispatchOsEvent('window_close', { appId, title: entry.title });
-      const remaining = Array.from(this.windows.keys()).pop();
-      if (remaining) this.focusWindow(remaining);
+
+      finalizeClose();
     }
   
     _toggleMaximize(appId) {
@@ -465,6 +493,53 @@ export function createWindowManager(deps = {}) {
       win.style.top = rect.top + 'px';
       win.style.width = rect.width + 'px';
       win.style.height = rect.height + 'px';
+    }
+
+    _animateFocusPulse(win) {
+      if (!win || typeof window === 'undefined' || !window.gsap) return;
+      const titlebar = win.querySelector('.win95-titlebar');
+      const content = win.querySelector('.win95-content');
+      window.gsap.killTweensOf([win, titlebar, content]);
+      window.gsap.fromTo(
+        win,
+        { y: 2, scale: 0.996, filter: 'brightness(0.97)' },
+        { y: 0, scale: 1, filter: 'brightness(1)', duration: 0.2, ease: 'power2.out', clearProps: 'transform,filter' }
+      );
+      if (titlebar) {
+        window.gsap.fromTo(
+          titlebar,
+          { filter: 'brightness(1.18)', boxShadow: '0 0 0 rgba(0,0,0,0)' },
+          { filter: 'brightness(1)', boxShadow: '0 0 0 rgba(0,0,0,0)', duration: 0.22, ease: 'power2.out', clearProps: 'filter,boxShadow' }
+        );
+      }
+      if (content) {
+        window.gsap.fromTo(
+          content,
+          { opacity: 0.94 },
+          { opacity: 1, duration: 0.18, ease: 'power1.out', clearProps: 'opacity' }
+        );
+      }
+    }
+
+    _animateRestorePop(win) {
+      if (!win || typeof window === 'undefined' || !window.gsap) return;
+      const content = win.querySelector('.win95-content');
+      window.gsap.killTweensOf([win, content]);
+      const tl = window.gsap.timeline();
+      tl.fromTo(
+        win,
+        { opacity: 0.78, y: 18, scale: 0.94, filter: 'blur(5px)', transformOrigin: 'center bottom' },
+        { opacity: 1, y: 0, scale: 1, filter: 'blur(0px)', duration: 0.28, ease: 'expo.out', clearProps: 'transform,opacity,filter' },
+        0
+      );
+      if (content) {
+        tl.fromTo(
+          content,
+          { opacity: 0, y: 10 },
+          { opacity: 1, y: 0, duration: 0.18, ease: 'power2.out', clearProps: 'transform,opacity' },
+          0.08
+        );
+      }
     }
   
     _getDesktopBounds() {

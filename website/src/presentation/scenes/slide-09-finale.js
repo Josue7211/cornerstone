@@ -8,12 +8,21 @@ export function createSlide09FinaleScene({ mode, scene }) {
   return {
     mount() {
       if (qa) {
+        qa.setAttribute('tabindex', '0');
         const onClick = () => {
           qa.classList.toggle('is-focus');
           mode._setBonziBubble('Finale', qa.classList.contains('is-focus') ? 'Q&A spotlight on.' : 'Q&A spotlight off.');
         };
+        const onKeydown = (event) => {
+          if (event.key === 'Enter' || event.key === ' ') {
+            event.preventDefault();
+            onClick();
+          }
+        };
         qa.addEventListener('click', onClick);
+        qa.addEventListener('keydown', onKeydown);
         teardown.push(() => qa.removeEventListener('click', onClick));
+        teardown.push(() => qa.removeEventListener('keydown', onKeydown));
       }
       reflections.forEach((item, index) => {
         item.setAttribute('tabindex', '0');

@@ -15,28 +15,28 @@ export function applyTransitionFlavor(refs, tl, style = 'push', direction = 1) {
   if (cineBottom) tl.set(cineBottom, { opacity: 0, height: 0 }, 0);
 
   if (style === 'push') {
-    // Subtle depth veil — slightly heavier than before so the Z-push reads
+    // Depth veil kept intentionally light so the slide move does the work.
     if (veil) {
       veil.style.mixBlendMode = 'screen';
-      veil.style.background = 'radial-gradient(circle at 50% 50%, rgba(80,160,255,0.18) 0%, rgba(20,60,140,0.08) 40%, rgba(7,10,22,0) 74%)';
-      tl.fromTo(veil, { opacity: 0 }, { opacity: 0.22, duration: 0.18, ease: 'power2.out' }, 0);
-      tl.to(veil, { opacity: 0, duration: 0.38, ease: 'power2.out' }, 0.2);
+      veil.style.background = 'radial-gradient(circle at 50% 50%, rgba(80,160,255,0.32) 0%, rgba(20,60,140,0.16) 40%, rgba(7,10,22,0) 72%)';
+      tl.fromTo(veil, { opacity: 0 }, { opacity: 0.32, duration: 0.1, ease: 'power2.out' }, 0);
+      tl.to(veil, { opacity: 0, duration: 0.26, ease: 'power2.out' }, 0.12);
     }
   } else if (style === 'trace') {
-    // Signal trace sweeps across — sharp glowing vertical line
+    // Narrow trace highlight, less like a hard wipe.
     if (veil) {
       veil.style.mixBlendMode = 'screen';
-      veil.style.background = 'radial-gradient(circle at 50% 50%, rgba(120,230,255,0.12) 0%, rgba(7,10,22,0) 60%)';
-      tl.fromTo(veil, { opacity: 0 }, { opacity: 0.14, duration: 0.1, ease: 'none' }, 0);
-      tl.to(veil, { opacity: 0, duration: 0.24, ease: 'power2.out' }, 0.16);
+      veil.style.background = 'radial-gradient(circle at 50% 50%, rgba(120,230,255,0.26) 0%, rgba(7,10,22,0) 56%)';
+      tl.fromTo(veil, { opacity: 0 }, { opacity: 0.26, duration: 0.08, ease: 'none' }, 0);
+      tl.to(veil, { opacity: 0, duration: 0.2, ease: 'power2.out' }, 0.12);
     }
     if (stageTrace) {
       stageTrace.style.position = 'absolute';
       stageTrace.style.top = '0';
       stageTrace.style.left = '0';
-      stageTrace.style.width = '8px';
+      stageTrace.style.width = '6px';
       stageTrace.style.height = '100%';
-      stageTrace.style.background = 'linear-gradient(to right, transparent 0%, rgba(80,200,255,0.6) 30%, rgba(200,240,255,0.95) 50%, rgba(80,200,255,0.6) 70%, transparent 100%)';
+      stageTrace.style.background = 'linear-gradient(to right, transparent 0%, rgba(80,200,255,0.42) 30%, rgba(200,240,255,0.78) 50%, rgba(80,200,255,0.42) 70%, transparent 100%)';
       stageTrace.style.mixBlendMode = 'screen';
       stageTrace.style.pointerEvents = 'none';
       stageTrace.style.zIndex = '20';
@@ -49,56 +49,56 @@ export function applyTransitionFlavor(refs, tl, style = 'push', direction = 1) {
       tl.fromTo(
         stageTrace,
         { opacity: 0, left: `${startX}%` },
-        { opacity: 1, left: `${endX}%`, duration: 0.28, ease: 'power2.inOut' },
-        0.04
+        { opacity: 0.9, left: `${endX}%`, duration: 0.22, ease: 'power2.inOut' },
+        0.03
       );
-      tl.to(stageTrace, { opacity: 0, duration: 0.06, ease: 'none' }, 0.3);
-      tl.set(stageTrace, { display: 'none', opacity: 0 }, 0.38);
+      tl.to(stageTrace, { opacity: 0, duration: 0.05, ease: 'none' }, 0.24);
+      tl.set(stageTrace, { display: 'none', opacity: 0 }, 0.31);
     }
   } else if (style === 'finale') {
     if (veil) {
       veil.style.mixBlendMode = 'screen';
-      veil.style.background = 'radial-gradient(circle at 50% 50%, rgba(255,255,255,0.16) 0%, rgba(145,211,255,0.08) 30%, rgba(7,10,22,0.0) 74%)';
-      tl.fromTo(veil, { opacity: 0 }, { opacity: 0.08, duration: 0.16, ease: 'power2.out' }, 0);
-      tl.to(veil, { opacity: 0, duration: 0.34, ease: 'power2.out' }, 0.18);
+      veil.style.background = 'radial-gradient(circle at 50% 50%, rgba(255,255,255,0.3) 0%, rgba(145,211,255,0.16) 30%, rgba(7,10,22,0.0) 72%)';
+      tl.fromTo(veil, { opacity: 0 }, { opacity: 0.18, duration: 0.12, ease: 'power2.out' }, 0);
+      tl.to(veil, { opacity: 0, duration: 0.24, ease: 'power2.out' }, 0.12);
     }
     if (stageRing) {
-      stageRing.style.background = 'radial-gradient(circle at 50% 50%, rgba(255,255,255,0) 0 22%, rgba(255,255,255,0.14) 24%, rgba(173,247,255,0.08) 30%, rgba(255,125,224,0.04) 36%, rgba(8,12,24,0) 48%)';
-      stageRing.style.filter = 'saturate(1.0) blur(0.7px)';
-      tl.fromTo(stageRing, { opacity: 0, scale: 0.98, rotate: -6 * direction }, { opacity: 0.05, scale: 1.02, rotate: 4 * direction, duration: 0.42, ease: 'power2.out' }, 0.06);
-      tl.to(stageRing, { opacity: 0, scale: 1.04, duration: 0.22, ease: 'power2.out' }, 0.3);
+      stageRing.style.background = 'radial-gradient(circle at 50% 50%, rgba(255,255,255,0) 0 22%, rgba(255,255,255,0.44) 24%, rgba(173,247,255,0.24) 30%, rgba(255,125,224,0.14) 36%, rgba(8,12,24,0) 48%)';
+      stageRing.style.filter = 'saturate(1.15) blur(1px)';
+      tl.fromTo(stageRing, { opacity: 0, scale: 0.98, rotate: -5 * direction }, { opacity: 0.18, scale: 1.02, rotate: 3 * direction, duration: 0.3, ease: 'power2.out' }, 0.04);
+      tl.to(stageRing, { opacity: 0, scale: 1.04, duration: 0.18, ease: 'power2.out' }, 0.22);
     }
     if (stageSweep) {
-      stageSweep.style.background = 'linear-gradient(112deg, transparent 0%, rgba(255,255,255,0) 36%, rgba(196,243,255,0.08) 46%, rgba(255,143,220,0.05) 54%, rgba(170,255,236,0.03) 60%, rgba(255,255,255,0) 72%, transparent 100%)';
+      stageSweep.style.background = 'linear-gradient(112deg, transparent 0%, rgba(255,255,255,0) 28%, rgba(196,243,255,0.26) 42%, rgba(255,143,220,0.18) 50%, rgba(170,255,236,0.14) 58%, rgba(255,255,255,0) 72%, transparent 100%)';
       stageSweep.style.mixBlendMode = 'screen';
-      tl.fromTo(stageSweep, { opacity: 0, xPercent: -118 * direction, skewX: -10 * direction }, { opacity: 0.03, xPercent: 96 * direction, skewX: -3 * direction, duration: 0.32, ease: 'power2.inOut' }, 0.12);
-      tl.to(stageSweep, { opacity: 0, duration: 0.16, ease: 'power2.out' }, 0.28);
+      tl.fromTo(stageSweep, { opacity: 0, xPercent: -112 * direction, skewX: -10 * direction }, { opacity: 0.12, xPercent: 90 * direction, skewX: -3 * direction, duration: 0.24, ease: 'power2.inOut' }, 0.08);
+      tl.to(stageSweep, { opacity: 0, duration: 0.12, ease: 'power2.out' }, 0.2);
     }
     if (stageNoise) {
-      stageNoise.style.backgroundImage = 'radial-gradient(circle at center, rgba(255,255,255,0.08) 0.55px, transparent 0.7px)';
+      stageNoise.style.backgroundImage = 'radial-gradient(circle at center, rgba(255,255,255,0.22) 0.55px, transparent 0.7px)';
       stageNoise.style.backgroundSize = '3px 3px';
       tl.set(stageNoise, { display: 'block' }, 0);
-      tl.fromTo(stageNoise, { opacity: 0 }, { opacity: 0.08, duration: 0.14, ease: 'none' }, 0.08);
-      tl.to(stageNoise, { opacity: 0, duration: 0.24, ease: 'none' }, 0.28);
+      tl.fromTo(stageNoise, { opacity: 0 }, { opacity: 0.12, duration: 0.1, ease: 'none' }, 0.06);
+      tl.to(stageNoise, { opacity: 0, duration: 0.16, ease: 'none' }, 0.18);
     }
     if (endFlash) {
-      tl.set(endFlash, { display: 'block', background: 'radial-gradient(circle at 50% 45%, rgba(255,255,255,0.86) 0%, rgba(214,234,255,0.44) 34%, rgba(10,12,22,0) 74%)' }, 0.16);
-      tl.fromTo(endFlash, { opacity: 0 }, { opacity: 0.05, duration: 0.16, ease: 'power2.out' }, 0.22);
-      tl.to(endFlash, { opacity: 0, duration: 0.24, ease: 'power2.out' }, 0.38);
-      tl.set(endFlash, { display: 'none' }, 0.66);
+      tl.set(endFlash, { display: 'block', background: 'radial-gradient(circle at 50% 45%, rgba(255,255,255,0.85) 0%, rgba(214,234,255,0.42) 34%, rgba(10,12,22,0) 72%)' }, 0.1);
+      tl.fromTo(endFlash, { opacity: 0 }, { opacity: 0.16, duration: 0.12, ease: 'power2.out' }, 0.12);
+      tl.to(endFlash, { opacity: 0, duration: 0.18, ease: 'power2.out' }, 0.24);
+      tl.set(endFlash, { display: 'none' }, 0.46);
     }
     if (cineTop && cineBottom) {
-      tl.fromTo(cineTop, { opacity: 0, height: 0 }, { opacity: 0.16, height: 16, duration: 0.14, ease: 'sine.out' }, 0.08);
-      tl.fromTo(cineBottom, { opacity: 0, height: 0 }, { opacity: 0.16, height: 16, duration: 0.14, ease: 'sine.out' }, 0.08);
-      tl.to([cineTop, cineBottom], { opacity: 0, duration: 0.2, ease: 'power2.out' }, 0.44);
+      tl.fromTo(cineTop, { opacity: 0, height: 0 }, { opacity: 0.34, height: 16, duration: 0.12, ease: 'sine.out' }, 0.04);
+      tl.fromTo(cineBottom, { opacity: 0, height: 0 }, { opacity: 0.34, height: 16, duration: 0.12, ease: 'sine.out' }, 0.04);
+      tl.to([cineTop, cineBottom], { opacity: 0, duration: 0.16, ease: 'power2.out' }, 0.26);
     }
   } else {
-    // warp / legacy fallback — simple veil flash
+    // warp / fallback portal flash
     if (veil) {
       veil.style.mixBlendMode = 'screen';
-      veil.style.background = 'radial-gradient(circle at 50% 50%, rgba(255,255,255,0.16) 0%, rgba(145,211,255,0.08) 30%, rgba(7,10,22,0.0) 74%)';
-      tl.fromTo(veil, { opacity: 0 }, { opacity: 0.05, duration: 0.16, ease: 'power2.out' }, 0);
-      tl.to(veil, { opacity: 0, duration: 0.34, ease: 'power2.out' }, 0.18);
+      veil.style.background = 'radial-gradient(circle at 50% 50%, rgba(255,255,255,0.28) 0%, rgba(145,211,255,0.16) 30%, rgba(7,10,22,0.0) 72%)';
+      tl.fromTo(veil, { opacity: 0 }, { opacity: 0.18, duration: 0.12, ease: 'power2.out' }, 0);
+      tl.to(veil, { opacity: 0, duration: 0.24, ease: 'power2.out' }, 0.12);
     }
   }
 

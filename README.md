@@ -36,3 +36,16 @@ This project is designed for self-hosted use.
 ## Contributing
 
 See [CONTRIBUTING.md](CONTRIBUTING.md) for the development workflow and safety notes.
+
+## Release Workflow
+
+- `master` is the stable branch for release-ready snapshots.
+- `develop` is the integration branch for active work before release.
+- Use short-lived branches such as `feat/<slug>`, `fix/<slug>`, `docs/<slug>`, and `chore/<slug>`.
+- Repository version history lives in [CHANGELOG.md](CHANGELOG.md) and [VERSION](VERSION).
+
+Create a feature branch with:
+
+```bash
+./scripts/git-start-branch.sh feat polish-final-product
+```

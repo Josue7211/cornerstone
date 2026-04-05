@@ -69,12 +69,17 @@
   <div class="panel" id="panelPaper">
     <button class="panel-close" id="closePanelBtn">&#10005; BACK TO LOBBY</button>
     <div class="panel-scroll" id="panelPaperScroll">
-      <div class="panel-header panel-header--paper">
-        <p class="panel-eyebrow">Research Paper · 13,455 words · 35 APA Sources</p>
-        <h1>From Pixels to Intelligence</h1>
-        <p class="panel-subtitle">How Open-Source AI and Consumer Hardware Are Making Cloud Computing Obsolete</p>
-        <p class="panel-author">Project Author · Open-source release</p>
-      </div>
+        <div class="panel-header panel-header--paper">
+          <p class="panel-eyebrow">Research Paper · 13,455 words · 35 APA Sources</p>
+          <h1>From Pixels to Intelligence</h1>
+          <p class="panel-subtitle">How Open-Source AI and Consumer Hardware Are Making Cloud Computing Obsolete</p>
+          <div class="panel-header-meta" aria-label="Paper highlights">
+            <span>Hardware history</span>
+            <span>Policy and economics</span>
+            <span>Local AI thesis</span>
+          </div>
+          <p class="panel-author">Project Author · Open-source release</p>
+        </div>
       <div class="panel-body">
 
         <div class="paper-abstract">
@@ -163,6 +168,11 @@
           <p class="panel-eyebrow">Research Presentation · 10–12 Minutes · IDS2891</p>
           <h1>From Pixels to Intelligence</h1>
           <p class="panel-subtitle">The Hardware Revolution Powering Artificial Intelligence</p>
+          <div class="pres-header-meta" aria-label="Presentation highlights">
+            <span>Interactive website</span>
+            <span>Live fullscreen talk track</span>
+            <span>Open-source final build</span>
+          </div>
         </div>
 
         <div class="pres-slide-track">
@@ -173,13 +183,27 @@
             <div class="slide-tag">TITLE SLIDE</div>
             <h2>From Pixels to Intelligence</h2>
             <p class="slide-subtitle-big">How Gaming GPUs Became the Engine of AI</p>
-            <div class="slide-meta-info">
-              <p>Project Author</p>
-              <p>Open-source release</p>
-              <p>Self-hosted release</p>
+            <div class="slide-meta-info slide-meta-info--hero">
+              <span class="slide-meta-pill">Computer engineering lens</span>
+              <span class="slide-meta-pill">Local AI on consumer hardware</span>
+              <span class="slide-meta-pill">Interactive final presentation</span>
             </div>
             <div class="slide-preview">
               <p class="slide-body"><strong>Preview:</strong> We're going to trace how a $500 gaming chip — designed to render Call of Duty explosions — accidentally became the most important piece of technology in artificial intelligence. Along the way, we'll explore why CPUs failed at AI, how purpose-built silicon changed the game, what this means across disciplines from economics to political science, and why you should care about the hardware powering the tools you use every day.</p>
+            </div>
+            <div class="slide-kicker-grid" aria-label="Opening takeaways">
+              <article class="slide-kicker-card">
+                <span class="slide-kicker-label">Past</span>
+                <p>Gaming GPUs were built for pixels, not language models.</p>
+              </article>
+              <article class="slide-kicker-card">
+                <span class="slide-kicker-label">Shift</span>
+                <p>CUDA, tensor math, and model compression turned them into AI infrastructure.</p>
+              </article>
+              <article class="slide-kicker-card">
+                <span class="slide-kicker-label">Why it matters</span>
+                <p>Ownership of local hardware changes privacy, cost, and who gets to participate.</p>
+              </article>
             </div>
           </div>
 
@@ -477,11 +501,26 @@
             <blockquote class="slide-thesis">
               "AI is not a service to be rented.<br>It is a tool to be owned."
             </blockquote>
+            <div class="slide-reflections" aria-label="Closing reflections">
+              <div class="reflection-item">
+                <span class="ref-label">Hardware</span>
+                <p>The same consumer chips built for games now anchor the AI stack.</p>
+              </div>
+              <div class="reflection-item">
+                <span class="ref-label">Power</span>
+                <p>When inference moves local, privacy and access stop depending on a cloud subscription.</p>
+              </div>
+              <div class="reflection-item">
+                <span class="ref-label">Future</span>
+                <p>AI literacy now includes understanding the hardware and supply chains underneath the model.</p>
+              </div>
+            </div>
             <div class="slide-qa">
               <h3>Questions?</h3>
               <p class="slide-body">I'm happy to discuss any aspect of the research — the hardware, the economics, the policy implications, or the homelab experience. You can explore the other sections of this website: the full research paper, the interactive CPU vs GPU demo, and the pioneer profiles.</p>
               <p class="slide-contact">Contact: open an issue or discussion in the repository.</p>
             </div>
+            <p class="slide-ending-note">Built as an open, self-hosted final project so the medium proves the thesis.</p>
           </div>
 
         </div><!-- end pres-slide-track -->
@@ -497,6 +536,11 @@
         <p class="panel-eyebrow">Interactive Experience</p>
         <h1>Inside the Machine</h1>
         <p class="panel-subtitle">Explore how AI hardware actually works</p>
+        <div class="panel-header-meta" aria-label="Experience highlights">
+          <span>Parallelism demo</span>
+          <span>Pioneer profiles</span>
+          <span>Key market stats</span>
+        </div>
       </div>
       <div class="panel-body">
 

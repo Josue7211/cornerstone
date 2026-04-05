@@ -14,3 +14,5 @@ website/package-lock.json
 cornerstone/
 .planning/
 .research/
+__pycache__/
+*.py[cod]
