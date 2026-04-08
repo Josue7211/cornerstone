@@ -3,6 +3,7 @@
   'use strict';
 
   var shared = window.Win95Shared || {};
+  var PUBLIC_DEMO = typeof window !== 'undefined' && !!window.__WIN95_PUBLIC_DEMO__;
   function file(name, opts) {
     return Object.assign({ type: 'file', name: name, size: '-', modified: '2026-03-31', icon: 'icon:file' }, opts || {});
   }
@@ -136,13 +137,12 @@
         icon: 'icon:text'
       }, { modified: '2026-04-01', size: '3.3 KB' }),
       fileShortcut('mustwatch.mp4', {
-        desktopId: 'desktop-mustwatch-shortcut',
         name: 'CPUvsGPUvsTPUvsDPUvsQPU.mp4',
         size: '2.7 MB',
         modified: '2026-04-01',
         url: './assets/media/videos/CPUvsGPUvsTPUvsDPUvsQPU.mp4',
         icon: 'icon:video'
-      }, { modified: '2026-04-01', size: '2.7 MB' }),
+      }, { desktopId: 'desktop-mustwatch-shortcut', modified: '2026-04-01', size: '2.7 MB' }),
       file('wallpaper-pixel.png', { size: '27 KB', url: './assets/media/photos/wallpaper-pixel.png', icon: 'icon:file' })
     ]),
     folder('Documents', [
@@ -330,7 +330,7 @@
         }),
         buildNestedBackupFolders(17)
       ]),
-      folder('IDS2891', [], { dynamicDocs: true })
+      ...(PUBLIC_DEMO ? [] : [folder('IDS2891', [], { dynamicDocs: true })])
     ]),
     folder('Media', [
       folder('Audio', [
@@ -340,7 +340,7 @@
       ]),
       folder('Photos', [
         file('wallpaper-pixel.png', { size: '27 KB', url: './assets/media/photos/wallpaper-pixel.png', icon: 'icon:document' }),
-        file('assignment-2-interest-web.png', { size: '123.9 KB', url: '../IDS2891/assignment-2-interest-web.png', icon: 'icon:document' }),
+        ...(PUBLIC_DEMO ? [] : [file('interest-web.png', { size: '123.9 KB', url: '../IDS2891/interest-web.png', icon: 'icon:document' })]),
         file('bonzi-real-still.png', { size: '48 KB', url: './assets/media/photos/bonzi-real-still.png', icon: 'icon:document' }),
         file('clippy-real.png', { size: '11 KB', url: './assets/media/photos/clippy-real.png', icon: 'icon:document' }),
         folder('Bonzi', [

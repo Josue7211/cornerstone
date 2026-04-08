@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { initIconDragModule } from './modules/icon-drag.js?v=icongrid2';
+import { initIconDragModule } from './modules/icon-drag.js?v=icongrid5';
 import { initContextMenuModule } from './modules/context-menu.js';
 import { animatePresSlides } from './modules/presentation-animations.js';
 import { createTerminalRuntime } from './modules/terminal-runtime.js';
@@ -8,8 +8,8 @@ import { createWindowManager } from './modules/window-manager.js';
 import { createStartMenuController } from './modules/start-menu.js';
 import { startBootSequence } from './modules/boot-sequence.js';
 import { createWin95Audio } from './modules/audio-effects.js';
-import { createAISystem } from './modules/ai-system.js';
-import { createNotepadSystem } from './modules/notepad-system.js';
+import { createAISystem } from './modules/ai-system.js?v=ai100kiosk7';
+import { createNotepadSystem } from './modules/notepad-system.js?v=notepad11';
 
 // Disable native browser context menu globally; app-specific menus still work.
 document.addEventListener('contextmenu', function(event) {
@@ -74,6 +74,7 @@ const playStartupChime = audioFx.playStartupChime;
 const playWindowSound = audioFx.playWindowSound;
 
 startBootSequence({
+  onBootStart: queueAiWarmups,
   onStartupChime: playStartupChime,
   onDesktopReady: showWin95Desktop
 });
@@ -85,14 +86,38 @@ let terminalRuntime = null;
 const recentAppIds = [];
 const recentEntries = [];
 const EXPLORER_MUTATION_LOG_KEY = 'ai98.explorer.mutations.v1';
-const DESKTOP_GRID_STORAGE_KEY = 'win95-icon-grid-v11';
 const aiSystem = createAISystem();
 const getClippyAiConfig = (...args) => aiSystem.getClippyAiConfig(...args);
 const getLocalAiStatus = (...args) => aiSystem.getLocalAiStatus(...args);
 const queryClippyOllama = (...args) => aiSystem.queryClippyOllama(...args);
-if (aiSystem && typeof aiSystem.prewarmLocalModel === 'function') {
-  aiSystem.prewarmLocalModel().catch(() => {});
+let aiModelPrewarmQueued = false;
+let aiModelPrewarmPromise = null;
+function queueAiWarmups() {
+  if (aiModelPrewarmQueued) return;
+  if (!aiSystem) return;
+  const warmups = [];
+  if (typeof aiSystem.prewarmLocalModel === 'function') warmups.push(aiSystem.prewarmLocalModel());
+  if (typeof aiSystem.prewarmKokoro === 'function') warmups.push(aiSystem.prewarmKokoro());
+  if (!warmups.length) return;
+  aiModelPrewarmQueued = true;
+  window.__WIN95_AI_PREWARM_READY = false;
+  aiModelPrewarmPromise = Promise.allSettled(warmups);
+  window.__WIN95_AI_PREWARM_PROMISE = aiModelPrewarmPromise;
+  aiModelPrewarmPromise.then(() => {
+    window.__WIN95_AI_PREWARM_READY = true;
+    if (window.__WIN95_AI_PREWARM_PROMISE === aiModelPrewarmPromise) {
+      window.__WIN95_AI_PREWARM_PROMISE = null;
+    }
+  }, () => {
+    aiModelPrewarmQueued = false;
+    window.__WIN95_AI_PREWARM_READY = false;
+    if (window.__WIN95_AI_PREWARM_PROMISE === aiModelPrewarmPromise) {
+      window.__WIN95_AI_PREWARM_PROMISE = null;
+    }
+    setTimeout(queueAiWarmups, 2500);
+  });
 }
+
 let notepadSystem = null;
 const iconHelper = (typeof window !== 'undefined' && window.Win95Shared) ? window.Win95Shared : null;
 
@@ -109,17 +134,6 @@ function pruneLegacyDesktopState() {
     });
     if (filtered.length !== log.length) {
       localStorage.setItem(EXPLORER_MUTATION_LOG_KEY, JSON.stringify(filtered));
-    }
-  } catch (e) {}
-
-  try {
-    const raw = localStorage.getItem(DESKTOP_GRID_STORAGE_KEY);
-    if (!raw) return;
-    const parsed = JSON.parse(raw);
-    if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) return;
-    if (Object.prototype.hasOwnProperty.call(parsed, 'dyn:internet explorer.lnk')) {
-      delete parsed['dyn:internet explorer.lnk'];
-      localStorage.setItem(DESKTOP_GRID_STORAGE_KEY, JSON.stringify(parsed));
     }
   } catch (e) {}
 }
@@ -475,6 +489,21 @@ function showWin95Desktop() {
   if (window.BonziBuddy && window.BonziBuddy.init) {
     window.BonziBuddy.init();
   }
+  const primePresentationNarration = () => {
+    if (!window.PresentationMode) return;
+    if (typeof window.PresentationMode.primeNarrationCatalog === 'function') {
+      window.PresentationMode.primeNarrationCatalog(0);
+      return;
+    }
+    if (typeof window.PresentationMode._primeNarrationForSlide !== 'function') return;
+    window.PresentationMode._primeNarrationForSlide(0);
+    window.PresentationMode._primeNarrationForSlide(1);
+  };
+  if (typeof window.requestIdleCallback === 'function') {
+    window.requestIdleCallback(primePresentationNarration, { timeout: 2500 });
+  } else {
+    setTimeout(primePresentationNarration, 1200);
+  }
   scheduleDesktopOnboarding();
 
   // Initialize screensaver (Phase 17)
@@ -543,7 +572,7 @@ function scheduleDesktopOnboarding() {
 
   setTimeout(() => {
     if (window.BonziBuddy && typeof window.BonziBuddy.showHint === 'function') {
-      window.BonziBuddy.showHint('Welcome to AI 98 OS. I will get you oriented without slowing you down.', 4600);
+      window.BonziBuddy.showHint('Welcome to AI 98 OS. I am already arguing with Clippy, but I will get you oriented without slowing you down.', 5200);
     }
   }, 800);
 
@@ -564,7 +593,7 @@ function scheduleDesktopOnboarding() {
 
   setTimeout(() => {
     if (window.BonziBuddy && typeof window.BonziBuddy.showHint === 'function') {
-      window.BonziBuddy.showHint('Open Notepad any time if you want Clippy to help outline, summarize, or polish writing.', 5400);
+      window.BonziBuddy.showHint('Open Notepad any time if you want Clippy to help outline, summarize, or polish writing. I will pretend not to care.', 6200);
     }
   }, 11800);
 }

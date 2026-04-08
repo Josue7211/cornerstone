@@ -24,6 +24,7 @@
   var WINAMP_STATE_KEY = 'win95-winamp-state-v2';
   var WINAMP_EQ_PRESETS_KEY = 'win95-winamp-eq-presets-v1';
   var WINAMP_SKIN_KEY = 'win95-winamp-skin';
+  var PUBLIC_DEMO = typeof window !== 'undefined' && !!window.__WIN95_PUBLIC_DEMO__;
 
   function getAudioCtx() {
     if (window._win95AudioCtx && typeof window._win95AudioCtx === 'function') {
@@ -169,7 +170,6 @@
     volSlider.className = 'winamp-vol-slider';
     volRow.appendChild(volLabel);
     volRow.appendChild(volSlider);
-    wrap.appendChild(volRow);
 
     var utilityRow = document.createElement('div');
     utilityRow.className = 'winamp-utility-row';
@@ -196,8 +196,6 @@
       skinSelect.appendChild(el);
     });
     utilityRow.appendChild(skinSelect);
-
-    wrap.appendChild(utilityRow);
 
     var eqSection = document.createElement('div');
     eqSection.className = 'winamp-eq';
@@ -234,8 +232,12 @@
 
     eqSection.appendChild(eqTitle);
     eqSection.appendChild(eqBands);
-    wrap.appendChild(eqSection);
 
+    if (!PUBLIC_DEMO) {
+      wrap.appendChild(volRow);
+      wrap.appendChild(utilityRow);
+      wrap.appendChild(eqSection);
+    }
     var playlist = document.createElement('div');
     playlist.className = 'winamp-playlist';
     wrap.appendChild(playlist);

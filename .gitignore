@@ -1,6 +1,8 @@
 website/assets/models/
 website/portraits/
 website/assets/hdri/
+IDS2891/
+website/assets/ids2891/
 .env
 .env.*
 !.env.example

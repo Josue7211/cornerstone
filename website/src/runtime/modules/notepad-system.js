@@ -1,10 +1,10 @@
-import { createClippyAssistant } from './clippy-assistant.js';
+import { createClippyAssistant } from './clippy-assistant.js?v=clippyfix5';
 
 export function createNotepadSystem(deps = {}) {
   const wm = deps.wm;
   const animateWindowOpen = deps.animateWindowOpen || (() => {});
   const mediaWindows = deps.mediaWindows;
-  const getClippyAiConfig = deps.getClippyAiConfig || (() => ({ model: 'qwen3.5:0.8b' }));
+  const getClippyAiConfig = deps.getClippyAiConfig || (() => ({ model: 'FieldMouse-AI/qwen3.5:0.8b-Q4_K_M' }));
   const queryClippyOllama = deps.queryClippyOllama || (async () => ({ text: '', model: 'fallback' }));
   const setWindowTitle = deps.setWindowTitle || (() => {});
   const getAppConfig = deps.getAppConfig || (() => ({}));
@@ -136,6 +136,20 @@ export function createNotepadSystem(deps = {}) {
     }, Math.max(0, delayMs));
   }
 
+  function showClippyWarmupNotice(shell) {
+    if (!shell) return;
+    const existing = shell.querySelector('.clippy-warmup-note');
+    if (existing) existing.remove();
+
+    const note = document.createElement('div');
+    note.className = 'clippy-warmup-note bonzi-hint';
+    note.textContent = 'Clippy is warming up...';
+    shell.appendChild(note);
+    setTimeout(() => {
+      if (note.parentNode) note.remove();
+    }, 2200);
+  }
+
   function openNotepadDocument(doc = {}) {
     const fileName = doc.fileName || 'Untitled.txt';
     const fileContent = typeof doc.content === 'string' ? doc.content : DEFAULT_NOTEPAD_TEXT;
@@ -174,6 +188,9 @@ export function createNotepadSystem(deps = {}) {
         shell.__clippyApi.updateFile(fileName);
       }
       if (clippyFlash && shell) showClippyFlash(shell, clippyFlashDelayMs);
+      if (shell && window.__WIN95_AI_PREWARM_PROMISE && !window.__WIN95_AI_PREWARM_READY) {
+        showClippyWarmupNotice(shell);
+      }
       setWindowTitle('notepad', title, 'icon:text');
       return;
     }
@@ -243,6 +260,9 @@ export function createNotepadSystem(deps = {}) {
       }
     });
     if (clippyFlash) showClippyFlash(shell, clippyFlashDelayMs);
+    if (window.__WIN95_AI_PREWARM_PROMISE && !window.__WIN95_AI_PREWARM_READY) {
+      showClippyWarmupNotice(shell);
+    }
   
     attachNotepadStarterClear(ta);
     applyNotepadCounts(hints, fileContent);

@@ -31,7 +31,9 @@ class PresentationMode {
     this.autoNarrationPromise = null;
     this.autoNarrationSlide = -1;
     this.autoNarrationToken = 0;
+    this.narrationLoadingTimer = null;
     this.autoStatusInterval = null;
+    this.narrationAudioCache = new Map();
     this.audioCtx = null;
     this.audioMaster = null;
     this.audioCompressor = null;
@@ -107,7 +109,9 @@ class PresentationMode {
     this.autoNarrationPromise = null;
     this.autoNarrationSlide = -1;
     this.autoNarrationToken = 0;
+    this.narrationLoadingTimer = null;
     this.autoStatusInterval = null;
+    this.narrationAudioCache.clear();
     this.notesVisible = false;
     this.rehearsalMode = false;
     this.presenterStartAt = Date.now();
@@ -118,6 +122,8 @@ class PresentationMode {
 
     this._initThree();
     this._bindEvents();
+    this._primeNarrationForSlide(0);
+    this._primeNarrationForSlide(1);
     this.transitionEngine.goTo(0, false);
     this._startPresenterHud();
     this.overlay.focus();
@@ -172,6 +178,7 @@ class PresentationMode {
     this._runCleanupFns();
     this._destroySceneControllers();
     this._destroyThree();
+    this.narrationAudioCache.clear();
     if (window.Win95Speech && typeof window.Win95Speech.cancel === 'function') {
       window.Win95Speech.cancel('bonzi');
     }
@@ -1185,9 +1192,9 @@ class PresentationMode {
       if (this.autoPlayEnabled) this.autoPaused = false;
       this._applyAutoModeUi();
       if (this.autoPlayEnabled) {
-        const currentText = BONZI_NARRATION_LINES[this.current] || (this.refs && this.refs.bonziText ? this.refs.bonziText.textContent : '');
-        this._queueBonziNarration(currentText);
-        this._scheduleAutoPlay(this.current);
+        this._primeNarrationForSlide(this.current);
+        this._primeNarrationForSlide(this.current + 1);
+        this._queueBonziNarration(this._getNarrationSpeechForSlide(this.current));
       }
       else this._clearAutoPlay();
     });
@@ -1393,6 +1400,10 @@ class PresentationMode {
       clearInterval(this.autoStatusInterval);
       this.autoStatusInterval = null;
     }
+    if (this.narrationLoadingTimer) {
+      clearTimeout(this.narrationLoadingTimer);
+      this.narrationLoadingTimer = null;
+    }
     if (!this.autoPlayEnabled) this._setAutoStatus('AUTO OFF', false);
   }
 
@@ -1400,6 +1411,8 @@ class PresentationMode {
     this._clearAutoPlay();
     if (!this.autoPlayEnabled || this.autoPaused || !this.isOpen) return;
     const token = ++this.autoNarrationToken;
+    const speechBudgetMs = this._estimateNarrationDurationMs(this._getNarrationSpeechForSlide(index));
+    const fallbackWaitMs = Math.min(60000, Math.max(maxWaitMs, speechBudgetMs + 30000));
     const waitPromise =
       this.autoNarrationSlide === index && this.autoNarrationPromise
         ? this.autoNarrationPromise
@@ -1427,8 +1440,8 @@ class PresentationMode {
     this.autoTimer = setTimeout(() => {
       this.autoTimer = null;
       advanceIfAllowed();
-    }, Math.max(1500, maxWaitMs));
-    startCountdown(Math.max(1500, maxWaitMs), 'FALLBACK');
+    }, Math.max(1500, fallbackWaitMs));
+    startCountdown(Math.max(1500, fallbackWaitMs), 'FALLBACK');
 
     Promise.resolve(waitPromise)
       .catch(() => false)
@@ -1456,12 +1469,219 @@ class PresentationMode {
     return (tag ? tag.textContent : '').trim() || `Slide ${index + 1}`;
   }
 
+  _normalizeNarrationText(text) {
+    return String(text || '')
+      .replace(/\r\n/g, '\n')
+      .replace(/\s+/g, ' ')
+      .trim();
+  }
+
+  _isObviousNarrationLabel(text) {
+    const normalized = this._normalizeNarrationText(text).toLowerCase();
+    if (!normalized) return true;
+    if (/^slide\s*\d+(\s*\/\s*\d+)?$/.test(normalized)) return true;
+    if (/^slide\s*0*\d+$/.test(normalized)) return true;
+    if (/^title slide$/.test(normalized)) return true;
+    if (/^questions?\s*&?\s*ending$/.test(normalized)) return true;
+    if (/^chapter\s+slide$/.test(normalized)) return true;
+    if (/^(context|scope|connections|implications|advocacy|build notes|finale|interact|fun fact)$/.test(normalized)) return true;
+    if (/^(01|02|03|04|05|06|07|08|09)$/.test(normalized)) return true;
+    return false;
+  }
+
+  _collectSpeakableSlideLines(scene) {
+    if (!scene) return [];
+    const selectors = [
+      'h2',
+      '.slide-subtitle-big',
+      '.slide-body',
+      '.slide-thesis',
+      '.slide-connections',
+      '.slide-implications',
+      '.slide-advocacy-points',
+      '.slide-prep',
+      '.slide-qa',
+      '.slide-meta-info',
+      '.slide-preview',
+      '.slide-ending-note',
+      '.rq-item',
+      '.method-card',
+      '.persp-item',
+      '.connection-item',
+      '.impl-item',
+      '.advocacy-point',
+      '.prep-item',
+      '.reflection-item',
+      '.slide-kicker-card'
+    ];
+    const lines = [];
+    const seen = new Set();
+
+    selectors.forEach((selector) => {
+      scene.querySelectorAll(selector).forEach((node) => {
+        if (!(node instanceof HTMLElement)) return;
+        const text = this._normalizeNarrationText(node.textContent);
+        if (!text || this._isObviousNarrationLabel(text)) return;
+        const key = text.toLowerCase();
+        if (seen.has(key)) return;
+        seen.add(key);
+        lines.push(text);
+      });
+    });
+
+    return lines;
+  }
+
+  _getSourceSlide(index) {
+    const panel = document.getElementById('panelPres');
+    if (!panel) return null;
+    const slides = panel.querySelectorAll('.pres-slide');
+    return slides[index] || null;
+  }
+
+  _buildSlideNarrationText(index) {
+    const scene = this.scenes[index] || this._getSourceSlide(index);
+    const slideLines = this._collectSpeakableSlideLines(scene);
+    const slideText = slideLines.map((line) => this._ensureNarrationSentence(line)).join(' ');
+    const bonziLine = this._ensureNarrationSentence(BONZI_NARRATION_LINES[index] || '');
+    const parts = [];
+    if (slideText) parts.push(slideText);
+    if (bonziLine) parts.push(bonziLine);
+    return this._trimNarrationSpeech(this._normalizeNarrationText(parts.join(' ')));
+  }
+
+  _getNarrationSpeechForSlide(index) {
+    const script = this._buildSlideNarrationText(index);
+    if (script) return script;
+    return this._trimNarrationSpeech(this._normalizeNarrationText(BONZI_NARRATION_LINES[index] || this._slideTag(index)));
+  }
+
+  _trimNarrationSpeech(text) {
+    const cleaned = this._normalizeNarrationText(text);
+    if (!cleaned) return '';
+    const sentences = cleaned.match(/[^.!?]+[.!?]+|[^.!?]+$/g) || [cleaned];
+    let output = '';
+    for (const sentence of sentences) {
+      const next = (output ? output + ' ' : '') + sentence.trim();
+      if (next.length > 420) break;
+      output = next;
+      if (output.split(/[.!?]+/).filter(Boolean).length >= 3) break;
+    }
+    return output || cleaned.slice(0, 420).trim();
+  }
+
+  _estimateNarrationDurationMs(text) {
+    const value = this._normalizeNarrationText(text);
+    if (!value) return 2200;
+    const words = value.split(/\s+/).filter(Boolean).length;
+    const byWords = Math.round((words / 2.6) * 1000);
+    const byChars = Math.round((value.length / 10) * 120);
+    return Math.max(2200, Math.min(15000, Math.max(byWords, byChars)));
+  }
+
+  _getNarrationCacheKey(text) {
+    const value = this._trimNarrationSpeech(text);
+    if (!value) return '';
+    return `bonzi:${value}`;
+  }
+
+  _pruneNarrationAudioCache(keepKeys = []) {
+    const keep = new Set((keepKeys || []).filter(Boolean));
+    for (const key of this.narrationAudioCache.keys()) {
+      if (!keep.has(key)) this.narrationAudioCache.delete(key);
+    }
+  }
+
+  _primeNarrationForSlide(index) {
+    if (index < 0 || index >= TOTAL_SLIDES) return null;
+    if (!window.Win95Speech || typeof window.Win95Speech.requestKokoro !== 'function') return null;
+    const text = this._getNarrationSpeechForSlide(index);
+    const key = this._getNarrationCacheKey(text);
+    if (!key) return null;
+    const existing = this.narrationAudioCache.get(key);
+    if (existing) return existing.promise || Promise.resolve(existing);
+
+    const cfg = window.Win95Speech.getConfig ? window.Win95Speech.getConfig('bonzi') : {};
+    const entry = {
+      status: 'pending',
+      text,
+      promise: null,
+      blob: null,
+      endpoint: ''
+    };
+    entry.promise = window.Win95Speech.requestKokoro(text, cfg).then((result) => {
+      entry.status = 'ready';
+      entry.blob = result && result.blob ? result.blob : null;
+      entry.endpoint = result && result.endpoint ? result.endpoint : '';
+      return entry;
+    }).catch((err) => {
+      this.narrationAudioCache.delete(key);
+      throw err;
+    });
+    this.narrationAudioCache.set(key, entry);
+    return entry.promise;
+  }
+
+  primeNarrationCatalog(startIndex = 0) {
+    const start = Math.max(0, startIndex | 0);
+    let chain = Promise.resolve();
+    for (let index = start; index < TOTAL_SLIDES; index += 1) {
+      chain = chain.then(() => this._primeNarrationForSlide(index)).catch(() => null);
+    }
+    return chain;
+  }
+
+  async _consumeNarrationAudio(text) {
+    const key = this._getNarrationCacheKey(text);
+    if (!key) return null;
+    const entry = this.narrationAudioCache.get(key);
+    if (!entry) return null;
+    if (entry.status === 'ready' && entry.blob) return entry;
+    if (!entry.promise) return null;
+    try {
+      const resolved = await entry.promise;
+      return resolved && resolved.blob ? resolved : null;
+    } catch (_) {
+      return null;
+    }
+  }
+
+  _speakWithSpeechSynthesisWait(text) {
+    const value = this._trimNarrationSpeech(text);
+    if (!value || !window.speechSynthesis) return Promise.resolve(false);
+    return new Promise((resolve) => {
+      try {
+        window.speechSynthesis.cancel();
+        const utterance = new SpeechSynthesisUtterance(value);
+        utterance.rate = 1.03;
+        utterance.pitch = 1.02;
+        utterance.volume = 0.82;
+        utterance.onend = () => resolve(true);
+        utterance.onerror = () => resolve(false);
+        window.speechSynthesis.speak(utterance);
+      } catch (_) {
+        resolve(false);
+      }
+    });
+  }
+
+  _ensureNarrationSentence(text) {
+    const cleaned = this._normalizeNarrationText(text);
+    if (!cleaned) return '';
+    if (/[.!?…]$/.test(cleaned)) return cleaned;
+    return `${cleaned}.`;
+  }
+
   _setBonziBubble(label, text) {
     if (!this.refs || !this.refs.bonziLabel || !this.refs.bonziText) return;
     this.refs.bonziLabel.textContent = label;
     this.refs.bonziText.textContent = text;
-    if (this.autoPlayEnabled && !this.autoPaused) {
-      const script = BONZI_NARRATION_LINES[this.current] || text;
+    if (
+      this.autoPlayEnabled &&
+      !this.autoPaused &&
+      !(this.autoNarrationSlide === this.current && this.autoNarrationPromise)
+    ) {
+      const script = this._getNarrationSpeechForSlide(this.current);
       this._queueBonziNarration(script);
     }
     if (this.notesVisible && this.refs && this.refs.notesBody) {
@@ -1547,12 +1767,28 @@ class PresentationMode {
     this.autoNarrationSlide = this.current;
     this._runSceneNarrationHook('beforeSpeak', { slide: this.current, text, token });
     this._setAutoStatus('BONZI SPEAKING', true);
+    if (this.narrationLoadingTimer) {
+      clearTimeout(this.narrationLoadingTimer);
+      this.narrationLoadingTimer = null;
+    }
+    this.narrationLoadingTimer = setTimeout(() => {
+      if (token !== this.autoNarrationToken) return;
+      if (this.autoNarrationSlide !== this.current) return;
+      this._setAutoStatus('NARRATOR LOADING', true);
+    }, 220);
     this.autoNarrationPromise = this._speakBonzi(text).then((ok) => {
+      if (this.narrationLoadingTimer) {
+        clearTimeout(this.narrationLoadingTimer);
+        this.narrationLoadingTimer = null;
+      }
       if (token === this.autoNarrationToken) {
         this._runSceneNarrationHook('afterSpeak', { slide: this.current, text, token, ok });
       }
       return ok;
     });
+    if (this.autoPlayEnabled && !this.autoPaused) {
+      this._scheduleAutoPlay(this.current);
+    }
     return this.autoNarrationPromise;
   }
 
@@ -1644,11 +1880,80 @@ class PresentationMode {
   }
 
   _speakBonzi(text) {
-    if (!window.Win95Speech || typeof window.Win95Speech.speak !== 'function') return Promise.resolve(false);
-    return window.Win95Speech
-      .speak(String(text || ''), { character: 'bonzi', prefer: 'kokoro' })
-      .then(() => true)
-      .catch(() => false);
+    const value = this._trimNarrationSpeech(text);
+    if (!value) return Promise.resolve(false);
+    if (window.Win95Speech && typeof window.Win95Speech.cancel === 'function') {
+      try { window.Win95Speech.cancel('bonzi'); } catch (_) {}
+    }
+    if (window.Win95Speech && typeof window.Win95Speech.playBlob === 'function') {
+      return this._consumeNarrationAudio(value).then(async (entry) => {
+        if (entry && entry.blob) {
+          try {
+            const played = await window.Win95Speech.playBlob(entry.blob);
+            if (played) return true;
+          } catch (_) {}
+        }
+        return null;
+      }).then((played) => {
+        if (played != null) return played;
+        if (window.Win95Speech && typeof window.Win95Speech.speakKokoro === 'function') {
+          return window.Win95Speech
+            .speakKokoro(value, 'bonzi')
+            .then(async (ok) => {
+              if (ok) return true;
+              if (window.Win95Speech && typeof window.Win95Speech.speak === 'function') {
+                try {
+                  return await window.Win95Speech.speak(value, { character: 'bonzi', prefer: 'kokoro', ignoreEnabled: true });
+                } catch (_) {}
+              }
+              return this._speakWithSpeechSynthesisWait(value);
+            })
+            .catch(async () => {
+              if (window.Win95Speech && typeof window.Win95Speech.speak === 'function') {
+                try {
+                  return await window.Win95Speech.speak(value, { character: 'bonzi', prefer: 'kokoro', ignoreEnabled: true });
+                } catch (_) {}
+              }
+              return this._speakWithSpeechSynthesisWait(value);
+            });
+        }
+        if (window.Win95Speech && typeof window.Win95Speech.speak === 'function') {
+          return window.Win95Speech
+            .speak(value, { character: 'bonzi', prefer: 'kokoro', ignoreEnabled: true })
+            .then((ok) => !!ok)
+            .catch(() => false);
+        }
+        return Promise.resolve(false);
+      });
+    }
+    if (window.Win95Speech && typeof window.Win95Speech.speakKokoro === 'function') {
+      return window.Win95Speech
+        .speakKokoro(value, 'bonzi')
+        .then(async (ok) => {
+          if (ok) return true;
+          if (window.Win95Speech && typeof window.Win95Speech.speak === 'function') {
+            try {
+              return await window.Win95Speech.speak(value, { character: 'bonzi', prefer: 'kokoro', ignoreEnabled: true });
+            } catch (_) {}
+          }
+          return this._speakWithSpeechSynthesisWait(value);
+        })
+        .catch(async () => {
+          if (window.Win95Speech && typeof window.Win95Speech.speak === 'function') {
+            try {
+              return await window.Win95Speech.speak(value, { character: 'bonzi', prefer: 'kokoro', ignoreEnabled: true });
+            } catch (_) {}
+          }
+          return this._speakWithSpeechSynthesisWait(value);
+        });
+    }
+    if (window.Win95Speech && typeof window.Win95Speech.speak === 'function') {
+      return window.Win95Speech
+        .speak(value, { character: 'bonzi', prefer: 'kokoro', ignoreEnabled: true })
+        .then((ok) => !!ok)
+        .catch(() => false);
+    }
+    return this._speakWithSpeechSynthesisWait(value);
   }
 
   _bindEvents() {
@@ -1748,9 +2053,7 @@ class PresentationMode {
     }
 
     this._applyAutoModeUi();
-    const script = BONZI_NARRATION_LINES[this.current] || (this.refs && this.refs.bonziText ? this.refs.bonziText.textContent : '');
-    this._queueBonziNarration(script);
-    this._scheduleAutoPlay(this.current);
+    this._queueBonziNarration(this._getNarrationSpeechForSlide(this.current));
   }
 
   _onResize() {

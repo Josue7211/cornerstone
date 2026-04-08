@@ -57,8 +57,10 @@ function createClippyFigure() {
 }
 
 export function createClippyAssistant(noteShell, textarea, hintsEl, fileName, deps = {}) {
-  const getClippyAiConfig = typeof deps.getClippyAiConfig === 'function' ? deps.getClippyAiConfig : function() { return { model: 'qwen3.5:0.8b' }; };
+  const getClippyAiConfig = typeof deps.getClippyAiConfig === 'function' ? deps.getClippyAiConfig : function() { return { model: 'FieldMouse-AI/qwen3.5:0.8b-Q4_K_M' }; };
   const queryClippyOllama = typeof deps.queryClippyOllama === 'function' ? deps.queryClippyOllama : async function() { return { text: '', model: 'fallback' }; };
+  const rivalryCore = window.BonziCore || {};
+  const PUBLIC_DEMO = typeof window !== 'undefined' && !!window.__WIN95_PUBLIC_DEMO__;
   const clippy = document.createElement('div');
   clippy.className = 'clippy-popup clippy-docked clippy-functional';
   clippy.dataset.visible = 'true';
@@ -134,13 +136,17 @@ export function createClippyAssistant(noteShell, textarea, hintsEl, fileName, de
 
   function syncClippyVoiceEnabled(enabled) {
     clippyVoiceEnabled = !!enabled;
-    if (window.Win95Speech && typeof window.Win95Speech.setConfig === 'function') {
+    if (!PUBLIC_DEMO && window.Win95Speech && typeof window.Win95Speech.setConfig === 'function') {
       window.Win95Speech.setConfig('clippy', { enabled: clippyVoiceEnabled });
     }
     updateClippyVoiceToggle();
   }
 
   async function testClippyVoice() {
+    if (PUBLIC_DEMO) {
+      status.textContent = 'Voice settings are disabled in kiosk mode.';
+      return;
+    }
     if (!window.Win95Speech || typeof window.Win95Speech.speakKokoro !== 'function') {
       status.textContent = 'Speech engine not available.';
       return;
@@ -157,6 +163,10 @@ export function createClippyAssistant(noteShell, textarea, hintsEl, fileName, de
   }
 
   function configureClippyVoice() {
+    if (PUBLIC_DEMO) {
+      status.textContent = 'Voice settings are disabled in kiosk mode.';
+      return;
+    }
     if (!window.Win95Speech || typeof window.Win95Speech.openPicker !== 'function') {
       status.textContent = 'Speech settings unavailable.';
       return;
@@ -179,6 +189,11 @@ export function createClippyAssistant(noteShell, textarea, hintsEl, fileName, de
     actions.querySelectorAll('button').forEach(function(btn) {
       btn.disabled = isBusy;
     });
+  }
+
+  function rivalryLine(stage, prompt, meta) {
+    if (!rivalryCore || typeof rivalryCore.getRivalryLine !== 'function') return '';
+    return rivalryCore.getRivalryLine('clippy', stage, prompt, meta);
   }
 
   function applyTextResult(mode, resultText, target, customMode) {
@@ -205,11 +220,15 @@ export function createClippyAssistant(noteShell, textarea, hintsEl, fileName, de
     const clippedDocument = documentText.slice(0, 10000);
     const clippedTarget = String(target.text || '').slice(0, 5000);
     const systemPrompt = [
-      'You are Clippy, a writing assistant inside an AI 98 OS Notepad app.',
+      '/no_think You are Clippy, a writing assistant inside an AI 98 OS Notepad app.',
       'You help with school writing, outlines, summaries, reflections, and document cleanup.',
+      'Sound like a brisk, mildly smug office helper from the late 90s, but still be constructive.',
+      'Use plain ASCII and do not use emojis.',
       'Return plain text only.',
       'Do not use markdown fences.',
-      'Keep the response directly usable inside the document.'
+      'Do not output hidden reasoning or <think> tags.',
+      'Keep the response directly usable inside the document.',
+      'Prefer short answers and skip preamble. Do not echo the prompt.'
     ].join(' ');
 
     let prompt = '';
@@ -259,16 +278,18 @@ export function createClippyAssistant(noteShell, textarea, hintsEl, fileName, de
       ].join('\n');
     }
 
-    setBusyState(true, 'Thinking with ' + getClippyAiConfig().model + '...');
+    setBusyState(true, 'Thinking... ' + rivalryLine('busy', customInstruction || prompt || mode, { mode: mode, file: fileContext }));
     try {
       const result = await queryClippyOllama(prompt, systemPrompt);
       applyTextResult(mode, result.text, target, customMode);
-      status.textContent = 'Done via ' + result.model + '.';
+      status.textContent = result.provider === 'offline'
+        ? 'Done offline. ' + rivalryLine('done', prompt, { mode: mode, file: fileContext })
+        : 'Done. ' + rivalryLine('done', prompt, { mode: mode, file: fileContext });
       if (clippyVoiceEnabled && window.Win95Speech && typeof window.Win95Speech.speak === 'function') {
         window.Win95Speech.speak(result.text, { character: 'clippy', prefer: 'kokoro' }).catch(function() {});
       }
     } catch (err) {
-      status.textContent = 'Clippy AI unavailable or busy: ' + (err && err.message ? err.message : 'unknown error');
+      status.textContent = 'Clippy AI unavailable or busy: ' + (err && err.message ? err.message : 'unknown error') + ' ' + rivalryLine('busy', prompt, { mode: mode, file: fileContext });
     } finally {
       setBusyState(false, status.textContent);
     }
@@ -283,22 +304,24 @@ export function createClippyAssistant(noteShell, textarea, hintsEl, fileName, de
     textarea.focus();
   }));
 
-  clippyVoiceToggleBtn = button('Voice: Off', function() {
-    syncClippyVoiceEnabled(!clippyVoiceEnabled);
-    status.textContent = clippyVoiceEnabled
-      ? 'Clippy voice enabled (' + getClippyVoiceSummary() + ').'
-      : 'Clippy voice muted.';
-  });
-  actions.appendChild(clippyVoiceToggleBtn);
-  updateClippyVoiceToggle();
+  if (!PUBLIC_DEMO) {
+    clippyVoiceToggleBtn = button('Voice: Off', function() {
+      syncClippyVoiceEnabled(!clippyVoiceEnabled);
+      status.textContent = clippyVoiceEnabled
+        ? 'Clippy voice enabled (' + getClippyVoiceSummary() + ').'
+        : 'Clippy voice muted.';
+    });
+    actions.appendChild(clippyVoiceToggleBtn);
+    updateClippyVoiceToggle();
 
-  actions.appendChild(button('Voice cfg', function() {
-    configureClippyVoice();
-  }));
+    actions.appendChild(button('Voice cfg', function() {
+      configureClippyVoice();
+    }));
 
-  actions.appendChild(button('Test voice', function() {
-    testClippyVoice();
-  }));
+    actions.appendChild(button('Test voice', function() {
+      testClippyVoice();
+    }));
+  }
 
   actions.appendChild(button('Rewrite sel.', function() {
     runClippyTask('rewrite');

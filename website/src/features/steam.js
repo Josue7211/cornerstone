@@ -8,6 +8,7 @@
   var shared = window.Win95Shared || {};
   var steamState = window.SteamState || {};
   var catalog = window.SteamCatalog || {};
+  var PUBLIC_DEMO = typeof window !== 'undefined' && !!window.__WIN95_PUBLIC_DEMO__;
   var GAMES = catalog.GAMES || [];
   var CATEGORY_ORDER = catalog.CATEGORY_ORDER || ['real', 'experience'];
   var CATEGORY_LABELS = catalog.CATEGORY_LABELS || {
@@ -125,6 +126,7 @@
   }
 
   function loadBigPicturePreference() {
+    if (PUBLIC_DEMO) return false;
     try {
       return localStorage.getItem(BIG_PICTURE_PREF_KEY) === '1';
     } catch (e) {
@@ -133,6 +135,7 @@
   }
 
   function saveBigPicturePreference(enabled) {
+    if (PUBLIC_DEMO) return;
     try {
       localStorage.setItem(BIG_PICTURE_PREF_KEY, enabled ? '1' : '0');
     } catch (e) {}
@@ -160,6 +163,8 @@
     var bigPictureFocusIndex = -1;
     var fullscreenEscHandler = null;
     var lastLaunchedGameWindowId = null;
+    var topActions = null;
+    var topBigPictureBtn = null;
 
     var container = document.createElement('div');
     container.className = 'steam-container';
@@ -224,15 +229,17 @@
     var detail = document.createElement('div');
     detail.className = 'steam-detail';
 
-    var topActions = document.createElement('div');
-    topActions.className = 'steam-top-actions';
-    var topBigPictureBtn = document.createElement('button');
-    topBigPictureBtn.className = 'steam-top-bigpicture-btn';
-    topBigPictureBtn.type = 'button';
-    topBigPictureBtn.textContent = bigPicturePinned ? 'Exit Big Picture Mode' : 'Big Picture Mode';
-    topBigPictureBtn.setAttribute('aria-pressed', bigPicturePinned ? 'true' : 'false');
-    topActions.appendChild(topBigPictureBtn);
-    detail.appendChild(topActions);
+    if (!PUBLIC_DEMO) {
+      topActions = document.createElement('div');
+      topActions.className = 'steam-top-actions';
+      topBigPictureBtn = document.createElement('button');
+      topBigPictureBtn.className = 'steam-top-bigpicture-btn';
+      topBigPictureBtn.type = 'button';
+      topBigPictureBtn.textContent = bigPicturePinned ? 'Exit Big Picture Mode' : 'Big Picture Mode';
+      topBigPictureBtn.setAttribute('aria-pressed', bigPicturePinned ? 'true' : 'false');
+      topActions.appendChild(topBigPictureBtn);
+      detail.appendChild(topActions);
+    }
 
     var dashboard = document.createElement('div');
     dashboard.className = 'steam-dashboard';
@@ -1101,7 +1108,9 @@
       }
     }
 
-    topBigPictureBtn.addEventListener('click', toggleBigPicturePersistent);
+    if (topBigPictureBtn) {
+      topBigPictureBtn.addEventListener('click', toggleBigPicturePersistent);
+    }
 
     function handlePlay(game, opts) {
       opts = opts || {};

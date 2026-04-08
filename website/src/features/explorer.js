@@ -18,6 +18,7 @@
     return 'C:\\' + (pathParts || []).join('\\');
   };
   var EXPLORER_MUTATION_LOG_KEY = 'ai98.explorer.mutations.v1';
+  var PUBLIC_DEMO = !!window.__WIN95_PUBLIC_DEMO__;
 
   function cloneHierarchy(nodes) {
     return (nodes || []).map(function(node) {
@@ -45,6 +46,7 @@
   }
 
   function safeReadMutationLog() {
+    if (PUBLIC_DEMO) return [];
     try {
       var raw = window.localStorage.getItem(EXPLORER_MUTATION_LOG_KEY);
       if (!raw) return [];
@@ -57,6 +59,7 @@
   }
 
   function safeWriteMutationLog(list) {
+    if (PUBLIC_DEMO) return;
     try {
       window.localStorage.setItem(EXPLORER_MUTATION_LOG_KEY, JSON.stringify(list || []));
     } catch (err) {
@@ -65,6 +68,7 @@
   }
 
   function appendMutation(entry) {
+    if (PUBLIC_DEMO) return;
     if (!entry || !entry.type) return;
     var log = safeReadMutationLog();
     log.push(entry);
@@ -548,6 +552,7 @@
     }
 
     function applyPersistedMutations() {
+      if (PUBLIC_DEMO) return;
       var log = safeReadMutationLog();
       log.forEach(function(entry) {
         applyMutation(root, entry);
@@ -1194,10 +1199,10 @@
         var website = getNodeAtPath(root, ['Website Source']);
         if (website && website.type === 'folder') {
           var hierarchy = buildWebsiteHierarchy((files || []).filter(function(f) {
-            return f.name && f.name.startsWith('website/');
+            return f.name && f.name.startsWith('source code/');
           }).map(function(f) {
             return {
-              name: f.name.replace(/^website\//, ''),
+              name: f.name.replace(/^source code\//, ''),
               type: f.type,
               size: f.size,
               modified: f.modified,

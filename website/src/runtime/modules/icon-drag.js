@@ -6,8 +6,8 @@ export function initIconDragModule() {
   const CELL_WIDTH = 80;
   const CELL_HEIGHT = 90;
   const CELL_GAP = 8;
-  const STORAGE_KEY = 'win95-icon-grid-v11';
   const LEGACY_STORAGE_KEYS = [
+    'win95-icon-grid-v12',
     'win95-icon-grid-v10',
     'win95-icon-grid-v9',
     'win95-icon-grid-v8',
@@ -152,73 +152,6 @@ export function initIconDragModule() {
     } catch (e) {}
   }
 
-  function restorePositions() {
-    try {
-      const raw = localStorage.getItem(STORAGE_KEY);
-      if (!raw) return false;
-      const parsed = JSON.parse(raw);
-      let restoredAny = false;
-      const missingIcons = [];
-      resetOccupancy();
-      const icons = getIcons();
-      icons.forEach((icon, index) => {
-        const iconId = getIconId(icon);
-        const data = parsed && iconId ? parsed[iconId] : null;
-        if (!data) {
-          missingIcons.push({ icon, index });
-          return;
-        }
-        let row = Number.isFinite(data.row) ? data.row : null;
-        let col = Number.isFinite(data.col) ? data.col : null;
-        if (row === null || col === null) {
-          const { stepX, stepY } = getGridMetrics();
-          const left = typeof data.left === 'string' ? parseFloat(data.left) : parseFloat(data.left || 0);
-          const top = typeof data.top === 'string' ? parseFloat(data.top) : parseFloat(data.top || 0);
-          row = Number.isFinite(top) ? Math.round(top / stepY) : 0;
-          col = Number.isFinite(left) ? Math.round(left / stepX) : 0;
-        }
-        const cell = findNearestCell(row, col, icon);
-        placeIcon(icon, cell.row, cell.col);
-        restoredAny = true;
-      });
-
-      // If saved layout is partial or stale, place missing icons at seeded defaults.
-      missingIcons.forEach(({ icon, index }) => {
-        const seeded = getSeededLayoutForIcon(icon);
-        const cell = seeded
-          ? findNearestCell(seeded.row, seeded.col, icon)
-          : findFirstFreeCell(icon);
-        placeIcon(icon, cell.row, cell.col);
-      });
-      return restoredAny;
-    } catch (e) {
-      return false;
-    }
-  }
-
-  function savePositions() {
-    if (document.body.classList.contains('presentation-active')) return;
-    if (!desktopElement || !desktopElement.classList.contains('visible')) return;
-    const positions = {};
-    getIcons().forEach(icon => {
-      const iconId = getIconId(icon);
-      const row = parseInt(icon.dataset.gridRow, 10);
-      const col = parseInt(icon.dataset.gridCol, 10);
-      if (iconId && Number.isFinite(row) && Number.isFinite(col)) {
-        positions[iconId] = { row, col };
-      }
-    });
-    try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(positions));
-    } catch (e) {}
-  }
-
-  function savePositionsSoon() {
-    window.requestAnimationFrame(() => {
-      savePositions();
-    });
-  }
-
   function attachDragHandlers() {
     getIcons().forEach(icon => {
       if (icon.dataset.dragBound === '1') return;
@@ -264,7 +197,6 @@ export function initIconDragModule() {
           const col = Math.round(curLeft / stepX);
           const cell = findNearestCell(row, col, icon);
           placeIcon(icon, cell.row, cell.col);
-          savePositionsSoon();
         }
 
         document.addEventListener('mousemove', onMove);
@@ -275,9 +207,8 @@ export function initIconDragModule() {
 
   function refreshLayout() {
     attachDragHandlers();
-    const restored = restorePositions();
-    if (!restored) layoutDefault();
-    savePositionsSoon();
+    clearLegacyStorage();
+    layoutDefault();
   }
 
   clearLegacyStorage();
@@ -299,12 +230,6 @@ export function initIconDragModule() {
         placeIcon(icon, row, col);
       }
     });
-  });
-
-  window.addEventListener('beforeunload', savePositions);
-  window.addEventListener('pagehide', savePositions);
-  document.addEventListener('visibilitychange', function() {
-    if (document.visibilityState === 'hidden') savePositions();
   });
 
   window.__win95IconGridRefresh = function() {

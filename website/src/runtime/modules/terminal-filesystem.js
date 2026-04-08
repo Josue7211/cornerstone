@@ -137,7 +137,8 @@ function markNodeAsUnprotected(node) {
 
 export function createTerminalFileSystem(options = {}) {
   const storageKey = options.storageKey || 'win95-terminal-fs-v1';
-  const storage = options.storage || (typeof window !== 'undefined' ? window.localStorage : null);
+  const publicDemo = typeof window !== 'undefined' && !!window.__WIN95_PUBLIC_DEMO__;
+  const storage = options.storage || (publicDemo ? null : (typeof window !== 'undefined' ? window.localStorage : null));
   let terminalFileSystem = loadTerminalFileSystem();
 
   function loadTerminalFileSystem() {

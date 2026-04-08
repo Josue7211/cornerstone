@@ -1,4 +1,5 @@
 export function startBootSequence(options = {}) {
+  const onBootStart = typeof options.onBootStart === 'function' ? options.onBootStart : () => {};
   const onDesktopReady = typeof options.onDesktopReady === 'function' ? options.onDesktopReady : () => {};
   const onStartupChime = typeof options.onStartupChime === 'function' ? options.onStartupChime : () => {};
   const params = new URLSearchParams((typeof window !== 'undefined' && window.location && window.location.search) ? window.location.search : '');
@@ -33,8 +34,45 @@ const bootAudio = new Audio('./assets/media/audio/boot.mp3');
   const energyStar = document.getElementById('biosEnergyStarLogo');
   const awardRibbon = document.getElementById('biosAwardRibbon');
   const biosFooter = document.getElementById('biosFooter');
+  const splashStatus = document.getElementById('win95Splash') ? document.querySelector('#win95Splash .win95-splash-status') : null;
   if (!bios || !out) return;
   let bootCursorShield = null;
+
+  function isAiWarmupBusyError(err) {
+    const message = String(err && err.message ? err.message : err || '').toLowerCase();
+    return (
+      message.indexOf('busy') !== -1 ||
+      message.indexOf('503') !== -1 ||
+      message.indexOf('queue') !== -1 ||
+      message.indexOf('timeout') !== -1
+    );
+  }
+
+  async function waitForAiWarmup(maxWaitMs = 8000) {
+    const warmup = window.__WIN95_AI_PREWARM_PROMISE;
+    if (!warmup || typeof warmup.then !== 'function') return { state: 'none' };
+
+    let timedOut = false;
+    const timeout = new Promise((resolve) => {
+      setTimeout(() => {
+        timedOut = true;
+        resolve({ state: 'timeout' });
+      }, maxWaitMs);
+    });
+
+    try {
+      const result = await Promise.race([warmup.then(() => true, (err) => ({ error: err })), timeout]);
+      if (result && result.error) {
+        if (isAiWarmupBusyError(result.error)) return { state: 'busy' };
+        return timedOut ? { state: 'timeout' } : { state: 'ready' };
+      }
+      if (result && result.state) return result;
+      return timedOut ? { state: 'timeout' } : { state: 'ready' };
+    } catch (err) {
+      if (isAiWarmupBusyError(err)) return { state: 'busy' };
+      return timedOut ? { state: 'timeout' } : { state: 'ready' };
+    }
+  }
 
   function forceBootCursorHidden() {
     if (typeof document === 'undefined') return;
@@ -91,10 +129,17 @@ const bootAudio = new Audio('./assets/media/audio/boot.mp3');
   const autoPowerOn = sessionStorage.getItem('boot.autoPowerOn') === '1' || autoBootFromUrl;
   sessionStorage.removeItem('boot.autoPowerOn');
 
+  function beginBoot() {
+    try {
+      onBootStart();
+    } catch (_) {}
+    runBoot();
+  }
+
   if (autoPowerOn) {
     initBootAudioBoost();
     bootAudio.play().catch(() => {});
-    runBoot();
+    beginBoot();
   } else {
     const prompt = document.createElement('div');
     prompt.style.cssText = 'position:absolute;inset:0;display:flex;align-items:center;justify-content:center;z-index:10;';
@@ -109,7 +154,7 @@ const bootAudio = new Audio('./assets/media/audio/boot.mp3');
         if (prompt.parentNode) prompt.remove();
         initBootAudioBoost();
         bootAudio.play().catch(() => {});
-        runBoot();
+        beginBoot();
       }, { once: true });
     }
 
@@ -117,7 +162,7 @@ const bootAudio = new Audio('./assets/media/audio/boot.mp3');
       prompt.remove();
       initBootAudioBoost();
       bootAudio.play().catch(() => {});
-      runBoot();
+      beginBoot();
     }, { once: true });
   }
 
@@ -345,49 +390,86 @@ const bootAudio = new Audio('./assets/media/audio/boot.mp3');
       }, 35);
     }
 
-    function transitionToDesktop() {
-      const splash = document.getElementById('win95Splash');
-      if (!splash) {
-        onDesktopReady();
-        return;
-      }
-      if (typeof gsap !== 'undefined') {
-        const tl = gsap.timeline();
-        tl.to(splash, { opacity: 0, duration: 0.12, ease: 'none' });
-        tl.call(() => {
-          splash.classList.remove('active');
-          splash.style.cssText = '';
-        });
-        tl.set({}, {}, '+=0.12');
-        tl.call(() => {
-          const dt = document.getElementById('desktop');
-          if (!dt) {
+  function transitionToDesktop() {
+    const splash = document.getElementById('win95Splash');
+    if (!splash) {
+      onDesktopReady();
+      return;
+    }
+      if (splashStatus) splashStatus.textContent = (window.BonziCore && typeof window.BonziCore.getRivalryBootStatus === 'function')
+        ? window.BonziCore.getRivalryBootStatus('warmup')
+        : 'Warming AI for Bonzi and Clippy...';
+      waitForAiWarmup(8000).then((warmState) => {
+        if (splashStatus) {
+          splashStatus.textContent =
+            warmState.state === 'busy'
+              ? ((window.BonziCore && typeof window.BonziCore.getRivalryBootStatus === 'function')
+                ? window.BonziCore.getRivalryBootStatus('busy')
+                : 'AI queue busy. Starting desktop...')
+              : warmState.state === 'timeout'
+                ? ((window.BonziCore && typeof window.BonziCore.getRivalryBootStatus === 'function')
+                  ? window.BonziCore.getRivalryBootStatus('timeout')
+                  : 'AI warmup timed out. Starting desktop...')
+                : warmState.state === 'ready'
+                  ? ((window.BonziCore && typeof window.BonziCore.getRivalryBootStatus === 'function')
+                    ? window.BonziCore.getRivalryBootStatus('ready')
+                    : 'AI ready. Starting desktop...')
+                  : 'Starting desktop...';
+        }
+
+        const revealDesktop = () => {
+          const done = () => {
             onStartupChime();
             onDesktopReady();
+          };
+          const dt = document.getElementById('desktop');
+          if (!dt) {
+            if (splash) {
+              splash.classList.remove('active');
+              splash.style.cssText = '';
+            }
+            done();
             return;
           }
-          dt.style.opacity = '0';
-          showLoginScreen(() => {
+
+          const finishLogin = () => {
             dt.classList.add('visible');
-            gsap.to(dt, {
-              opacity: 1,
-              duration: 0.14,
-              ease: 'none',
-              onComplete: () => {
-                dt.style.opacity = '';
-                onStartupChime();
-                onDesktopReady();
-              }
+            if (typeof gsap !== 'undefined') {
+              gsap.to(dt, {
+                opacity: 1,
+                duration: 0.14,
+                ease: 'none',
+                onComplete: () => {
+                  dt.style.opacity = '';
+                  done();
+                }
+              });
+            } else {
+              dt.style.opacity = '';
+              done();
+            }
+          };
+
+          dt.style.opacity = '0';
+          if (typeof gsap !== 'undefined') {
+            const tl = gsap.timeline();
+            tl.to(splash, { opacity: 0, duration: 0.12, ease: 'none' });
+            tl.call(() => {
+              splash.classList.remove('active');
+              splash.style.cssText = '';
             });
-          }, { restoreBios: false });
-        });
-      } else {
-        splash.classList.remove('active');
-        showLoginScreen(() => {
-          onStartupChime();
-          onDesktopReady();
-        }, { restoreBios: false });
-      }
+            tl.set({}, {}, '+=0.12');
+            tl.call(() => {
+              showLoginScreen(finishLogin, { restoreBios: false });
+            });
+          } else {
+            splash.classList.remove('active');
+            showLoginScreen(finishLogin, { restoreBios: false });
+          }
+        };
+
+        revealDesktop();
+      });
     }
   }
 }

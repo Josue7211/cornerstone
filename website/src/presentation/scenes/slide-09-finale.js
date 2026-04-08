@@ -50,7 +50,7 @@ export function createSlide09FinaleScene({ mode, scene }) {
     },
     enter() {
       if (!window.gsap) return;
-      const nodes = [thesis, ...reflections, qa, endingNote].filter(Boolean);
+      const nodes = [thesis, ...reflections, qa].filter(Boolean);
       if (!nodes.length) return;
       gsap.killTweensOf(nodes);
       const thesisTl = gsap.timeline();
@@ -91,14 +91,7 @@ export function createSlide09FinaleScene({ mode, scene }) {
           reflections.length ? 0.56 : 0.3
         );
       }
-      if (endingNote) {
-        thesisTl.fromTo(
-          endingNote,
-          { opacity: 0, y: 12, scale: 0.99 },
-          { opacity: 1, y: 0, scale: 1, duration: 0.46, ease: 'power2.out', clearProps: 'transform,opacity' },
-          0.96
-        );
-      }
+      if (endingNote) endingNote.style.display = 'none';
       if (mode && mode.refs && mode.refs.veil) {
         gsap.fromTo(mode.refs.veil, { opacity: 0 }, { opacity: 0.2, duration: 0.2, yoyo: true, repeat: 1, ease: 'power2.out' });
       }

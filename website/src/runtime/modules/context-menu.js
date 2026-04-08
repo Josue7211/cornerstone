@@ -98,8 +98,10 @@ export function initContextMenuModule(options = {}) {
   if (!wallpaper) return;
 
   var EXPLORER_MUTATION_LOG_KEY = 'ai98.explorer.mutations.v1';
+  var PUBLIC_DEMO = !!window.__WIN95_PUBLIC_DEMO__;
 
   function readExplorerLog() {
+    if (PUBLIC_DEMO) return [];
     try {
       var raw = window.localStorage.getItem(EXPLORER_MUTATION_LOG_KEY);
       if (!raw) return [];
@@ -111,12 +113,14 @@ export function initContextMenuModule(options = {}) {
   }
 
   function writeExplorerLog(log) {
+    if (PUBLIC_DEMO) return;
     try {
       window.localStorage.setItem(EXPLORER_MUTATION_LOG_KEY, JSON.stringify(log || []));
     } catch (e) {}
   }
 
   function appendExplorerMutation(entry) {
+    if (PUBLIC_DEMO) return;
     var log = readExplorerLog();
     log.push(entry);
     writeExplorerLog(log);

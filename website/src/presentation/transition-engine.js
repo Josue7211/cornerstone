@@ -140,7 +140,6 @@ class TransitionEngine {
       this.activeContentTl = null;
     }
     m.transitioning = false;
-    if (m.autoPlayEnabled) m._scheduleAutoPlay(target);
   }
 
   goTo(index, immediate = false) {
@@ -217,6 +216,19 @@ class TransitionEngine {
     const threeDuration = this.runThreeSceneIntro(prevIndex, target, direction, immediate, signature);
     m.lastSlideSwitchAt = performance.now();
     m._playBonziIntro(target);
+    if (m.autoPlayEnabled && !m.autoPaused) {
+      m._queueBonziNarration(m._getNarrationSpeechForSlide(target));
+    }
+    if (typeof m._primeNarrationForSlide === 'function') {
+      m._primeNarrationForSlide(target);
+      m._primeNarrationForSlide(target + 1);
+      if (typeof m._getNarrationCacheKey === 'function' && typeof m._getNarrationSpeechForSlide === 'function' && typeof m._pruneNarrationAudioCache === 'function') {
+        m._pruneNarrationAudioCache([
+          m._getNarrationCacheKey(m._getNarrationSpeechForSlide(target)),
+          m._getNarrationCacheKey(m._getNarrationSpeechForSlide(target + 1))
+        ]);
+      }
+    }
     if (typeof m.playMidPresentationHeckle === 'function') {
       m.playMidPresentationHeckle(target);
     }

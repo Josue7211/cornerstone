@@ -13,8 +13,8 @@ export function createAISystem() {
     return window.location.origin.replace(/\/$/, '') + cleanedPath;
   }
   const DEFAULT_OLLAMA_ENDPOINT = getDefaultHostedEndpoint('/api/ollama');
-  const DEFAULT_OLLAMA_MODEL = 'qwen3.5:0.8b';
-  const DEFAULT_CLIPPY_NUM_CTX = 4096;
+  const DEFAULT_OLLAMA_MODEL = 'FieldMouse-AI/qwen3.5:0.8b-Q4_K_M';
+  const DEFAULT_CLIPPY_NUM_CTX = 16384;
   const DEFAULT_TTS_ENDPOINT = getDefaultHostedEndpoint('/api/tts');
   const DEFAULT_OPENAI_ENDPOINT = getDefaultHostedEndpoint('/api/openai');
   const DEFAULT_OPENAI_MODEL = 'gpt-4o-mini';
@@ -28,6 +28,7 @@ export function createAISystem() {
   const TTS_CLIPPY_VOICE_STORAGE_KEY = 'win95.ttsVoiceClippy';
   const TTS_BONZI_ENABLED_STORAGE_KEY = 'win95.ttsEnabledBonzi';
   const TTS_CLIPPY_ENABLED_STORAGE_KEY = 'win95.ttsEnabledClippy';
+  const PUBLIC_DEMO = typeof window !== 'undefined' && !!window.__WIN95_PUBLIC_DEMO__;
   const KOKORO_VOICE_PRESETS = [
     { value: 'af_heart', label: 'af_heart - warm female' },
     { value: 'af_bella', label: 'af_bella - bright female' },
@@ -97,6 +98,77 @@ export function createAISystem() {
     if (['0', 'false', 'no', 'off'].includes(normalized)) return false;
     return fallback;
   }
+
+  function stripThinkingTags(text) {
+    return stripReasoningPreface(String(text || '')
+      .replace(/<think>[\s\S]*?<\/think>/gi, ' ')
+      .replace(/<\/?think>/gi, ' ')
+      .replace(/\s+/g, ' ')
+      .trim());
+  }
+
+  function stripEmoji(text) {
+    return String(text || '')
+      .replace(/[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}]/gu, '')
+      .replace(/[\uFE0F\u200D]/g, '')
+      .replace(/\s{2,}/g, ' ')
+      .trim();
+  }
+
+  function stripReasoningPreface(text) {
+    const lines = String(text || '').replace(/\r\n/g, '\n').split('\n');
+    const output = [];
+    let skippingReasoning = false;
+
+    function looksLikeReasoningLine(line) {
+      const normalized = String(line || '').trim().toLowerCase();
+      if (!normalized) return false;
+      if (
+        normalized.indexOf('thinking process:') === 0 ||
+        normalized.indexOf('thought process:') === 0 ||
+        normalized.indexOf('reasoning:') === 0 ||
+        normalized.indexOf('analysis:') === 0 ||
+        normalized.indexOf('internal reasoning:') === 0 ||
+        normalized.indexOf('chain of thought:') === 0 ||
+        normalized.indexOf('chain-of-thought:') === 0
+      ) {
+        return true;
+      }
+      if (/^\d+\.\s*\*\*(analyze|analyse|break down|consider|determine|evaluate|identify|plan|reason|understand)\b/i.test(normalized)) {
+        return true;
+      }
+      if (/^\*+\s*(user|role|context|constraints|expertise|analysis|reasoning|request|task)\s*:\s*/i.test(normalized)) {
+        return true;
+      }
+      if (/^[-*]\s*(user|role|context|constraints|expertise|analysis|reasoning|request|task)\s*:\s*/i.test(normalized)) {
+        return true;
+      }
+      return false;
+    }
+
+    for (const line of lines) {
+      const trimmed = String(line || '').trim();
+      if (!trimmed) {
+        if (!skippingReasoning && output.length) {
+          output.push('');
+        }
+        continue;
+      }
+      if (!skippingReasoning && looksLikeReasoningLine(trimmed)) {
+        skippingReasoning = true;
+        continue;
+      }
+      if (skippingReasoning && looksLikeReasoningLine(trimmed)) {
+        continue;
+      }
+      if (skippingReasoning) {
+        skippingReasoning = false;
+      }
+      output.push(trimmed);
+    }
+
+    return stripEmoji(output.join('\n').trim());
+  }
   
   function getTtsStorageKeys(character) {
     const who = String(character || 'bonzi').toLowerCase();
@@ -122,7 +194,105 @@ export function createAISystem() {
     }
     return Array.from(unique);
   }
-  
+
+  function normalizeOfflineText(text) {
+    return String(text || '').replace(/\r\n/g, '\n').trim();
+  }
+
+  function collapseOfflineWhitespace(text) {
+    return normalizeOfflineText(text).replace(/[ \t]+/g, ' ').replace(/\n{3,}/g, '\n\n');
+  }
+
+  function extractOfflineSection(prompt) {
+    const text = normalizeOfflineText(prompt);
+    const markers = ['Target text:', 'Document:', 'Instruction:', 'Prompt:'];
+    let bestIndex = -1;
+    let bestMarker = '';
+    for (const marker of markers) {
+      const index = text.lastIndexOf(marker);
+      if (index > bestIndex) {
+        bestIndex = index;
+        bestMarker = marker;
+      }
+    }
+    if (bestIndex === -1) return text;
+    return normalizeOfflineText(text.slice(bestIndex + bestMarker.length));
+  }
+
+  function splitOfflineSentences(text) {
+    return collapseOfflineWhitespace(text).match(/[^.!?]+[.!?]+|[^.!?]+$/g) || [];
+  }
+
+  function summarizeOfflineText(text) {
+    const cleaned = collapseOfflineWhitespace(text);
+    if (!cleaned) return '';
+    const sentences = splitOfflineSentences(cleaned);
+    if (sentences.length > 1) return sentences.slice(0, 2).join(' ').trim();
+    if (cleaned.length > 240) return cleaned.slice(0, 240).trim() + '...';
+    return cleaned;
+  }
+
+  function outlineOfflineText(text) {
+    const cleaned = collapseOfflineWhitespace(text);
+    if (!cleaned) return '1. Main point\n2. Supporting detail\n3. Wrap-up';
+    const paragraphs = normalizeOfflineText(text).split(/\n\s*\n/).map((part) => part.trim()).filter(Boolean);
+    if (paragraphs.length > 1) {
+      return paragraphs.map((part, index) => String(index + 1) + '. ' + collapseOfflineWhitespace(part)).join('\n');
+    }
+    const sentences = splitOfflineSentences(cleaned).map((part) => part.trim()).filter(Boolean);
+    if (sentences.length > 1) {
+      return sentences.slice(0, 5).map((part, index) => String(index + 1) + '. ' + part).join('\n');
+    }
+    return '1. Main point\n2. Supporting detail\n3. Wrap-up';
+  }
+
+  function rewriteOfflineText(text) {
+    const paragraphs = normalizeOfflineText(text).split(/\n\s*\n/).map((part) => part.trim()).filter(Boolean);
+    if (!paragraphs.length) return '';
+    return paragraphs.map((part) => {
+      return part
+        .replace(/[ \t]+/g, ' ')
+        .replace(/\s+([,.!?;:])/g, '$1')
+        .replace(/\bi\b/g, 'I')
+        .replace(/\s+'\s+/g, "'")
+        .replace(/\s{2,}/g, ' ')
+        .trim();
+    }).join('\n\n');
+  }
+
+  function makeOfflineClippyResponse(prompt, systemPrompt, config) {
+    const source = collapseOfflineWhitespace(prompt).toLowerCase();
+    const body = extractOfflineSection(prompt);
+    const model = (config && config.model) || DEFAULT_OLLAMA_MODEL;
+    const responseContext = source.indexOf('summarize') !== -1
+      ? summarizeOfflineText(body)
+      : source.indexOf('outline') !== -1
+        ? outlineOfflineText(body)
+        : rewriteOfflineText(body);
+
+    let text = '';
+    if (source.indexOf('summary') !== -1 || source.indexOf('summarize') !== -1) {
+      text = responseContext || 'I am offline right now, but the document looks ready for a manual summary pass.';
+    } else if (source.indexOf('outline') !== -1) {
+      text = responseContext || '1. Main point\n2. Supporting detail\n3. Wrap-up';
+    } else if (source.indexOf('rewrite') !== -1 || source.indexOf('polish') !== -1 || source.indexOf('clean') !== -1 || source.indexOf('improve') !== -1) {
+      text = responseContext || 'I am offline right now, but I can still help you clean this up once the AI service is back.';
+    } else if (responseContext) {
+      text = responseContext;
+    } else if (systemPrompt && String(systemPrompt).toLowerCase().indexOf('notepad') !== -1) {
+      text = 'I am offline right now, but I can still help with rewriting, summarizing, and outlining this document.';
+    } else {
+      text = 'I am offline right now, but I can still help with the document. Try Rewrite, Summarize, or Make outline.';
+    }
+
+    return {
+      text: text.trim(),
+      endpoint: 'offline',
+      model: model,
+      provider: 'offline'
+    };
+  }
+
   function getTtsConfig(character) {
     const who = String(character || 'bonzi').toLowerCase();
     const keys = getTtsStorageKeys(who);
@@ -168,6 +338,9 @@ export function createAISystem() {
   }
   
   function setTtsConfig(character, nextConfig = {}) {
+    if (PUBLIC_DEMO) {
+      return getTtsConfig(String(character || 'bonzi').toLowerCase());
+    }
     const who = String(character || 'bonzi').toLowerCase();
     const keys = getTtsStorageKeys(who);
     if (Object.prototype.hasOwnProperty.call(nextConfig, 'endpoint')) {
@@ -198,6 +371,10 @@ export function createAISystem() {
   }
   
   function openVoicePicker(character, opts = {}) {
+    if (PUBLIC_DEMO) {
+      if (typeof opts.onError === 'function') opts.onError(new Error('Speech settings are disabled in kiosk mode.'));
+      return;
+    }
     if (!window.Win95Speech || typeof window.Win95Speech.getConfig !== 'function' || typeof window.Win95Speech.setConfig !== 'function') {
       if (typeof opts.onError === 'function') opts.onError(new Error('Speech settings unavailable.'));
       return;
@@ -380,6 +557,8 @@ export function createAISystem() {
   }
   
   let _activeSpeechAudio = null;
+  let _activeSpeechSource = null;
+  let _activeSpeechUrl = null;
   
   function stopActiveSpeech() {
     if (window.speechSynthesis) {
@@ -389,6 +568,15 @@ export function createAISystem() {
       try { _activeSpeechAudio.pause(); } catch (_) {}
       try { URL.revokeObjectURL(_activeSpeechAudio.src); } catch (_) {}
       _activeSpeechAudio = null;
+    }
+    if (_activeSpeechSource) {
+      try { _activeSpeechSource.stop(0); } catch (_) {}
+      try { _activeSpeechSource.disconnect(); } catch (_) {}
+      _activeSpeechSource = null;
+    }
+    if (_activeSpeechUrl) {
+      try { URL.revokeObjectURL(_activeSpeechUrl); } catch (_) {}
+      _activeSpeechUrl = null;
     }
   }
   
@@ -495,6 +683,39 @@ export function createAISystem() {
   
     throw lastErr || new Error('Voice request failed');
   }
+
+  async function playSpeechBlobWithAudioContext(blob) {
+    const AudioCtx = window.AudioContext || window.webkitAudioContext;
+    if (!AudioCtx) return false;
+    const ctx = window._win95AudioCtx ? window._win95AudioCtx() : new AudioCtx();
+    if (!ctx) return false;
+    try {
+      if (ctx.state === 'suspended' && typeof ctx.resume === 'function') {
+        await ctx.resume();
+      }
+      const arrayBuffer = await blob.arrayBuffer();
+      const audioBuffer = await ctx.decodeAudioData(arrayBuffer.slice(0));
+      stopActiveSpeech();
+      return await new Promise(function(resolve) {
+        const source = ctx.createBufferSource();
+        const gain = ctx.createGain();
+        gain.gain.value = 1;
+        source.buffer = audioBuffer;
+        source.connect(gain);
+        gain.connect(ctx.destination);
+        _activeSpeechSource = source;
+        source.onended = function() {
+          if (_activeSpeechSource === source) _activeSpeechSource = null;
+          try { source.disconnect(); } catch (_) {}
+          try { gain.disconnect(); } catch (_) {}
+          resolve(true);
+        };
+        source.start(0);
+      });
+    } catch (_) {
+      return false;
+    }
+  }
   
   async function playSpeechBlob(blob) {
     const url = URL.createObjectURL(blob);
@@ -503,26 +724,38 @@ export function createAISystem() {
     audio.preload = 'auto';
     audio.playsInline = true;
     _activeSpeechAudio = audio;
-    await waitForAudioReady(audio);
-    await audio.play();
+    try {
+      await waitForAudioReady(audio);
+      await audio.play();
+    } catch (_) {
+      try { audio.pause(); } catch (_) {}
+      if (_activeSpeechAudio === audio) _activeSpeechAudio = null;
+      try { URL.revokeObjectURL(url); } catch (_) {}
+      return playSpeechBlobWithAudioContext(blob);
+    }
+    _activeSpeechUrl = url;
     return new Promise(function(resolve) {
       let settled = false;
       function finalize(ok) {
         if (settled) return;
         settled = true;
+        if (_activeSpeechUrl === url) _activeSpeechUrl = null;
         try { URL.revokeObjectURL(url); } catch (_) {}
         if (_activeSpeechAudio === audio) _activeSpeechAudio = null;
         resolve(ok);
       }
       audio.onended = function() { finalize(true); };
-      audio.onerror = function() { finalize(false); };
+      audio.onerror = async function() {
+        const fallbackOk = await playSpeechBlobWithAudioContext(blob);
+        finalize(fallbackOk);
+      };
     });
   }
   
   async function speakWithKokoro(text, character) {
     const cfg = getTtsConfig(character);
     const result = await requestKokoroAudio(text, cfg);
-    if (result.endpoint !== cfg.endpoint) {
+    if (!PUBLIC_DEMO && result.endpoint !== cfg.endpoint) {
       try { localStorage.setItem(TTS_ENDPOINT_STORAGE_KEY, result.endpoint); } catch (_) {}
     }
     return playSpeechBlob(result.blob);
@@ -534,17 +767,19 @@ export function createAISystem() {
     const character = opts.character || 'bonzi';
     const prefer = String(opts.prefer || 'kokoro').toLowerCase();
     const cfg = getTtsConfig(character);
-  
+
     if (opts.ignoreEnabled !== true && cfg.enabled === false) {
       return false;
     }
-  
+
     if (prefer === 'browser') {
       return speakWithBrowserTts(value, character);
     }
-  
+
     try {
-      return await speakWithKokoro(value, character);
+      const kokoroPlayed = await speakWithKokoro(value, character);
+      if (kokoroPlayed) return true;
+      return speakWithBrowserTts(value, character);
     } catch (err) {
       const fallbackPlayed = await speakWithBrowserTts(value, character);
       if (fallbackPlayed) return true;
@@ -664,30 +899,37 @@ export function createAISystem() {
   }
 
   async function prewarmLocalModel() {
+    if (PUBLIC_DEMO) {
+      return {
+        ok: true,
+        skipped: true,
+        reason: 'kiosk mode',
+        endpoint: DEFAULT_OLLAMA_ENDPOINT,
+        model: DEFAULT_OLLAMA_MODEL
+      };
+    }
     const config = getClippyAiConfig();
     const endpoints = getAiEndpointCandidates(config.endpoint);
     let lastError = null;
 
     for (const endpoint of endpoints) {
       try {
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 8000);
         const res = await fetch(endpoint + '/api/generate', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             model: config.model,
             prompt: 'warmup',
-            system: 'System warmup request. Return a short plain text token.',
-            options: {
-              num_ctx: DEFAULT_CLIPPY_NUM_CTX
-            },
+            system: '/no_think System warmup request. Return a short plain text token.',
+            think: false,
+              options: {
+                num_ctx: 256,
+                num_predict: 1
+              },
             keep_alive: '20m',
             stream: false
           }),
-          signal: controller.signal
         });
-        clearTimeout(timeoutId);
 
         if (!res.ok) {
           const details = await res.text().catch(function () { return ''; });
@@ -708,6 +950,59 @@ export function createAISystem() {
     throw new Error(detail);
   }
 
+  async function prewarmKokoro() {
+    const cfg = getTtsConfig('bonzi');
+    if (!cfg || cfg.enabled === false) {
+      return {
+        ok: true,
+        skipped: true,
+        reason: 'speech disabled',
+        endpoint: DEFAULT_TTS_ENDPOINT,
+        engine: 'kokoro'
+      };
+    }
+
+    const endpoint = normalizeHostedEndpoint(cfg.endpoint || DEFAULT_TTS_ENDPOINT, '/api/tts');
+    const endpoints = getAiEndpointCandidates(endpoint);
+    let lastError = null;
+
+    for (const candidate of endpoints) {
+      try {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 20000);
+        const res = await fetch(candidate + '/v1/audio/speech', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            model: cleanAiConfigValue(cfg.engine).toLowerCase() || 'kokoro',
+            input: 'warmup',
+            voice: cleanAiConfigValue(cfg.voice) || 'am_michael',
+            response_format: 'wav'
+          }),
+          signal: controller.signal
+        });
+        clearTimeout(timeoutId);
+
+        if (!res.ok) {
+          const details = await res.text().catch(function () { return ''; });
+          throw new Error('Kokoro prewarm failed (' + res.status + '): ' + (details || res.statusText || 'Unknown error'));
+        }
+        await res.arrayBuffer().catch(function () { return null; });
+        return {
+          ok: true,
+          endpoint: candidate,
+          engine: cleanAiConfigValue(cfg.engine).toLowerCase() || 'kokoro',
+          voice: cleanAiConfigValue(cfg.voice) || 'am_michael'
+        };
+      } catch (err) {
+        lastError = err;
+      }
+    }
+
+    const detail = lastError && lastError.message ? lastError.message : 'Warmup failed';
+    throw new Error(detail);
+  }
+
   async function queryClippyLocal(prompt, systemPrompt, config) {
     const endpoints = getAiEndpointCandidates(config.endpoint);
     let lastError = null;
@@ -715,7 +1010,7 @@ export function createAISystem() {
     for (const endpoint of endpoints) {
       try {
         const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 45000);
+        const timeoutId = setTimeout(() => controller.abort(), 20000);
         const res = await fetch(endpoint + '/api/generate', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -723,9 +1018,11 @@ export function createAISystem() {
             model: config.model,
             prompt: prompt,
             system: systemPrompt,
-            options: {
-              num_ctx: DEFAULT_CLIPPY_NUM_CTX
-            },
+            think: false,
+              options: {
+                num_ctx: DEFAULT_CLIPPY_NUM_CTX,
+                num_predict: 256
+              },
             stream: true
           }),
           signal: controller.signal
@@ -776,6 +1073,7 @@ export function createAISystem() {
           if (tail && tail.response) fullText += tail.response;
         }
 
+        fullText = stripThinkingTags(fullText);
         if (!fullText.trim()) throw new Error('Empty response');
         return {
           text: fullText.trim(),
@@ -851,13 +1149,11 @@ export function createAISystem() {
     try {
       return await queryClippyLocal(prompt, systemPrompt, localConfig);
     } catch (localError) {
-      if (!fallbackConfig.enabled) throw localError;
+      if (!fallbackConfig.enabled) return makeOfflineClippyResponse(prompt, systemPrompt, localConfig);
       try {
         return await queryOpenAiFallback(prompt, systemPrompt, fallbackConfig);
       } catch (fallbackError) {
-        const localMsg = localError && localError.message ? localError.message : 'Local model failed';
-        const fallbackMsg = fallbackError && fallbackError.message ? fallbackError.message : 'OpenAI fallback failed';
-        throw new Error(localMsg + ' | Fallback: ' + fallbackMsg);
+        return makeOfflineClippyResponse(prompt, systemPrompt, localConfig);
       }
     }
   }
@@ -868,6 +1164,7 @@ export function createAISystem() {
     getOpenAiFallbackConfig,
     getLocalAiStatus,
     queryClippyOllama,
-    prewarmLocalModel
+    prewarmLocalModel,
+    prewarmKokoro
   };
 }

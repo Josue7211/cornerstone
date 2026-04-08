@@ -26,7 +26,7 @@ OPENAI_TIMEOUT = int(os.environ.get("OPENAI_TIMEOUT", "45"))
 MAX_OLLAMA_CONCURRENCY = max(1, int(os.environ.get("MAX_OLLAMA_CONCURRENCY", "1")))
 MAX_TTS_CONCURRENCY = max(1, int(os.environ.get("MAX_TTS_CONCURRENCY", "5")))
 MAX_OPENAI_CONCURRENCY = max(1, int(os.environ.get("MAX_OPENAI_CONCURRENCY", "6")))
-FORCED_OLLAMA_MODEL = os.environ.get("FORCED_OLLAMA_MODEL", "qwen3.5:0.8b").strip()
+FORCED_OLLAMA_MODEL = os.environ.get("FORCED_OLLAMA_MODEL", "FieldMouse-AI/qwen3.5:0.8b-Q4_K_M").strip()
 ALLOWED_OLLAMA_MODELS = tuple(
     model.strip() for model in os.environ.get("ALLOWED_OLLAMA_MODELS", FORCED_OLLAMA_MODEL).split(",") if model.strip()
 )
@@ -78,9 +78,21 @@ class ProxyHandler(BaseHTTPRequestHandler):
         self.send_header("Access-Control-Allow-Headers", "Content-Type, Authorization")
         self.send_header("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
 
+    def _drain_request_body(self):
+        try:
+            length = int(self.headers.get("Content-Length", "0") or "0")
+        except Exception:
+            length = 0
+        if length > 0:
+            try:
+                self.rfile.read(length)
+            except Exception:
+                pass
+
     def do_OPTIONS(self):
         origin = self.headers.get("Origin", "")
         if not self._is_origin_allowed(origin):
+            self._drain_request_body()
             payload = json.dumps({"error": "origin_not_allowed"}).encode("utf-8")
             self.send_response(403)
             self.send_header("Content-Type", "application/json")
@@ -102,6 +114,7 @@ class ProxyHandler(BaseHTTPRequestHandler):
     def _handle_proxy(self):
         origin = self.headers.get("Origin", "")
         if not self._is_origin_allowed(origin):
+            self._drain_request_body()
             payload = json.dumps({"error": "origin_not_allowed"}).encode("utf-8")
             self.send_response(403)
             self.send_header("Content-Type", "application/json")
@@ -155,6 +168,7 @@ class ProxyHandler(BaseHTTPRequestHandler):
         origin = self.headers.get("Origin", "")
         acquired = semaphore.acquire(blocking=False)
         if not acquired:
+            self._drain_request_body()
             payload = json.dumps({
                 "error": f"{name}_busy",
                 "message": f"{name} backend is busy, please retry shortly"

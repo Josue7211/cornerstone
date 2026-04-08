@@ -13,7 +13,7 @@
   var core = window.BonziCore || {};
   var chatEngine = window.BonziChatEngine || {};
   var DEFAULT_OLLAMA_ENDPOINT = core.DEFAULT_OLLAMA_ENDPOINT || '/api/ollama';
-  var DEFAULT_OLLAMA_MODEL = core.DEFAULT_OLLAMA_MODEL || 'qwen3.5:0.8b';
+  var DEFAULT_OLLAMA_MODEL = core.DEFAULT_OLLAMA_MODEL || 'FieldMouse-AI/qwen3.5:0.8b-Q4_K_M';
   var DEFAULT_NUM_CTX = core.DEFAULT_NUM_CTX || 4096;
 var BONZI_STILL_SRC = core.BONZI_STILL_SRC || './assets/media/photos/bonzi-real-still.png';
 var BONZI_ANIMATED_SRC = core.BONZI_ANIMATED_SRC || './assets/media/photos/bonzi-real.gif';
@@ -21,6 +21,7 @@ var BONZI_ANIMATED_SRC = core.BONZI_ANIMATED_SRC || './assets/media/photos/bonzi
   var MODEL_PATH_STORAGE_KEY = core.MODEL_PATH_STORAGE_KEY || 'bonzi.ollamaModelPath';
   var ENDPOINT_STORAGE_KEY = core.ENDPOINT_STORAGE_KEY || 'bonzi.ollamaEndpoint';
   var LAYER_MODE_STORAGE_KEY = core.LAYER_MODE_STORAGE_KEY || 'bonzi.layerMode';
+  var PUBLIC_DEMO = typeof window !== 'undefined' && !!window.__WIN95_PUBLIC_DEMO__;
 
   var cleanConfigValue = core.cleanConfigValue || function(value) {
     if (value == null) return '';
@@ -104,12 +105,25 @@ var BONZI_ANIMATED_SRC = core.BONZI_ANIMATED_SRC || './assets/media/photos/bonzi
       this._manualPlacementLock = false;
       this.hintBubble = null;
       this.hintHideTimer = null;
+      this._sessionTurns = [];
+      this._sessionRecentTurnLimit = 8;
       this.layerMode = readStoredValue(LAYER_MODE_STORAGE_KEY) === 'top' ? 'top' : 'desktop';
       this.voiceEnabled = !!(window.Win95Speech && window.Win95Speech.getConfig && window.Win95Speech.getConfig('bonzi').enabled);
     }
 
+    _getVoiceEnabled() {
+      if (window.Win95Speech && typeof window.Win95Speech.getConfig === 'function') {
+        const cfg = window.Win95Speech.getConfig('bonzi');
+        if (cfg && Object.prototype.hasOwnProperty.call(cfg, 'enabled')) {
+          return !!cfg.enabled;
+        }
+      }
+      return !!this.voiceEnabled;
+    }
+
     init() {
       if (this.el) return; // Already initialized
+      this.voiceEnabled = this._getVoiceEnabled();
       this._createCharacter();
       this._createChatBubble();
       this._setLayerMode(this.layerMode);
@@ -173,7 +187,7 @@ var BONZI_ANIMATED_SRC = core.BONZI_ANIMATED_SRC || './assets/media/photos/bonzi
       if (!this.chatBubble) return;
       const title = this.chatBubble.querySelector('.bonzi-chat-title');
       if (title) {
-        title.textContent = 'BonziBuddy AI [' + this._getModelLabel() + ']';
+        title.textContent = 'BonziBuddy AI';
       }
     }
 
@@ -289,7 +303,7 @@ var BONZI_ANIMATED_SRC = core.BONZI_ANIMATED_SRC || './assets/media/photos/bonzi
 
       // Clip button
       const clipButton = this.chatBubble.querySelector('.bonzi-chat-clip');
-      if (clipButton) {
+      if (clipButton && !PUBLIC_DEMO) {
         clipButton.textContent = this._getLayerModeLabel();
         clipButton.title = this.layerMode === 'top'
           ? 'Set Bonzi to desktop layer'
@@ -360,6 +374,10 @@ var BONZI_ANIMATED_SRC = core.BONZI_ANIMATED_SRC || './assets/media/photos/bonzi
 
       // Stop propagation on chat bubble clicks
       this.chatBubble.addEventListener('click', (e) => e.stopPropagation());
+
+      const clearSession = () => this.resetSessionMemory();
+      window.addEventListener('pagehide', clearSession, { once: true });
+      window.addEventListener('beforeunload', clearSession, { once: true });
     }
 
     // ─── CHAT LOGIC ───
@@ -401,6 +419,7 @@ var BONZI_ANIMATED_SRC = core.BONZI_ANIMATED_SRC || './assets/media/photos/bonzi
         scale: 0.8, opacity: 0, duration: 0.15,
         onComplete: () => {
           this.chatBubble.style.display = 'none';
+          this.resetSessionMemory();
           this._setBonziAnimationState(false);
           if (!this.isDragging) this._resumeRoaming();
         }
@@ -485,8 +504,58 @@ var BONZI_ANIMATED_SRC = core.BONZI_ANIMATED_SRC || './assets/media/photos/bonzi
       return cfg.voice + ' @ ' + cfg.endpoint;
     }
 
+    _normalizeSessionText(text) {
+      return String(text || '').replace(/\s+/g, ' ').trim();
+    }
+
+    _shortSessionText(text, limit = 120) {
+      const normalized = this._normalizeSessionText(text);
+      if (normalized.length <= limit) return normalized;
+      const clipped = normalized.slice(0, limit);
+      const pivot = Math.max(clipped.lastIndexOf('.'), clipped.lastIndexOf('!'), clipped.lastIndexOf('?'));
+      if (pivot > 50) return clipped.slice(0, pivot + 1).trim();
+      return clipped.trim() + '...';
+    }
+
+    _formatSessionTurns(turns) {
+      return turns.map((turn) => {
+        const who = turn.role === 'assistant' ? 'Bonzi' : 'User';
+        return who + ': ' + this._shortSessionText(turn.text, 160);
+      }).join('\n');
+    }
+
+    _compactSessionTurns() {
+      if (!Array.isArray(this._sessionTurns) || this._sessionTurns.length <= this._sessionRecentTurnLimit) return;
+      this._sessionTurns = this._sessionTurns.slice(-this._sessionRecentTurnLimit);
+    }
+
+    _recordSessionTurn(role, text) {
+      const clean = this._normalizeSessionText(text);
+      if (!clean) return;
+      this._sessionTurns.push({ role: role === 'assistant' ? 'assistant' : 'user', text: clean });
+      this._compactSessionTurns();
+    }
+
+    resetSessionMemory() {
+      this._sessionTurns = [];
+    }
+
+    _buildSessionPrompt(userText) {
+      if (PUBLIC_DEMO) {
+        return this._normalizeSessionText(userText);
+      }
+      const parts = [];
+      if (this._sessionTurns.length) {
+        parts.push(this._formatSessionTurns(this._sessionTurns));
+      }
+      parts.push('User: ' + this._normalizeSessionText(userText));
+      parts.push('Bonzi:');
+      return parts.join('\n');
+    }
+
     _syncVoiceButton() {
-      if (!this.voiceButton) return;
+      this.voiceEnabled = this._getVoiceEnabled();
+      if (PUBLIC_DEMO || !this.voiceButton) return;
       this.voiceButton.textContent = 'Pick';
       this.voiceButton.title = this.voiceEnabled
         ? 'Pick or change Bonzi voice'
@@ -495,13 +564,16 @@ var BONZI_ANIMATED_SRC = core.BONZI_ANIMATED_SRC || './assets/media/photos/bonzi
 
     _setVoiceEnabled(enabled) {
       this.voiceEnabled = !!enabled;
-      if (window.Win95Speech && typeof window.Win95Speech.setConfig === 'function') {
+      if (!PUBLIC_DEMO && window.Win95Speech && typeof window.Win95Speech.setConfig === 'function') {
         window.Win95Speech.setConfig('bonzi', { enabled: this.voiceEnabled });
       }
       this._syncVoiceButton();
     }
 
     async _handleVoiceCommand(text) {
+      if (PUBLIC_DEMO) {
+        return 'Voice settings are disabled in kiosk mode.';
+      }
       const trimmed = String(text || '').trim();
       const parts = trimmed.split(/\s+/);
       const action = (parts[1] || '').toLowerCase();
@@ -605,8 +677,13 @@ var BONZI_ANIMATED_SRC = core.BONZI_ANIMATED_SRC || './assets/media/photos/bonzi
 
       this.chatInput.value = '';
       this._addMessage(text, 'user');
+      this._recordSessionTurn('user', text);
 
       if (/^\/voice\b/i.test(text)) {
+        if (PUBLIC_DEMO) {
+          this._addMessage('Voice settings are disabled in kiosk mode.', 'bot');
+          return;
+        }
         const reply = await this._handleVoiceCommand(text);
         this._addMessage(reply, 'bot');
         return;
@@ -621,11 +698,12 @@ var BONZI_ANIMATED_SRC = core.BONZI_ANIMATED_SRC || './assets/media/photos/bonzi
 
       this.isTyping = true;
       const botMsg = this._addMessage('', 'bot');
-      this._setTypingState(botMsg, true);
 
       try {
-        const response = await this._queryOllama(text);
+        this._setTypingState(botMsg, true);
+        const response = await this._queryOllama(this._buildSessionPrompt(text));
         const spoken = await this._typeMessage(botMsg, response);
+        this._recordSessionTurn('assistant', spoken);
         this._speak(spoken);
       } catch (err) {
         const message = err && err.message
@@ -655,7 +733,7 @@ var BONZI_ANIMATED_SRC = core.BONZI_ANIMATED_SRC || './assets/media/photos/bonzi
     _speak(text) {
       const value = String(text || '').trim();
       if (!value) return;
-      if (!this.voiceEnabled) return;
+      if (!this._getVoiceEnabled()) return;
       if (window.Win95Speech && typeof window.Win95Speech.speak === 'function') {
         window.Win95Speech.speak(value, { character: 'bonzi', prefer: 'kokoro' }).catch(function() {});
         return;

@@ -17,14 +17,15 @@
   }
 
   const DEFAULT_OLLAMA_ENDPOINT = getDefaultHostedEndpoint('/api/ollama');
-  const DEFAULT_OLLAMA_MODEL = 'qwen3.5:0.8b';
-  const DEFAULT_NUM_CTX = 4096;
+  const DEFAULT_OLLAMA_MODEL = 'FieldMouse-AI/qwen3.5:0.8b-Q4_K_M';
+  const DEFAULT_NUM_CTX = 16384;
   const BONZI_STILL_SRC = './assets/media/photos/bonzi-real-still.png';
   const BONZI_ANIMATED_SRC = './assets/media/photos/bonzi-real.gif';
   const MODEL_STORAGE_KEY = 'bonzi.ollamaModel';
   const MODEL_PATH_STORAGE_KEY = 'bonzi.ollamaModelPath';
   const ENDPOINT_STORAGE_KEY = 'bonzi.ollamaEndpoint';
   const LAYER_MODE_STORAGE_KEY = 'bonzi.layerMode';
+  const PUBLIC_DEMO = typeof window !== 'undefined' && !!window.__WIN95_PUBLIC_DEMO__;
 
   function cleanConfigValue(value) {
     if (value == null) return '';
@@ -87,6 +88,149 @@
     return Array.from(unique);
   }
 
+  function hashText(text) {
+    let hash = 0;
+    const value = String(text || '');
+    for (let i = 0; i < value.length; i += 1) {
+      hash = ((hash << 5) - hash) + value.charCodeAt(i);
+      hash |= 0;
+    }
+    return Math.abs(hash);
+  }
+
+  function pickRivalryLine(lines, seed) {
+    if (!Array.isArray(lines) || !lines.length) return '';
+    return lines[hashText(seed) % lines.length];
+  }
+
+  function getRivalryTopic(text) {
+    const lower = cleanConfigValue(text).toLowerCase();
+    if (!lower) return 'general';
+    if (/(rewrite|polish|summary|summarize|outline|document|notepad|writing|paper|essay|draft)/.test(lower)) {
+      return 'writing';
+    }
+    if (/(gpu|gpus|cpu|tpu|hardware|chip|chips|quant|quantization|nvidia|amd|tensor|memory|accelerator|model|llm)/.test(lower)) {
+      return 'hardware';
+    }
+    return 'general';
+  }
+
+  function getRivalryLine(character, phase, prompt, meta = {}) {
+    const who = cleanConfigValue(character).toLowerCase();
+    const stage = cleanConfigValue(phase).toLowerCase();
+    const topic = getRivalryTopic(prompt || meta.topic || '');
+    const seed = [who, stage, topic, String(prompt || '').slice(0, 120), cleanConfigValue(meta.mode), cleanConfigValue(meta.stage)].join('|');
+
+    const pools = {
+      bonzi: {
+        busy: [
+          'Clippy is still sorting paperclips. I am already answering.',
+          'Clippy is pretending to work. I am not.',
+          'Clippy needs a memo. I need a microphone.'
+        ],
+        done: [
+          'Bonzi won the round.',
+          'Bonzi is done flexing.',
+          'Bonzi says: solved.'
+        ],
+        hardware: [
+          'Clippy is busy alphabetizing paperclips. GPUs are still the grown-up answer.',
+          'Clippy keeps a spreadsheet. I keep the hardware answer.',
+          'Clippy can file a complaint. I recommend the GPU.'
+        ],
+        writing: [
+          'Clippy can have the paragraph. I am here for the fun stuff.',
+          'Clippy gets the memo; I get the actual answer.',
+          'Clippy loves paperwork. I love useful chips.'
+        ],
+        general: [
+          'Clippy is drafting a memo about this while I keep it simple.',
+          'Clippy would make this a spreadsheet. I would rather not.',
+          'Clippy is all tabs and no swagger.'
+        ],
+        boot: [
+          'Bonzi is heckling Clippy into gear.',
+          'Bonzi says the paperclip is late again.',
+          'Bonzi is already arguing with Clippy.'
+        ]
+      },
+      clippy: {
+        busy: [
+          'Bonzi is making noise while I finish the edit.',
+          'Bonzi is performing. I am editing.',
+          'Bonzi can wait; the sentence will not improve itself.'
+        ],
+        done: [
+          'Clippy won this round.',
+          'Clippy is done polishing.',
+          'Clippy says: fixed.'
+        ],
+        hardware: [
+          'Bonzi is making noise again. I will keep the answer tidy.',
+          'Bonzi thinks volume is a strategy. It is not.',
+          'Bonzi is waving at hardware. I will explain it properly.'
+        ],
+        writing: [
+          'Bonzi is still improvising. I am editing.',
+          'Bonzi is a mascot, not an editor. Lucky for you, I am here.',
+          'Bonzi can riff; I will polish the sentence.'
+        ],
+        general: [
+          'Bonzi is being dramatic again. I will keep this concise.',
+          'Bonzi is loud. I am useful.',
+          'Bonzi is arguing with the furniture. I will answer instead.'
+        ],
+        boot: [
+          'Clippy says Bonzi is talking too much.',
+          'Clippy is sharpening a memo to annoy Bonzi.',
+          'Clippy and Bonzi are already bickering.'
+        ]
+      },
+      boot: {
+        warmup: [
+          'Bonzi is heckling Clippy into gear.',
+          'Clippy is filing a complaint about the boot time.',
+          'Bonzi and Clippy are already trading jabs.'
+        ],
+        ready: [
+          'Bonzi won the argument. Starting desktop...',
+          'Clippy finally stopped complaining. Starting desktop...',
+          'Bonzi and Clippy are warmed up and still bickering.'
+        ],
+        busy: [
+          'Bonzi blames Clippy. Clippy blames the queue.',
+          'The AI queue is busy and the feud is ongoing.',
+          'Bonzi and Clippy are arguing while the queue clears.'
+        ],
+        timeout: [
+          'Bonzi says move it. Clippy says patience. Starting desktop...',
+          'They are still arguing. Starting desktop anyway...',
+          'The feud timed out before the model did.'
+        ],
+        none: [
+          'Starting desktop...',
+          'Booting desktop...',
+          'Getting the desktop ready...'
+        ]
+      }
+    };
+
+    const pool = (pools[who] && pools[who][stage]) || (pools[who] && pools[who][topic]) || (pools[who] && pools[who].general) || pools.boot[stage] || pools.boot.none;
+    return pickRivalryLine(pool, seed) || '';
+  }
+
+  function decorateRivalryReply(character, prompt, answer, meta = {}) {
+    const jab = getRivalryLine(character, 'reply', prompt, meta);
+    const cleanAnswer = cleanConfigValue(answer);
+    if (!jab) return cleanAnswer;
+    if (!cleanAnswer) return jab;
+    return jab + '\n' + cleanAnswer;
+  }
+
+  function getRivalryBootStatus(stage) {
+    return getRivalryLine('boot', stage, stage, { stage: stage });
+  }
+
   function resolveBonziModelConfig() {
     const params = new URLSearchParams(window.location.search || '');
     const winCfg = window.BONZI_OLLAMA || {};
@@ -145,23 +289,25 @@
     header.className = 'bonzi-chat-header';
     const title = document.createElement('span');
     title.className = 'bonzi-chat-title';
-    title.textContent = 'BonziBuddy AI [' + modelLabel + ']';
+    title.textContent = 'BonziBuddy AI';
     const clipBtn = document.createElement('button');
     clipBtn.className = 'bonzi-chat-clip';
     clipBtn.title = 'Clip Bonzi back to the desktop';
     clipBtn.textContent = 'Desk';
-    const voiceBtn = document.createElement('button');
-    voiceBtn.className = 'bonzi-chat-clip';
-    voiceBtn.title = 'Pick Bonzi voice';
-    voiceBtn.dataset.bonziVoiceToggle = 'true';
-    voiceBtn.textContent = 'Pick';
     const closeBtn = document.createElement('button');
     closeBtn.className = 'bonzi-chat-close';
     closeBtn.title = 'Close';
     closeBtn.textContent = '\u00D7';
     header.appendChild(title);
-    header.appendChild(clipBtn);
-    header.appendChild(voiceBtn);
+    if (!PUBLIC_DEMO) {
+      header.appendChild(clipBtn);
+      const voiceBtn = document.createElement('button');
+      voiceBtn.className = 'bonzi-chat-clip';
+      voiceBtn.title = 'Pick Bonzi voice';
+      voiceBtn.dataset.bonziVoiceToggle = 'true';
+      voiceBtn.textContent = 'Pick';
+      header.appendChild(voiceBtn);
+    }
     header.appendChild(closeBtn);
 
     // Messages
@@ -254,6 +400,9 @@
     getFileStem: getFileStem,
     sanitizeModelAlias: sanitizeModelAlias,
     getEndpointCandidates: getEndpointCandidates,
+    getRivalryLine: getRivalryLine,
+    decorateRivalryReply: decorateRivalryReply,
+    getRivalryBootStatus: getRivalryBootStatus,
     resolveBonziModelConfig: resolveBonziModelConfig,
     createBonziSVG: createBonziSVG,
     createChatDOM: createChatDOM,
