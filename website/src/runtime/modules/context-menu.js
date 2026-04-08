@@ -17,6 +17,10 @@ export function initContextMenuModule(options = {}) {
     return window.__APP_CONFIG || {};
   }
 
+  function makeDesktopId(prefix) {
+    return String(prefix || 'desktop-item') + '-' + Date.now().toString(36) + '-' + Math.random().toString(36).slice(2, 7);
+  }
+
   function removeMenu() {
     if (activeMenu && activeMenu.parentNode) {
       activeMenu.remove();
@@ -226,6 +230,7 @@ export function initContextMenuModule(options = {}) {
 
   wallpaper.addEventListener('contextmenu', function(e) {
     if (e.target.closest('.win95-window')) return;
+    if (e.__win95ExplorerMenuHandled) return;
     e.preventDefault();
     e.stopPropagation();
     removeMenu();
@@ -268,6 +273,7 @@ export function initContextMenuModule(options = {}) {
           type: 'create',
           path: ['Desktop', folderName],
           nodeType: 'folder',
+          desktopId: makeDesktopId('desktop-folder'),
           modified: new Date().toISOString().slice(0, 10),
           ts: Date.now()
         });

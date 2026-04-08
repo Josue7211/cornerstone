@@ -85,6 +85,7 @@ let terminalRuntime = null;
 const recentAppIds = [];
 const recentEntries = [];
 const EXPLORER_MUTATION_LOG_KEY = 'ai98.explorer.mutations.v1';
+const DESKTOP_GRID_STORAGE_KEY = 'win95-icon-grid-v11';
 const aiSystem = createAISystem();
 const getClippyAiConfig = (...args) => aiSystem.getClippyAiConfig(...args);
 const getLocalAiStatus = (...args) => aiSystem.getLocalAiStatus(...args);
@@ -94,6 +95,36 @@ if (aiSystem && typeof aiSystem.prewarmLocalModel === 'function') {
 }
 let notepadSystem = null;
 const iconHelper = (typeof window !== 'undefined' && window.Win95Shared) ? window.Win95Shared : null;
+
+function pruneLegacyDesktopState() {
+  try {
+    const log = readExplorerMutationLog();
+    const filtered = log.filter((entry) => {
+      if (!entry || typeof entry !== 'object' || !Array.isArray(entry.path)) return true;
+      const isDesktopIeShortcut =
+        entry.path.length === 2 &&
+        entry.path[0] === 'Desktop' &&
+        String(entry.path[1] || '').toLowerCase() === 'internet explorer.lnk';
+      return !isDesktopIeShortcut;
+    });
+    if (filtered.length !== log.length) {
+      localStorage.setItem(EXPLORER_MUTATION_LOG_KEY, JSON.stringify(filtered));
+    }
+  } catch (e) {}
+
+  try {
+    const raw = localStorage.getItem(DESKTOP_GRID_STORAGE_KEY);
+    if (!raw) return;
+    const parsed = JSON.parse(raw);
+    if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) return;
+    if (Object.prototype.hasOwnProperty.call(parsed, 'dyn:internet explorer.lnk')) {
+      delete parsed['dyn:internet explorer.lnk'];
+      localStorage.setItem(DESKTOP_GRID_STORAGE_KEY, JSON.stringify(parsed));
+    }
+  } catch (e) {}
+}
+
+pruneLegacyDesktopState();
 
 function renderUiIcon(target, value, opts = {}) {
   if (!target) return;
@@ -1677,12 +1708,47 @@ function applyDesktopIconsFromConfig() {
   if (startLogo) renderUiIcon(startLogo, 'icon:start', { alt: 'Start' });
 }
 
-function deriveDesktopDynamicEntries() {
-  const mutations = readExplorerMutationLog();
+function getExplorerNodeAtPath(pathParts) {
+  const explorerData = window.ExplorerData || {};
+  let node = explorerData.FS || null;
+  const parts = Array.isArray(pathParts) ? pathParts : [];
+  for (let i = 0; i < parts.length; i++) {
+    if (!node || !Array.isArray(node.children)) return null;
+    node = node.children.find((child) => child && child.name === parts[i]) || null;
+  }
+  return node;
+}
+
+function cloneDesktopEntry(node) {
+  if (!node || !node.name) return null;
+  return {
+    name: node.name,
+    nodeType: node.type === 'folder' ? 'folder' : 'file',
+    size: node.size || '1 KB',
+    modified: node.modified || '',
+    shortcut: node.shortcut || null,
+    desktopId: node.desktopId || ''
+  };
+}
+
+function deriveDesktopEntries() {
+  const desktopNode = getExplorerNodeAtPath(['Desktop']);
   const map = new Map();
   const isDesktopDirectPath = (pathParts) => Array.isArray(pathParts) && pathParts.length === 2 && pathParts[0] === 'Desktop';
+  const isInternetExplorerShortcut = (name) => String(name || '').toLowerCase() === 'internet explorer.lnk';
+  if (desktopNode && Array.isArray(desktopNode.children)) {
+    desktopNode.children.forEach((node) => {
+      const entry = cloneDesktopEntry(node);
+      if (!entry) return;
+      if (isInternetExplorerShortcut(entry.name)) return;
+      if (!entry.shortcut && entry.nodeType !== 'folder' && !/\.lnk$/i.test(entry.name || '')) return;
+      map.set(entry.name, entry);
+    });
+  }
+  const mutations = readExplorerMutationLog();
   mutations.forEach((entry) => {
     if (!entry || typeof entry !== 'object') return;
+    if (isDesktopDirectPath(entry.path) && isInternetExplorerShortcut(entry.path[1])) return;
     if (entry.type === 'create' && isDesktopDirectPath(entry.path)) {
       const name = entry.path[1];
       map.set(name, {
@@ -1690,6 +1756,7 @@ function deriveDesktopDynamicEntries() {
         nodeType: entry.nodeType || 'file',
         size: entry.size || '1 KB',
         modified: entry.modified || '',
+        desktopId: entry.desktopId || '',
         shortcut: entry.shortcut || null
       });
       return;
@@ -1719,21 +1786,18 @@ function deriveDesktopDynamicEntries() {
 
 function makeDynamicDesktopIcon(entry) {
   const iconEl = document.createElement('div');
-  iconEl.className = 'desktop-icon dynamic-user';
+  iconEl.className = 'desktop-icon dynamic-user desktop-fs';
   iconEl.dataset.dynamicUser = '1';
+  if (entry.desktopId) iconEl.dataset.desktopId = entry.desktopId;
   iconEl.dataset.iconKey = 'dyn:' + String(entry.name || '').toLowerCase();
   iconEl.dataset.desktopName = String(entry.name || '');
 
   const labelBase = String(entry.name || 'Shortcut').replace(/\.lnk$/i, '');
   let iconValue = 'icon:file';
-  if (entry.nodeType === 'folder') {
-    iconValue = 'icon:folderClosed';
-    iconEl.dataset.shortcutType = 'folder';
-    iconEl.dataset.targetPath = JSON.stringify(['Desktop', entry.name]);
-  } else if (entry.shortcut && entry.shortcut.shortcutType === 'app') {
+  if (entry.shortcut && entry.shortcut.shortcutType === 'app') {
     const appId = entry.shortcut.targetApp;
     const app = APP_CONFIG[appId];
-    iconValue = app && app.icon ? app.icon : '↗️';
+    iconValue = app && app.icon ? app.icon : 'icon:apps';
     iconEl.dataset.shortcutType = 'app';
     iconEl.dataset.targetApp = appId || '';
   } else if (entry.shortcut && entry.shortcut.shortcutType === 'folder') {
@@ -1741,13 +1805,19 @@ function makeDynamicDesktopIcon(entry) {
     iconEl.dataset.shortcutType = 'folder';
     iconEl.dataset.targetPath = JSON.stringify(entry.shortcut.targetPath || []);
   } else if (entry.shortcut && entry.shortcut.shortcutType === 'file') {
-    iconValue = '↗️';
+    iconValue = iconHelper && typeof iconHelper.fileIcon === 'function'
+      ? iconHelper.fileIcon(entry.shortcut.file || entry)
+      : 'icon:file';
     iconEl.dataset.shortcutType = 'file';
     iconEl.dataset.filePayload = JSON.stringify(entry.shortcut.file || {});
-  } else {
-    iconValue = '↗️';
+  } else if (entry.nodeType === 'folder') {
+    iconValue = 'icon:folderClosed';
     iconEl.dataset.shortcutType = 'folder';
     iconEl.dataset.targetPath = JSON.stringify(['Desktop', entry.name]);
+  } else {
+    iconValue = iconHelper && typeof iconHelper.fileIcon === 'function'
+      ? iconHelper.fileIcon(entry)
+      : 'icon:file';
   }
   iconEl.dataset.label = labelBase;
 
@@ -1768,7 +1838,7 @@ function refreshDynamicDesktopIcons() {
   const iconGrid = document.getElementById('iconGrid');
   if (!iconGrid) return;
   iconGrid.querySelectorAll('.desktop-icon.dynamic-user').forEach((el) => el.remove());
-  const entries = deriveDesktopDynamicEntries();
+  const entries = deriveDesktopEntries();
   entries.forEach((entry) => {
     const icon = makeDynamicDesktopIcon(entry);
     iconGrid.appendChild(icon);

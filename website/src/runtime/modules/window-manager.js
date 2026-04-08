@@ -515,8 +515,8 @@ export function createWindowManager(deps = {}) {
       if (content) {
         window.gsap.fromTo(
           content,
-          { opacity: 0.94 },
-          { opacity: 1, duration: 0.18, ease: 'power1.out', clearProps: 'opacity' }
+          { filter: 'brightness(1.03)' },
+          { filter: 'brightness(1)', duration: 0.18, ease: 'power1.out', clearProps: 'filter' }
         );
       }
     }
@@ -528,15 +528,15 @@ export function createWindowManager(deps = {}) {
       const tl = window.gsap.timeline();
       tl.fromTo(
         win,
-        { opacity: 0.78, y: 18, scale: 0.94, filter: 'blur(5px)', transformOrigin: 'center bottom' },
-        { opacity: 1, y: 0, scale: 1, filter: 'blur(0px)', duration: 0.28, ease: 'expo.out', clearProps: 'transform,opacity,filter' },
+        { y: 18, scale: 0.94, filter: 'blur(5px)', transformOrigin: 'center bottom' },
+        { y: 0, scale: 1, filter: 'blur(0px)', duration: 0.28, ease: 'expo.out', clearProps: 'transform,filter' },
         0
       );
       if (content) {
         tl.fromTo(
           content,
-          { opacity: 0, y: 10 },
-          { opacity: 1, y: 0, duration: 0.18, ease: 'power2.out', clearProps: 'transform,opacity' },
+          { y: 10 },
+          { y: 0, duration: 0.18, ease: 'power2.out', clearProps: 'transform' },
           0.08
         );
       }

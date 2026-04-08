@@ -28,6 +28,11 @@ export function initIconDragModule() {
     defrag: { row: 3, col: 1 },
     recycle: { row: 4, col: 0 }
   };
+  const DEFAULT_DYNAMIC_LAYOUT = {
+    'desktop-homework-shortcut': { row: 0, col: 3 },
+    'desktop-timeline-shortcut': { row: 0, col: 4 },
+    'desktop-mustwatch-shortcut': { row: 1, col: 3 }
+  };
 
   function gridKey(row, col) {
     return `${row}:${col}`;
@@ -39,7 +44,12 @@ export function initIconDragModule() {
 
   function getIconId(icon) {
     if (!icon) return '';
-    return icon.dataset.app || icon.dataset.iconKey || '';
+    return icon.dataset.desktopId || icon.dataset.app || icon.dataset.iconKey || '';
+  }
+
+  function getSeededLayoutForIcon(icon) {
+    const iconId = getIconId(icon);
+    return DEFAULT_ICON_LAYOUT[iconId] || DEFAULT_DYNAMIC_LAYOUT[iconId] || null;
   }
 
   function getGridMetrics() {
@@ -110,9 +120,9 @@ export function initIconDragModule() {
 
   function findFirstFreeCell(icon) {
     const { cols, rows } = getGridMetrics();
-    // Win98-like sweep: top-to-bottom first, then next column.
-    for (let col = 0; col < cols; col++) {
-      for (let row = 0; row < rows; row++) {
+    // Win98-like sweep: fill left-to-right across each row before going down.
+    for (let row = 0; row < rows; row++) {
+      for (let col = 0; col < cols; col++) {
         if (isCellFree(row, col, icon)) return { row, col };
       }
     }
@@ -126,8 +136,7 @@ export function initIconDragModule() {
     resetOccupancy();
     const icons = getIcons();
     icons.forEach((icon, index) => {
-      const app = icon.dataset.app;
-      const seeded = app ? DEFAULT_ICON_LAYOUT[app] : null;
+      const seeded = getSeededLayoutForIcon(icon);
       if (seeded) {
         placeIcon(icon, seeded.row, seeded.col);
         return;
@@ -175,8 +184,7 @@ export function initIconDragModule() {
 
       // If saved layout is partial or stale, place missing icons at seeded defaults.
       missingIcons.forEach(({ icon, index }) => {
-        const app = icon.dataset.app;
-        const seeded = app ? DEFAULT_ICON_LAYOUT[app] : null;
+        const seeded = getSeededLayoutForIcon(icon);
         const cell = seeded
           ? findNearestCell(seeded.row, seeded.col, icon)
           : findFirstFreeCell(icon);
@@ -203,6 +211,12 @@ export function initIconDragModule() {
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(positions));
     } catch (e) {}
+  }
+
+  function savePositionsSoon() {
+    window.requestAnimationFrame(() => {
+      savePositions();
+    });
   }
 
   function attachDragHandlers() {
@@ -250,7 +264,7 @@ export function initIconDragModule() {
           const col = Math.round(curLeft / stepX);
           const cell = findNearestCell(row, col, icon);
           placeIcon(icon, cell.row, cell.col);
-          savePositions();
+          savePositionsSoon();
         }
 
         document.addEventListener('mousemove', onMove);
@@ -263,7 +277,7 @@ export function initIconDragModule() {
     attachDragHandlers();
     const restored = restorePositions();
     if (!restored) layoutDefault();
-    savePositions();
+    savePositionsSoon();
   }
 
   clearLegacyStorage();
@@ -285,6 +299,12 @@ export function initIconDragModule() {
         placeIcon(icon, row, col);
       }
     });
+  });
+
+  window.addEventListener('beforeunload', savePositions);
+  window.addEventListener('pagehide', savePositions);
+  document.addEventListener('visibilitychange', function() {
+    if (document.visibilityState === 'hidden') savePositions();
   });
 
   window.__win95IconGridRefresh = function() {

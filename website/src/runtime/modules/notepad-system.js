@@ -174,7 +174,7 @@ export function createNotepadSystem(deps = {}) {
         shell.__clippyApi.updateFile(fileName);
       }
       if (clippyFlash && shell) showClippyFlash(shell, clippyFlashDelayMs);
-      setWindowTitle('notepad', title, '\uD83D\uDCDD');
+      setWindowTitle('notepad', title, 'icon:text');
       return;
     }
   
@@ -303,7 +303,7 @@ export function createNotepadSystem(deps = {}) {
     wrap.appendChild(status);
     wrap.appendChild(barShell);
 
-    const win = wm.createWindow(appId, 'Internet Explorer.lnk', '↗️', wrap, { width: 460, height: 220 });
+    const win = wm.createWindow(appId, 'Internet Explorer.lnk', 'icon:internet', wrap, { width: 460, height: 220 });
     animateWindowOpen(appId, win);
 
     let tick = 0;
@@ -566,7 +566,7 @@ export function createNotepadSystem(deps = {}) {
       viewer.appendChild(scrubberWrap);
       viewer.appendChild(video);
 
-      const videoWin = wm.createWindow(appId, name, '🎞️', viewer, { width: 860, height: 560 });
+      const videoWin = wm.createWindow(appId, name, 'icon:video', viewer, { width: 860, height: 560 });
       animateWindowOpen(appId, videoWin);
       return;
     }

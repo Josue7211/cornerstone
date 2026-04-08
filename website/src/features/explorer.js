@@ -11,7 +11,7 @@
     return node.type === 'folder' ? 'File Folder' : 'File';
   };
   var fileIcon = data.fileIcon || function(node) {
-    return (node && node.type === 'folder') ? '📁' : '📄';
+    return (node && node.type === 'folder') ? 'icon:folderClosed' : 'icon:file';
   };
   var iconHelper = window.Win95Shared || {};
   var pathString = data.pathString || function(pathParts) {
@@ -388,13 +388,6 @@
           activePane = 'tree';
           navigateTo(path);
         });
-        row.addEventListener('contextmenu', function(event) {
-          event.preventDefault();
-          activePane = 'tree';
-          navigateTo(path);
-          var folderNode = getNodeAtPath(root, path);
-          if (folderNode) openContextMenuAt(event.clientX, event.clientY, folderNode, -1, path.slice(0, -1));
-        });
         parent.appendChild(row);
         treeRows.push({ row: row, path: path.slice(), node: node });
         if (isCurrentPath) selectedTreeIndex = treeRows.length - 1;
@@ -457,24 +450,28 @@
       return value * mult;
     }
 
+    function getItemSortGroup(item) {
+      if (!item) return 3;
+      if (item.type === 'folder') return 0;
+      if (item.shortcut && item.shortcut.shortcutType) return 1;
+      return 2;
+    }
+
     function compareExplorerItems(a, b) {
-      if (sortKey === 'name') {
-        if (a.type !== b.type) return a.type === 'folder' ? -1 : 1;
-      }
       var av;
       var bv;
       if (sortKey === 'type') {
-        av = fileTypeLabel(a);
-        bv = fileTypeLabel(b);
+        av = getItemSortGroup(a) + ':' + fileTypeLabel(a);
+        bv = getItemSortGroup(b) + ':' + fileTypeLabel(b);
       } else if (sortKey === 'size') {
-        av = a.type === 'folder' ? -1 : formatSizeBytes(a.size);
-        bv = b.type === 'folder' ? -1 : formatSizeBytes(b.size);
+        av = getItemSortGroup(a) * 1000000000 + (a.type === 'folder' ? -1 : formatSizeBytes(a.size));
+        bv = getItemSortGroup(b) * 1000000000 + (b.type === 'folder' ? -1 : formatSizeBytes(b.size));
       } else if (sortKey === 'modified') {
-        av = String(a.modified || '');
-        bv = String(b.modified || '');
+        av = getItemSortGroup(a) + ':' + String(a.modified || '');
+        bv = getItemSortGroup(b) + ':' + String(b.modified || '');
       } else {
-        av = String(a.name || '');
-        bv = String(b.name || '');
+        av = getItemSortGroup(a) + ':' + String(a.name || '');
+        bv = getItemSortGroup(b) + ':' + String(b.name || '');
       }
       var result = 0;
       if (typeof av === 'number' && typeof bv === 'number') {
@@ -510,7 +507,9 @@
           ? ('App: ' + (item.shortcut.targetApp || ''))
           : item.shortcut.shortcutType === 'folder'
             ? ('Folder: ' + pathString(item.shortcut.targetPath || []))
-            : 'File shortcut';
+            : (item.shortcut.file && item.shortcut.file.name
+              ? ('File: ' + item.shortcut.file.name)
+              : 'File shortcut');
         preview.textContent = 'Shortcut: ' + item.name + '\nTarget: ' + target;
         return;
       }
@@ -890,12 +889,16 @@
 
       var alias = inferAppAliasFromName(item.name);
       var shortcutMeta = {};
+      var shortcutIcon = 'icon:file';
       if (alias) {
         shortcutMeta = { shortcutType: 'app', targetApp: alias };
+        shortcutIcon = (window.APP_CONFIG && window.APP_CONFIG[alias] && window.APP_CONFIG[alias].icon) || 'icon:apps';
       } else if (item.type === 'folder') {
         shortcutMeta = { shortcutType: 'folder', targetPath: (parentPath || []).concat(item.name) };
+        shortcutIcon = 'icon:folderClosed';
       } else {
         shortcutMeta = { shortcutType: 'file', file: Object.assign({}, item, { parentPath: (parentPath || []).slice(), fullPath: (parentPath || []).concat(item.name) }) };
+        shortcutIcon = fileIcon(shortcutMeta.file || item);
       }
 
       var baseLabel = item.name;
@@ -911,7 +914,8 @@
         name: shortcutName,
         size: '1 KB',
         modified: getTodayStamp(),
-        icon: '↗️',
+        icon: shortcutIcon,
+        desktopId: 'desktop-shortcut-' + Date.now().toString(36) + '-' + Math.random().toString(36).slice(2, 7),
         shortcut: shortcutMeta
       };
       desktopNode.children.push(shortcutNode);
@@ -922,6 +926,7 @@
         nodeType: 'file',
         size: '1 KB',
         modified: getTodayStamp(),
+        desktopId: shortcutNode.desktopId,
         shortcut: shortcutMeta,
         ts: Date.now()
       });
@@ -1137,13 +1142,6 @@
         row.addEventListener('dblclick', function() {
           openItem(item);
         });
-        row.addEventListener('contextmenu', function(event) {
-          event.preventDefault();
-          activePane = 'list';
-          selectItemAt(idx, true);
-          openContextMenuAt(event.clientX, event.clientY, item, idx, currentPath.slice());
-        });
-
         listBody.appendChild(row);
 
         if (preferredSelectionName && String(item.name).toLowerCase() === String(preferredSelectionName).toLowerCase()) {
@@ -1399,11 +1397,41 @@
     address.addEventListener('blur', function() {
       if (!address.value) address.value = pathString(currentPath);
     });
-    listBody.addEventListener('contextmenu', function(event) {
-      if (event.target !== listBody) return;
-      event.preventDefault();
-      activePane = 'list';
-      openContextMenuAt(event.clientX, event.clientY, null, -1, currentPath.slice());
+    container.addEventListener('contextmenu', function(event) {
+      if (event.target.closest('.explorer-modal') || event.target.closest('.ctx-menu')) return;
+      if (event.target.closest('.explorer-tree-item')) {
+        var treeRow = event.target.closest('.explorer-tree-item');
+        var treeEntry = treeRows.find(function(entry) { return entry.row === treeRow; }) || null;
+        if (!treeEntry) return;
+        event.preventDefault();
+        event.stopImmediatePropagation();
+        event.stopPropagation();
+        activePane = 'tree';
+        navigateTo(treeEntry.path);
+        var treeNode = getNodeAtPath(root, treeEntry.path);
+        if (treeNode) openContextMenuAt(event.clientX, event.clientY, treeNode, -1, treeEntry.path.slice(0, -1));
+        return;
+      }
+      var listRow = event.target.closest('.explorer-row');
+      if (listRow) {
+        var rowIndex = Array.prototype.indexOf.call(listBody.children, listRow);
+        var listItem = currentItems[rowIndex];
+        if (!listItem) return;
+        event.preventDefault();
+        event.stopImmediatePropagation();
+        event.stopPropagation();
+        activePane = 'list';
+        selectItemAt(rowIndex, true);
+        openContextMenuAt(event.clientX, event.clientY, listItem, rowIndex, currentPath.slice());
+        return;
+      }
+      if (event.target.closest('.explorer-list-body')) {
+        event.preventDefault();
+        event.stopImmediatePropagation();
+        event.stopPropagation();
+        activePane = 'list';
+        openContextMenuAt(event.clientX, event.clientY, null, -1, currentPath.slice());
+      }
     });
     setTimeout(function() {
       showExplorerClippyHint("It looks like you're browsing files. Need help finding the homework folder?");

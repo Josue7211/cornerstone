@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 import { OBJLoader } from 'three/addons/loaders/OBJLoader.js';
+import { MTLLoader } from 'three/addons/loaders/MTLLoader.js';
 import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
 import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
 import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
@@ -254,34 +255,34 @@ class PresentationMode {
       gsap.killTweensOf(portalHalo.scale);
       tl.fromTo(renderer.domElement, { opacity: 0 }, { opacity: 1, duration: 0.16, ease: 'power2.inOut' }, 0);
 
-      // Keep the camera wide enough for readability, then push into the hole.
-      tl.to(camera.position, { z: 7.2, y: 0.2, duration: 1.2, ease: 'sine.inOut' }, 0.0);
-      tl.to(camera.position, { z: 6.3, y: 0.06, duration: 2.25, ease: 'power1.inOut' }, 1.2);
+      // Get on-axis immediately so the shot does not hang in empty space.
+      tl.to(camera.position, { x: 0.08, y: 0.12, z: 6.3, duration: 0.34, ease: 'power2.out' }, 0.0);
+      tl.to(camera.position, { x: 0.02, y: 0.02, z: 5.2, duration: 0.62, ease: 'power2.inOut' }, 0.34);
 
-      // Make the wormhole unmistakable.
+      // For ESC, the tunnel itself owns the front edge. Do not render a separate portal mouth.
+      portal.visible = false;
+      portalHalo.visible = false;
+      portal.material.opacity = 0;
+      portalHalo.material.opacity = 0;
       tl.to(stars.material, { opacity: 0.2, duration: 0.9, ease: 'power2.out' }, 0.12);
       tl.to(tunnelStars.material, { opacity: 1.0, duration: 1.35, ease: 'power2.out' }, 0.06);
       tl.to(tunnelStars.material, { size: 0.24, duration: 1.2, ease: 'power2.out' }, 0.1);
-      tl.to(tunnelStars.material, { size: 0.06, duration: 0.42, ease: 'power2.out' }, 4.12);
-      tl.fromTo(portal.material, { opacity: 0.0 }, { opacity: 1.0, duration: 0.55, ease: 'power2.out' }, 0.08);
-      tl.fromTo(portalHalo.material, { opacity: 0.0 }, { opacity: 1.0, duration: 0.62, ease: 'power2.out' }, 0.1);
-      tl.to(portal.scale, { x: 4.7, y: 4.7, z: 2.15, duration: 2.45, ease: 'expo.in' }, 0.95);
-      tl.to(portalHalo.scale, { x: 5.25, y: 5.25, z: 1.9, duration: 2.45, ease: 'expo.in' }, 0.95);
-      tl.to(renderer.domElement, { opacity: 0, duration: 0.28, ease: 'power2.in' }, 4.58);
+      tl.to(tunnelStars.material, { size: 0.06, duration: 0.22, ease: 'power2.out' }, 1.62);
+      tl.to(renderer.domElement, { opacity: 0, duration: 0.18, ease: 'power2.in' }, 1.86);
     }
 
     if (this.refs && this.refs.veil) {
       this.refs.veil.style.mixBlendMode = 'screen';
       this.refs.veil.style.background = 'radial-gradient(circle at 50% 46%, rgba(255,255,255,0.72) 0%, rgba(148,214,255,0.42) 30%, rgba(10,16,34,0.0) 74%)';
-      tl.fromTo(this.refs.veil, { opacity: 0 }, { opacity: 0.32, duration: 0.54, ease: 'power2.in' }, 2.86);
-      tl.to(this.refs.veil, { opacity: 0, duration: 0.45, ease: 'power2.out' }, 3.62);
+      tl.fromTo(this.refs.veil, { opacity: 0 }, { opacity: 0.18, duration: 0.18, ease: 'power2.in' }, 1.06);
+      tl.to(this.refs.veil, { opacity: 0, duration: 0.16, ease: 'power2.out' }, 1.28);
     }
 
     if (this.refs && this.refs.stageRing && this.refs.stageSweep) {
-      tl.fromTo(this.refs.stageRing, { opacity: 0, scale: 0.55 }, { opacity: 0.95, scale: 1.5, duration: 1.0, ease: 'power2.out' }, 0.12);
-      tl.to(this.refs.stageRing, { opacity: 0.14, scale: 2.25, duration: 2.15, ease: 'expo.in' }, 1.12);
-      tl.fromTo(this.refs.stageSweep, { opacity: 0, xPercent: -110 }, { opacity: 0.56, xPercent: 95, duration: 0.7, ease: 'power2.inOut' }, 0.8);
-      tl.to(this.refs.stageSweep, { opacity: 0, duration: 0.4, ease: 'power2.out' }, 1.65);
+      tl.fromTo(this.refs.stageRing, { opacity: 0, scale: 0.55 }, { opacity: 0.56, scale: 1.08, duration: 0.26, ease: 'power2.out' }, 0.04);
+      tl.to(this.refs.stageRing, { opacity: 0.04, scale: 1.42, duration: 0.54, ease: 'expo.in' }, 0.28);
+      tl.fromTo(this.refs.stageSweep, { opacity: 0, xPercent: -110 }, { opacity: 0.28, xPercent: 95, duration: 0.24, ease: 'power2.inOut' }, 0.22);
+      tl.to(this.refs.stageSweep, { opacity: 0, duration: 0.12, ease: 'power2.out' }, 0.48);
     }
 
     if (this.refs && this.refs.exitShip) {
@@ -296,15 +297,14 @@ class PresentationMode {
       tl.set([shipBody, shipNose, shipWingA, shipWingB, shipCore], { opacity: 1 }, 0);
       if (shipWake) {
         tl.set(shipWake, { opacity: 0, scaleX: 0.15, scaleY: 0.15 }, 0);
-        tl.fromTo(shipWake, { opacity: 0, scaleX: 0.18, scaleY: 0.15 }, { opacity: 0.88, scaleX: 1.3, scaleY: 1, duration: 0.28, ease: 'power2.out' }, 0.16);
-        tl.to(shipWake, { opacity: 0.42, scaleX: 2.0, scaleY: 1.04, duration: 1.08, ease: 'power2.inOut' }, 0.62);
-        tl.to(shipWake, { opacity: 0, duration: 0.44, ease: 'power2.out' }, 2.78);
+        tl.fromTo(shipWake, { opacity: 0, scaleX: 0.18, scaleY: 0.15 }, { opacity: 0.7, scaleX: 1.0, scaleY: 0.84, duration: 0.12, ease: 'power2.out' }, 0.04);
+        tl.to(shipWake, { opacity: 0.2, scaleX: 1.34, scaleY: 0.9, duration: 0.34, ease: 'power2.inOut' }, 0.22);
+        tl.to(shipWake, { opacity: 0, duration: 0.12, ease: 'power2.out' }, 0.78);
       }
-      tl.fromTo(ship, { opacity: 0, xPercent: -96, yPercent: 28, scale: 0.74, rotate: -16 }, { opacity: 1, xPercent: -26, yPercent: 2, scale: 1.0, rotate: -4, duration: 0.94, ease: 'sine.out' }, 0.12);
-      tl.to(ship, { xPercent: 6, yPercent: -6, scale: 1.08, rotate: 4, duration: 0.86, ease: 'power2.inOut' }, 1.02);
-      tl.to(ship, { xPercent: 34, yPercent: -14, scale: 0.92, rotate: 13, duration: 0.82, ease: 'power2.inOut' }, 1.9);
-      tl.to(ship, { xPercent: 78, yPercent: -24, scale: 0.45, opacity: 0, rotate: 24, duration: 0.7, ease: 'power3.in' }, 3.02);
-      tl.set(ship, { display: 'none' }, 3.86);
+      tl.fromTo(ship, { opacity: 0, xPercent: -46, yPercent: 10, scale: 0.72, rotate: -6 }, { opacity: 1, xPercent: -8, yPercent: 1, scale: 0.9, rotate: -1, duration: 0.24, ease: 'power2.out' }, 0.04);
+      tl.to(ship, { xPercent: 10, yPercent: -2, scale: 0.72, rotate: 2, duration: 0.24, ease: 'power2.inOut' }, 0.28);
+      tl.to(ship, { xPercent: 30, yPercent: -4, scale: 0.18, opacity: 0, rotate: 8, duration: 0.22, ease: 'power3.in' }, 0.54);
+      tl.set(ship, { display: 'none' }, 0.82);
     }
 
     if (!this.shipRoot && this.three && this.three.scene) {
@@ -388,10 +388,10 @@ class PresentationMode {
         this.shipBeacon.material.opacity = 0.98;
         this.shipBeacon.scale.set(1, 1, 1);
       }
-      // Ship should read as a high-speed approach, then a banked dive through the portal.
-      this.shipRoot.position.set(-3.92, -1.46, 3.02);
-      this.shipRoot.rotation.set(0.12, Math.PI * 0.9, -0.16);
-      this.shipRoot.scale.set(6.2, 6.2, 6.2);
+      // Keep the ship close to the tunnel centerline and make the dive immediate.
+      this.shipRoot.position.set(-0.34, -0.22, 0.88);
+      this.shipRoot.rotation.set(0.02, Math.PI * 1.02, -0.01);
+      this.shipRoot.scale.set(3.5, 3.5, 3.5);
 
       const shipMats = [];
       this.shipRoot.traverse((node) => {
@@ -405,35 +405,28 @@ class PresentationMode {
         });
       });
       shipMats.forEach(({ mat, baseIntensity }) => {
-        tl.fromTo(mat, { emissiveIntensity: baseIntensity * 4.2 }, { emissiveIntensity: baseIntensity * 2.6, duration: 1.26, ease: 'power2.out' }, 0.06);
-        tl.to(mat, { emissiveIntensity: baseIntensity * 1.18, duration: 0.44, ease: 'power2.out' }, 4.06);
+        tl.fromTo(mat, { emissiveIntensity: baseIntensity * 3.6 }, { emissiveIntensity: baseIntensity * 2.1, duration: 0.32, ease: 'power2.out' }, 0.02);
+        tl.to(mat, { emissiveIntensity: baseIntensity * 1.06, duration: 0.16, ease: 'power2.out' }, 0.94);
       });
 
       if (this.shipWake) {
-        tl.fromTo(this.shipWake.material, { opacity: 0 }, { opacity: 0.78, duration: 0.3, ease: 'power2.out' }, 0.14);
-        tl.fromTo(this.shipWake.scale, { x: 0.12, y: 0.12, z: 0.12 }, { x: 1.45, y: 1.1, z: 1.1, duration: 1.38, ease: 'power2.out' }, 0.14);
-        tl.to(this.shipWake.scale, { x: 2.0, y: 1.16, z: 1.16, duration: 1.12, ease: 'power1.inOut' }, 1.54);
-        tl.to(this.shipWake.material, { opacity: 0.12, duration: 0.42, ease: 'power2.out' }, 3.72);
-        tl.set(this.shipWake, { visible: false }, 4.18);
+        tl.fromTo(this.shipWake.material, { opacity: 0 }, { opacity: 0.66, duration: 0.1, ease: 'power2.out' }, 0.04);
+        tl.fromTo(this.shipWake.scale, { x: 0.12, y: 0.12, z: 0.12 }, { x: 1.0, y: 0.82, z: 0.82, duration: 0.34, ease: 'power2.out' }, 0.04);
+        tl.to(this.shipWake.scale, { x: 1.28, y: 0.9, z: 0.9, duration: 0.22, ease: 'power1.inOut' }, 0.4);
+        tl.to(this.shipWake.material, { opacity: 0.04, duration: 0.12, ease: 'power2.out' }, 0.72);
+        tl.set(this.shipWake, { visible: false }, 0.86);
       }
 
-      // Phase 1: visible approach across frame.
-      tl.fromTo(this.shipRoot.position, { x: -2.02, y: -1.16, z: 2.18 }, { x: -1.02, y: -0.9, z: 1.62, duration: 1.12, ease: 'sine.inOut' }, 0.08);
-      tl.to(this.shipRoot.rotation, { x: 0.05, y: Math.PI * 0.98, z: -0.08, duration: 1.12, ease: 'sine.inOut' }, 0.08);
-      tl.to(this.shipRoot.scale, { x: 5.9, y: 5.9, z: 5.9, duration: 1.12, ease: 'power2.out' }, 0.08);
-
-      // Phase 2: bank hard toward the wormhole while staying readable.
-      tl.to(this.shipRoot.position, { x: 0.12, y: -0.44, z: -0.86, duration: 1.18, ease: 'power2.inOut' }, 1.16);
-      tl.to(this.shipRoot.rotation, { x: -0.08, y: Math.PI * 1.1, z: 0.34, duration: 1.18, ease: 'power2.inOut' }, 1.16);
-      tl.to(this.shipRoot.scale, { x: 4.9, y: 4.9, z: 4.9, duration: 1.18, ease: 'power2.out' }, 1.16);
-
-      // Phase 3: punch through the center and only shrink once the ship is fully committed.
-      tl.to(this.shipRoot.position, { x: 0.74, y: -0.14, z: -2.72, duration: 1.22, ease: 'expo.in' }, 2.34);
-      tl.to(this.shipRoot.rotation, { x: -0.14, y: Math.PI * 1.22, z: 0.46, duration: 1.22, ease: 'power2.inOut' }, 2.34);
-      tl.to(this.shipRoot.scale, { x: 4.05, y: 4.05, z: 4.05, duration: 0.74, ease: 'power2.out' }, 2.34);
-      tl.to(this.shipRoot.scale, { x: 0.42, y: 0.42, z: 0.42, duration: 0.52, ease: 'power3.in' }, 3.26);
-      tl.to(this.shipRoot.position, { x: 1.0, y: 0.0, z: -5.48, duration: 0.62, ease: 'power3.in' }, 3.34);
-      tl.set(this.shipRoot, { visible: false }, 4.02);
+      // Immediate centered dive.
+      tl.fromTo(this.shipRoot.position, { x: -0.32, y: -0.22, z: 0.82 }, { x: -0.08, y: -0.1, z: -0.36, duration: 0.24, ease: 'power2.out' }, 0.02);
+      tl.to(this.shipRoot.rotation, { x: 0.0, y: Math.PI * 1.05, z: 0.0, duration: 0.24, ease: 'power2.out' }, 0.02);
+      tl.to(this.shipRoot.scale, { x: 2.8, y: 2.8, z: 2.8, duration: 0.24, ease: 'power2.out' }, 0.02);
+      tl.to(this.shipRoot.position, { x: 0.0, y: -0.02, z: -2.72, duration: 0.4, ease: 'expo.in' }, 0.28);
+      tl.to(this.shipRoot.rotation, { x: -0.06, y: Math.PI * 1.12, z: 0.04, duration: 0.4, ease: 'power2.inOut' }, 0.28);
+      tl.to(this.shipRoot.scale, { x: 0.92, y: 0.92, z: 0.92, duration: 0.28, ease: 'power2.out' }, 0.28);
+      tl.to(this.shipRoot.scale, { x: 0.1, y: 0.1, z: 0.1, duration: 0.16, ease: 'power3.in' }, 0.72);
+      tl.to(this.shipRoot.position, { x: 0.0, y: 0.0, z: -5.8, duration: 0.16, ease: 'power3.in' }, 0.74);
+      tl.set(this.shipRoot, { visible: false }, 0.96);
     }
 
     // Disable blades for ESC warp so ship and wormhole stay visually clean.
@@ -449,13 +442,503 @@ class PresentationMode {
       tl.set(this.refs.endFlash, {
         display: 'block',
         background: 'radial-gradient(circle at 50% 45%, rgba(255,255,255,1.0) 0%, rgba(235,246,255,0.9) 34%, rgba(160,210,255,0.34) 60%, rgba(8,12,28,0.0) 100%)'
-      }, 4.22);
-      tl.fromTo(this.refs.endFlash, { opacity: 0 }, { opacity: 1, duration: 0.18, ease: 'power2.in' }, 4.24);
-      tl.to(this.refs.endFlash, { opacity: 0, duration: 0.34, ease: 'power2.out' }, 4.42);
-      tl.set(this.refs.endFlash, { display: 'none' }, 4.76);
+      }, 1.72);
+      tl.fromTo(this.refs.endFlash, { opacity: 0 }, { opacity: 1, duration: 0.12, ease: 'power2.in' }, 1.76);
+      tl.to(this.refs.endFlash, { opacity: 0, duration: 0.16, ease: 'power2.out' }, 1.9);
+      tl.set(this.refs.endFlash, { display: 'none' }, 2.06);
     }
 
-    tl.to({}, { duration: 0.01 }, 4.76);
+    tl.to({}, { duration: 0.01 }, 2.06);
+  }
+
+  _playIntroArrival() {
+    const activeScene = this.scenes[0];
+    if (!this.overlay || !activeScene || !window.gsap) {
+      this.transitioning = false;
+      this._setThreeWorld(0, 1);
+      return;
+    }
+
+    this.transitioning = true;
+    this.threeTransitionActive = true;
+    this.threeTransitionStyle = 'intro';
+    this.overlay.classList.add('pfs-in-transition');
+    this.overlay.classList.add('pfs-hyperspace-active');
+    this.overlay.classList.add('pfs-intro-arrival');
+
+    const headlineNodes = Array.from(activeScene.querySelectorAll('.slide-num, .slide-tag, h2')).filter(Boolean);
+    const supportNodes = Array.from(activeScene.querySelectorAll('.slide-subtitle-big, .slide-body, .slide-meta-info')).filter(Boolean);
+    const previewNode = activeScene.querySelector('.slide-preview');
+    const kickerNodes = Array.from(activeScene.querySelectorAll('.slide-kicker-card')).filter(Boolean);
+    const hudNodes = [
+      this.refs && this.refs.chapterTag,
+      this.refs && this.refs.chapterTitle,
+      this.refs && this.refs.counter,
+      this.refs && this.refs.hint,
+      this.refs && this.refs.autoChip,
+      this.refs && this.refs.sfxChip
+    ].filter(Boolean);
+    const progressFill = this.refs && this.refs.progressFill ? this.refs.progressFill : null;
+    const progressTarget = progressFill ? getComputedStyle(progressFill).width : '';
+    const ambient = this.overlay.querySelector('.pfs-ambient');
+    const chipGroup = this.threeGroups && this.threeGroups.chipGroup ? this.threeGroups.chipGroup : null;
+    const chipMaterials = [];
+    if (chipGroup) {
+      chipGroup.traverse((node) => {
+        if (!node || !node.material) return;
+        const mats = Array.isArray(node.material) ? node.material : [node.material];
+        mats.forEach((mat) => {
+          if (mat && !chipMaterials.includes(mat)) chipMaterials.push(mat);
+        });
+      });
+    }
+
+    const contentNodes = [...headlineNodes, ...supportNodes, previewNode, ...kickerNodes, ...hudNodes].filter(Boolean);
+    gsap.killTweensOf([activeScene, ...contentNodes]);
+    if (progressFill) gsap.killTweensOf(progressFill);
+    if (ambient) gsap.killTweensOf(ambient);
+    if (this.refs) {
+      gsap.killTweensOf([
+        this.refs.veil,
+        this.refs.introShutterLeft,
+        this.refs.introShutterRight,
+        this.refs.introGrid,
+        this.refs.introFrame,
+        this.refs.introReticle,
+        this.refs.introCore,
+        this.refs.stageRing,
+        this.refs.stageSweep,
+        this.refs.stageTrace,
+        this.refs.stageNoise,
+        this.refs.endFlash,
+        this.refs.cineTop,
+        this.refs.cineBottom,
+        this.refs.exitShip
+      ].filter(Boolean));
+    }
+    if (this.three && this.three.renderer && this.three.renderer.domElement) {
+      const { renderer, camera, portal, portalHalo, tunnelStars, stars, bloomPass } = this.three;
+      gsap.killTweensOf([
+        renderer.domElement,
+        camera.position,
+        portal.scale,
+        portalHalo.scale,
+        portal.material,
+        portalHalo.material,
+        tunnelStars.material,
+        stars.material,
+        bloomPass
+      ].filter(Boolean));
+    }
+    if (chipMaterials.length) gsap.killTweensOf(chipMaterials);
+    if (this.shipRoot) gsap.killTweensOf([this.shipRoot.position, this.shipRoot.rotation, this.shipRoot.scale]);
+    if (this.shipWake) gsap.killTweensOf([this.shipWake.material, this.shipWake.scale]);
+    if (this.shipBeacon) gsap.killTweensOf([this.shipBeacon.material, this.shipBeacon.scale]);
+
+    this._prepareTransitionMode('chip');
+    if (this.shipRoot) this.shipRoot.visible = false;
+    if (this.shipWake) this.shipWake.visible = false;
+    if (this.shipBeacon) this.shipBeacon.visible = false;
+
+    gsap.set(activeScene, {
+      visibility: 'hidden',
+      pointerEvents: 'none',
+      opacity: 0
+    });
+    gsap.set(contentNodes, { opacity: 0 });
+    if (progressFill) gsap.set(progressFill, { width: '0%' });
+    if (ambient) gsap.set(ambient, { opacity: 0 });
+    if (chipMaterials.length) {
+      chipMaterials.forEach((mat) => {
+        mat.transparent = true;
+        mat.opacity = 0;
+      });
+    }
+
+    const tl = gsap.timeline({
+      onComplete: () => {
+        this.transitioning = false;
+        this.threeTransitionActive = false;
+        this.threeTransitionStyle = 'none';
+        this.overlay.classList.remove('pfs-in-transition');
+        this.overlay.classList.remove('pfs-hyperspace-active');
+        this.overlay.classList.remove('pfs-intro-arrival');
+        activeScene.style.pointerEvents = 'auto';
+        this._setThreeWorld(0, 1);
+      }
+    });
+
+    if (this.refs && this.refs.bladeA && this.refs.bladeB) {
+      tl.set([this.refs.bladeA, this.refs.bladeB], { opacity: 0 }, 0);
+    }
+
+    if (this.refs && this.refs.introShutterLeft && this.refs.introShutterRight) {
+      tl.set([this.refs.introShutterLeft, this.refs.introShutterRight], { opacity: 1 }, 0);
+      tl.to(this.refs.introShutterLeft, {
+        xPercent: -112,
+        duration: 0.54,
+        ease: 'expo.inOut'
+      }, 1.56);
+      tl.to(this.refs.introShutterRight, {
+        xPercent: 112,
+        duration: 0.54,
+        ease: 'expo.inOut'
+      }, 1.56);
+      tl.to([this.refs.introShutterLeft, this.refs.introShutterRight], {
+        opacity: 0,
+        duration: 0.14,
+        ease: 'power2.out'
+      }, 2.02);
+    }
+
+    if (this.refs && this.refs.introGrid) {
+      tl.fromTo(this.refs.introGrid, {
+        opacity: 0,
+        scale: 1.22,
+        filter: 'blur(6px)'
+      }, {
+        opacity: 0.62,
+        scale: 1,
+        filter: 'blur(0px)',
+        duration: 0.42,
+        ease: 'power2.out'
+      }, 0.04);
+      tl.to(this.refs.introGrid, {
+        opacity: 0.12,
+        duration: 0.54,
+        ease: 'power2.out'
+      }, 0.82);
+      tl.to(this.refs.introGrid, {
+        opacity: 0,
+        duration: 0.18,
+        ease: 'power2.out'
+      }, 1.48);
+    }
+
+    if (this.refs && this.refs.introFrame) {
+      tl.fromTo(this.refs.introFrame, {
+        opacity: 0,
+        scale: 1.18,
+        filter: 'blur(4px)'
+      }, {
+        opacity: 0.84,
+        scale: 1,
+        filter: 'blur(0px)',
+        duration: 0.34,
+        ease: 'power2.out'
+      }, 0.12);
+      tl.to(this.refs.introFrame, {
+        opacity: 0.34,
+        duration: 0.44,
+        ease: 'power2.out'
+      }, 0.62);
+      tl.to(this.refs.introFrame, {
+        opacity: 0,
+        duration: 0.18,
+        ease: 'power2.out'
+      }, 1.42);
+    }
+
+    if (this.refs && this.refs.introReticle) {
+      tl.fromTo(this.refs.introReticle, {
+        opacity: 0,
+        scale: 1.7,
+        xPercent: -50,
+        yPercent: -50,
+        filter: 'blur(6px)'
+      }, {
+        opacity: 0.96,
+        scale: 1,
+        xPercent: -50,
+        yPercent: -50,
+        filter: 'blur(0px)',
+        duration: 0.54,
+        ease: 'expo.out'
+      }, 0.18);
+      tl.to(this.refs.introReticle, {
+        scale: 0.78,
+        duration: 0.34,
+        ease: 'power2.inOut'
+      }, 0.84);
+      tl.to(this.refs.introReticle, {
+        scale: 0.88,
+        opacity: 0.22,
+        duration: 0.22,
+        ease: 'power2.out'
+      }, 1.18);
+      tl.to(this.refs.introReticle, {
+        opacity: 0,
+        duration: 0.12,
+        ease: 'power2.out'
+      }, 1.44);
+    }
+
+    if (this.refs && this.refs.introCore) {
+      tl.fromTo(this.refs.introCore, {
+        opacity: 0,
+        scaleX: 0.08,
+        scaleY: 0.5,
+        filter: 'blur(10px)'
+      }, {
+        opacity: 0.94,
+        scaleX: 1,
+        scaleY: 1,
+        filter: 'blur(0px)',
+        duration: 0.24,
+        ease: 'power2.out'
+      }, 1.08);
+      tl.to(this.refs.introCore, {
+        opacity: 0,
+        scaleX: 1.24,
+        duration: 0.22,
+        ease: 'power2.out'
+      }, 1.34);
+    }
+
+    if (this.refs && this.refs.cineTop && this.refs.cineBottom) {
+      tl.fromTo(this.refs.cineTop, { opacity: 0, height: 0 }, { opacity: 0.6, height: 20, duration: 0.18, ease: 'power2.out' }, 0.02);
+      tl.fromTo(this.refs.cineBottom, { opacity: 0, height: 0 }, { opacity: 0.6, height: 20, duration: 0.18, ease: 'power2.out' }, 0.02);
+      tl.to([this.refs.cineTop, this.refs.cineBottom], { opacity: 0, duration: 0.16, ease: 'power2.out' }, 2.34);
+      tl.set([this.refs.cineTop, this.refs.cineBottom], { height: 0 }, 2.52);
+    }
+
+    if (this.refs && this.refs.veil) {
+      this.refs.veil.style.mixBlendMode = 'screen';
+      this.refs.veil.style.background = 'radial-gradient(circle at 50% 48%, rgba(180,236,255,0.28) 0%, rgba(60,154,255,0.16) 24%, rgba(6,10,26,0.0) 72%)';
+      tl.fromTo(this.refs.veil, { opacity: 0 }, { opacity: 0.3, duration: 0.32, ease: 'power2.out' }, 0.08);
+      tl.to(this.refs.veil, { opacity: 0.08, duration: 0.46, ease: 'power2.out' }, 0.58);
+      tl.to(this.refs.veil, { opacity: 0, duration: 0.2, ease: 'power2.out' }, 1.86);
+    }
+
+    if (this.refs && this.refs.stageRing) {
+      tl.fromTo(this.refs.stageRing, { opacity: 0, scale: 0.58 }, { opacity: 0.72, scale: 1.08, duration: 0.4, ease: 'power2.out' }, 0.36);
+      tl.to(this.refs.stageRing, { opacity: 0.2, scale: 1.42, duration: 0.42, ease: 'power2.out' }, 0.88);
+      tl.to(this.refs.stageRing, { opacity: 0, scale: 1.58, duration: 0.18, ease: 'power2.out' }, 1.42);
+    }
+
+    if (this.refs && this.refs.stageNoise) {
+      tl.set(this.refs.stageNoise, { display: 'block' }, 0);
+      tl.fromTo(this.refs.stageNoise, { opacity: 0 }, { opacity: 0.18, duration: 0.12, ease: 'none' }, 0.06);
+      tl.to(this.refs.stageNoise, { opacity: 0.05, duration: 0.34, ease: 'none' }, 0.48);
+      tl.to(this.refs.stageNoise, { opacity: 0, duration: 0.12, ease: 'none' }, 1.26);
+    }
+
+    if (this.refs && this.refs.exitShip) {
+      tl.set(this.refs.exitShip, { display: 'none', opacity: 0 }, 0);
+    }
+
+    if (this.three && this.three.renderer && this.three.renderer.domElement) {
+      const { renderer, camera, portal, portalHalo, tunnelStars, stars, bloomPass, warpRings } = this.three;
+      tl.fromTo(renderer.domElement, { opacity: 0, scale: 1.06, filter: 'blur(8px)' }, { opacity: 1, scale: 1, filter: 'blur(0px)', duration: 0.3, ease: 'power2.out' }, 0);
+      tl.fromTo(camera.position, { x: 0, y: 1.42, z: 11.6 }, { x: 0, y: 0.35, z: 8.2, duration: 1.78, ease: 'expo.out' }, 0.04);
+      tl.fromTo(portal.scale, { x: 0.26, y: 0.26, z: 1 }, { x: 1.02, y: 1.02, z: 1, duration: 1.18, ease: 'expo.out' }, 0.24);
+      tl.fromTo(portalHalo.scale, { x: 0.44, y: 0.44, z: 1 }, { x: 1.06, y: 1.06, z: 1, duration: 1.24, ease: 'expo.out' }, 0.22);
+      tl.fromTo(portal.material, { opacity: 0.0 }, { opacity: 0.18, duration: 0.84, ease: 'power2.out' }, 0.22);
+      tl.fromTo(portalHalo.material, { opacity: 0.0 }, { opacity: 0.12, duration: 0.92, ease: 'power2.out' }, 0.22);
+      tl.fromTo(tunnelStars.material, { opacity: 0.0, size: 0.04 }, { opacity: 0.12, size: 0.08, duration: 0.72, ease: 'power2.out' }, 0.12);
+      tl.fromTo(stars.material, { opacity: 0.06 }, { opacity: 0.38, duration: 1.2, ease: 'power2.out' }, 0.1);
+      if (bloomPass) {
+        tl.fromTo(bloomPass, { strength: 0.18 }, { strength: 0.62, duration: 1.14, ease: 'power2.out' }, 0.12);
+      }
+      if (chipGroup) {
+        chipGroup.visible = true;
+        tl.fromTo(chipGroup.rotation, { x: 1.18, y: -2.24, z: 0.82 }, { x: 0, y: 0, z: 0, duration: 1.48, ease: 'expo.out' }, 0.24);
+        tl.fromTo(chipGroup.scale, { x: 0.08, y: 0.08, z: 0.08 }, { x: 1, y: 1, z: 1, duration: 1.22, ease: 'expo.out' }, 0.3);
+        tl.fromTo(chipGroup.position, { x: 0, y: -0.18, z: -2.4 }, { x: -2.2, y: -1.0, z: -4.4, duration: 1.42, ease: 'power2.out' }, 0.24);
+      }
+      if (warpRings) {
+        warpRings.visible = true;
+        warpRings.children.forEach((ring) => {
+          const baseZ = typeof ring.userData.baseZ === 'number' ? ring.userData.baseZ : ring.position.z;
+          ring.position.z = baseZ + 1.2;
+          ring.scale.setScalar(0.2);
+          if (ring.material) {
+            ring.material.transparent = true;
+            ring.material.opacity = 0;
+          }
+        });
+        warpRings.children.slice(0, 6).forEach((ring, idx) => {
+          const baseZ = typeof ring.userData.baseZ === 'number' ? ring.userData.baseZ : ring.position.z;
+          tl.to(ring.scale, { x: 1, y: 1, z: 1, duration: 0.62, ease: 'expo.out' }, 0.18 + idx * 0.05);
+          tl.to(ring.position, { z: baseZ, duration: 0.74, ease: 'expo.out' }, 0.18 + idx * 0.05);
+          if (ring.material) {
+            tl.to(ring.material, { opacity: 0.18 - idx * 0.018, duration: 0.28, ease: 'power2.out' }, 0.18 + idx * 0.05);
+            tl.to(ring.material, { opacity: 0, duration: 0.24, ease: 'power2.out' }, 0.92 + idx * 0.03);
+          }
+        });
+      }
+    }
+
+    if (chipMaterials.length) {
+      tl.to(chipMaterials, { opacity: 0.78, duration: 0.52, ease: 'power2.out' }, 0.36);
+      tl.to(chipMaterials, { opacity: 0.24, duration: 0.32, ease: 'power2.out' }, 1.84);
+    }
+
+    if (this.refs && this.refs.endFlash) {
+      tl.set(this.refs.endFlash, {
+        display: 'block',
+        background: 'radial-gradient(circle at 50% 46%, rgba(224,248,255,0.86) 0%, rgba(120,212,255,0.28) 38%, rgba(8,12,24,0.0) 100%)'
+      }, 1.46);
+      tl.fromTo(this.refs.endFlash, { opacity: 0 }, { opacity: 0.72, duration: 0.12, ease: 'power2.in' }, 1.5);
+      tl.to(this.refs.endFlash, { opacity: 0, duration: 0.22, ease: 'power2.out' }, 1.64);
+      tl.set(this.refs.endFlash, { display: 'none' }, 1.9);
+    }
+
+    if (this.refs && this.refs.stageTrace) {
+      tl.set(this.refs.stageTrace, {
+        display: 'block',
+        opacity: 0,
+        left: '18%',
+        width: '8px',
+        background: 'linear-gradient(to right, transparent 0%, rgba(124,220,255,0.22) 24%, rgba(255,255,255,0.88) 50%, rgba(124,220,255,0.22) 76%, transparent 100%)',
+        filter: 'blur(1px)'
+      }, 0.18);
+      tl.to(this.refs.stageTrace, {
+        opacity: 0.9,
+        left: '82%',
+        duration: 0.44,
+        ease: 'power2.inOut'
+      }, 0.18);
+      tl.to(this.refs.stageTrace, { opacity: 0, duration: 0.1, ease: 'none' }, 0.64);
+      tl.set(this.refs.stageTrace, { left: '82%' }, 0.72);
+      tl.to(this.refs.stageTrace, { opacity: 0.56, left: '26%', duration: 0.28, ease: 'power2.inOut' }, 0.74);
+      tl.to(this.refs.stageTrace, { opacity: 0, duration: 0.08, ease: 'none' }, 1.04);
+      tl.set(this.refs.stageTrace, { display: 'none' }, 1.16);
+    }
+
+    if (this.refs && this.refs.stageSweep) {
+      tl.fromTo(
+        this.refs.stageSweep,
+        { opacity: 0, xPercent: -104, skewX: -12 },
+        { opacity: 0.34, xPercent: 88, skewX: -3, duration: 0.34, ease: 'power2.inOut' },
+        1.76
+      );
+      tl.to(this.refs.stageSweep, { opacity: 0, duration: 0.14, ease: 'power2.out' }, 2.08);
+    }
+
+    if (ambient) {
+      tl.to(ambient, {
+        opacity: '',
+        scale: 1,
+        duration: 0.34,
+        ease: 'power2.out',
+        clearProps: 'opacity,transform'
+      }, 1.92);
+    }
+
+    tl.set(activeScene, { visibility: 'visible' }, 2.04);
+    tl.fromTo(activeScene, {
+      opacity: 0,
+      scale: 0.94,
+      y: 24,
+      filter: 'blur(8px)',
+      rotateX: -6,
+      transformPerspective: 1400
+    }, {
+      opacity: 1,
+      scale: 1,
+      y: 0,
+      filter: 'blur(0px)',
+      rotateX: 0,
+      duration: 0.42,
+      ease: 'expo.out',
+      clearProps: 'transform,opacity,filter'
+    }, 2.08);
+
+    if (hudNodes.length) {
+      tl.fromTo(hudNodes, {
+        opacity: 0,
+        y: -10,
+        filter: 'blur(6px)'
+      }, {
+        opacity: 1,
+        y: 0,
+        filter: 'blur(0px)',
+        duration: 0.22,
+        stagger: 0.016,
+        ease: 'power2.out',
+        clearProps: 'transform,opacity,filter'
+      }, 2.22);
+    }
+    if (progressFill) {
+      tl.to(progressFill, {
+        width: progressTarget || '11.1111%',
+        duration: 0.32,
+        ease: 'power2.out',
+        clearProps: 'width'
+      }, 2.28);
+    }
+    if (headlineNodes.length) {
+      tl.fromTo(headlineNodes, {
+        opacity: 0,
+        y: 18,
+        scale: 0.96,
+        filter: 'blur(8px)'
+      }, {
+        opacity: 1,
+        y: 0,
+        scale: 1,
+        filter: 'blur(0px)',
+        duration: 0.34,
+        stagger: 0.024,
+        ease: 'expo.out',
+        clearProps: 'transform,opacity,filter'
+      }, 2.34);
+    }
+    if (supportNodes.length) {
+      tl.fromTo(supportNodes, {
+        opacity: 0,
+        x: -18,
+        y: 8,
+        filter: 'blur(6px)'
+      }, {
+        opacity: 1,
+        x: 0,
+        y: 0,
+        filter: 'blur(0px)',
+        duration: 0.26,
+        stagger: 0.022,
+        ease: 'power2.out',
+        clearProps: 'transform,opacity,filter'
+      }, 2.44);
+    }
+    if (previewNode) {
+      tl.fromTo(previewNode, {
+        opacity: 0,
+        x: 24,
+        y: 16,
+        scale: 0.96,
+        filter: 'blur(8px)'
+      }, {
+        opacity: 1,
+        x: 0,
+        y: 0,
+        scale: 1,
+        filter: 'blur(0px)',
+        duration: 0.32,
+        ease: 'power2.out',
+        clearProps: 'transform,opacity,filter'
+      }, 2.52);
+    }
+    if (kickerNodes.length) {
+      tl.fromTo(kickerNodes, {
+        opacity: 0,
+        x: 0,
+        y: 16,
+        scale: 0.94,
+        filter: 'blur(6px)'
+      }, {
+        opacity: 1,
+        x: 0,
+        y: 0,
+        scale: 1,
+        filter: 'blur(0px)',
+        duration: 0.24,
+        stagger: 0.028,
+        ease: 'power3.out',
+        clearProps: 'transform,opacity,filter'
+      }, 2.62);
+    }
   }
 
   next() {
@@ -503,6 +986,12 @@ class PresentationMode {
     const transitionStage = document.createElement('div');
     transitionStage.className = 'pfs-transition-stage';
     transitionStage.innerHTML = `
+      <div class="pfs-intro-shutter pfs-intro-shutter--left"></div>
+      <div class="pfs-intro-shutter pfs-intro-shutter--right"></div>
+      <div class="pfs-intro-grid"></div>
+      <div class="pfs-intro-frame"></div>
+      <div class="pfs-intro-reticle"></div>
+      <div class="pfs-intro-core"></div>
       <div class="pfs-stage-ring"></div>
       <div class="pfs-stage-sweep"></div>
       <div class="pfs-stage-noise"></div>
@@ -667,6 +1156,12 @@ class PresentationMode {
       bonziText: bonzi.querySelector('.pfs-bonzi-text'),
       veil,
       transitionStage,
+      introShutterLeft: transitionStage.querySelector('.pfs-intro-shutter--left'),
+      introShutterRight: transitionStage.querySelector('.pfs-intro-shutter--right'),
+      introGrid: transitionStage.querySelector('.pfs-intro-grid'),
+      introFrame: transitionStage.querySelector('.pfs-intro-frame'),
+      introReticle: transitionStage.querySelector('.pfs-intro-reticle'),
+      introCore: transitionStage.querySelector('.pfs-intro-core'),
       stageRing: transitionStage.querySelector('.pfs-stage-ring'),
       stageSweep: transitionStage.querySelector('.pfs-stage-sweep'),
       stageNoise: transitionStage.querySelector('.pfs-stage-noise'),
@@ -1544,52 +2039,83 @@ class PresentationMode {
     this.shipModelLoaded = true;
 
     const loader = new OBJLoader();
+    const mtlLoader = new MTLLoader();
+    const modelDirPaths = [
+      '/assets/models/interstellar-runner/Package/',
+      './assets/models/interstellar-runner/Package/'
+    ];
     const modelPaths = [
       '/assets/models/interstellar-runner/Package/InterstellarRunner.obj',
       './assets/models/interstellar-runner/Package/InterstellarRunner.obj'
     ];
+    const materialPaths = [
+      '/assets/models/interstellar-runner/Package/InterstellarRunner.mtl',
+      './assets/models/interstellar-runner/Package/InterstellarRunner.mtl'
+    ];
+    const finalizeLoadedShip = (obj) => {
+      if (this.shipFallback) this.shipFallback.visible = false;
+      if (this.shipBeacon) this.shipBeacon.visible = false;
+      if (this.shipWake) this.shipWake.visible = false;
+      obj.traverse((child) => {
+        if (!child.isMesh) return;
+        child.castShadow = false;
+        child.receiveShadow = false;
+        if (child.material) {
+          const mats = Array.isArray(child.material) ? child.material : [child.material];
+          mats.forEach((mat) => {
+            if (!mat) return;
+            mat.side = THREE.DoubleSide;
+            if ('transparent' in mat) mat.transparent = true;
+            if (typeof mat.opacity !== 'number') mat.opacity = 1;
+            if ('alphaTest' in mat) mat.alphaTest = 0.02;
+            if ('needsUpdate' in mat) mat.needsUpdate = true;
+          });
+        }
+      });
+
+      const box = new THREE.Box3().setFromObject(obj);
+      const size = new THREE.Vector3();
+      const center = new THREE.Vector3();
+      box.getSize(size);
+      box.getCenter(center);
+      obj.position.sub(center);
+      const maxDim = Math.max(size.x, size.y, size.z) || 1;
+      const target = 1.6;
+      const scale = target / maxDim;
+      obj.scale.setScalar(scale);
+      shipWrap.add(obj);
+      this.shipModelLoaded = true;
+    };
     const tryLoad = (idx) => {
       const src = modelPaths[idx];
+      const mtlSrc = materialPaths[idx];
+      const modelDir = modelDirPaths[idx];
       if (!src) {
         this.shipModelLoaded = false;
         return;
       }
+      const loadObjOnly = () => {
         loader.load(
           src,
-          (obj) => {
-            if (this.shipFallback) this.shipFallback.visible = false;
-            if (this.shipBeacon) this.shipBeacon.visible = false;
-            if (this.shipWake) this.shipWake.visible = false;
-            obj.traverse((child) => {
-              if (!child.isMesh) return;
-              const mat = new THREE.MeshStandardMaterial({
-                color: 0xc6e5ff,
-                emissive: 0x2a6ec8,
-              emissiveIntensity: 2.1,
-              metalness: 0.78,
-              roughness: 0.24,
-              side: THREE.DoubleSide
-            });
-            child.material = mat;
-            child.castShadow = false;
-            child.receiveShadow = false;
-          });
-
-          const box = new THREE.Box3().setFromObject(obj);
-          const size = new THREE.Vector3();
-          const center = new THREE.Vector3();
-          box.getSize(size);
-          box.getCenter(center);
-          obj.position.sub(center);
-          const maxDim = Math.max(size.x, size.y, size.z) || 1;
-          const target = 1.6;
-          const scale = target / maxDim;
-          obj.scale.setScalar(scale);
-          shipWrap.add(obj);
-          this.shipModelLoaded = true;
-          },
+          (obj) => finalizeLoadedShip(obj),
           undefined,
           () => tryLoad(idx + 1)
+        );
+      };
+      if (!mtlSrc) {
+        loadObjOnly();
+        return;
+      }
+      mtlLoader.setResourcePath(modelDir);
+      mtlLoader.load(
+        mtlSrc,
+        (materials) => {
+          materials.preload();
+          loader.setMaterials(materials);
+          loadObjOnly();
+        },
+        undefined,
+        () => loadObjOnly()
       );
     };
     tryLoad(0);
@@ -1709,9 +2235,14 @@ class PresentationMode {
     scene.add(tunnelStars);
 
     const warpRings = new THREE.Group();
-    for (let i = 0; i < 15; i += 1) {
+    const warpRingCount = 96;
+    const warpRingSpacing = 0.11;
+    for (let i = 0; i < warpRingCount; i += 1) {
+      const depthT = i / Math.max(1, warpRingCount - 1);
+      const radius = 2.7 - (depthT * 1.45);
+      const tube = 0.024 - (depthT * 0.01);
       const ring = new THREE.Mesh(
-        new THREE.TorusGeometry(1.7 + (i * 0.12), 0.02 + ((i % 3) * 0.004), 10, 64),
+        new THREE.TorusGeometry(radius, Math.max(0.012, tube), 12, 84),
         new THREE.MeshBasicMaterial({
           color: i % 2 ? 0x7fd8ff : 0xff85d8,
           transparent: true,
@@ -1719,7 +2250,7 @@ class PresentationMode {
           blending: THREE.AdditiveBlending
         })
       );
-      ring.position.set(0, -0.08, -4 - (i * 1.45));
+      ring.position.set(0, -0.08, -0.82 - (i * warpRingSpacing));
       ring.rotation.x = 0.32;
       ring.userData.baseZ = ring.position.z;
       warpRings.add(ring);

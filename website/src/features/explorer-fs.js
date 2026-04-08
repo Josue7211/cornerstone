@@ -11,12 +11,35 @@
     return Object.assign({ type: 'folder', name: name, children: children || [] }, opts || {});
   }
 
+  function cloneNode(node) {
+    if (!node || typeof node !== 'object') return null;
+    return Object.assign({}, node);
+  }
+
+  function fileShortcut(name, targetNode, opts) {
+    return file(name, Object.assign({
+      shortcut: {
+        shortcutType: 'file',
+        file: cloneNode(targetNode)
+      }
+    }, opts || {}));
+  }
+
+  function folderShortcut(name, targetPath, opts) {
+    return folder(name, [], Object.assign({
+      shortcut: {
+        shortcutType: 'folder',
+        targetPath: Array.isArray(targetPath) ? targetPath.slice() : []
+      }
+    }, opts || {}));
+  }
+
   function buildNestedBackupFolders(totalDepth) {
     var depth = Math.max(1, Number(totalDepth) || 1);
     var node = file('PLEASE_STOP.txt', {
       size: '234 B',
       modified: '2026-03-31',
-      icon: '😭',
+      icon: 'icon:help',
       content: [
         'congratulations.',
         'you found the innermost backup.',
@@ -34,9 +57,30 @@
         '— project author, 11:59 PM, march 31'
       ].join('\n')
     });
+    var funnySuffixes = [
+      'please_stop',
+      'okay_but_why',
+      'this_is_fine',
+      'backup_goblin',
+      'send_help',
+      'last_one_i_swear',
+      'the_folder_is_tired',
+      'why_are_we_like_this',
+      'no_more_backup',
+      'end_of_the_line',
+      'actually_final'
+    ];
+
+    function backupFolderName(level) {
+      if (level <= 6) {
+        return new Array(level).fill('backup').join('_');
+      }
+      var suffix = funnySuffixes[level - 7] || ('more_backup_' + (level - 6));
+      return new Array(6).fill('backup').join('_') + '_' + suffix;
+    }
 
     for (var i = depth; i >= 1; i--) {
-      var name = i === 1 ? 'backup_backup_backup' : 'backup';
+      var name = backupFolderName(i);
       node = folder(name, [node]);
     }
     return node;
@@ -62,11 +106,43 @@
       file('Research Paper.pdf', { size: '544 KB', url: './assets/docs/research-paper.pdf', icon: 'icon:paper' }),
       file('Presentation.exe', { size: '1 KB', content: 'Presentation.exe', icon: 'icon:presentation' }),
       file('Internet Explorer.exe', { size: '1 KB', content: 'Internet Explorer.exe', icon: 'icon:internet' }),
-      file('Internet Explorer.lnk', { size: '1 KB', content: 'Internet Explorer.lnk', icon: '↗️' }),
       file('Notepad.exe', { size: '1 KB', icon: 'icon:notepad' }),
       file('Terminal.exe', { size: '1 KB', icon: 'icon:terminal' }),
       file('Steam95.exe', { size: '1 KB', icon: 'icon:steam' }),
       file('Recycle Bin.exe', { size: '1 KB', icon: 'icon:recycle' }),
+      folderShortcut('100% Homework', ['Documents', '100% Homework (seriously)'], {
+        desktopId: 'desktop-homework-shortcut',
+        modified: '2026-04-01',
+        size: '-'
+      }),
+      fileShortcut('timeline.txt', {
+        desktopId: 'desktop-timeline-shortcut',
+        name: 'procrastination_timeline.txt',
+        size: '3.3 KB',
+        modified: '2026-04-01',
+        content: [
+          'TIMELINE.LOG',
+          '',
+          'Jan 15  assignment posted',
+          'Feb 04  thought about it',
+          'Mar 01  opened document, named it "paper", closed it',
+          'Mar 25  watched Jensen Huang keynote for research purposes',
+          'Mar 30  "tomorrow"',
+          'Mar 31  wrote 13,455 words',
+          'Apr 01  submitted',
+          '',
+          'no further notes'
+        ].join('\n'),
+        icon: 'icon:text'
+      }, { modified: '2026-04-01', size: '3.3 KB' }),
+      fileShortcut('mustwatch.mp4', {
+        desktopId: 'desktop-mustwatch-shortcut',
+        name: 'CPUvsGPUvsTPUvsDPUvsQPU.mp4',
+        size: '2.7 MB',
+        modified: '2026-04-01',
+        url: './assets/media/videos/CPUvsGPUvsTPUvsDPUvsQPU.mp4',
+        icon: 'icon:video'
+      }, { modified: '2026-04-01', size: '2.7 MB' }),
       file('wallpaper-pixel.png', { size: '27 KB', url: './assets/media/photos/wallpaper-pixel.png', icon: 'icon:file' })
     ]),
     folder('Documents', [
@@ -91,7 +167,7 @@
             '[file ends here]',
             'last modified: 11:58 PM'
           ].join('\n'),
-          icon: '📝'
+          icon: 'icon:paper'
         }),
         file('chatgpt_audit_log.txt', {
           size: '2.1 KB',
@@ -106,7 +182,7 @@
             'The methodology section was written in one sitting.',
             'Do not look too closely at the methodology section.'
           ].join('\n'),
-          icon: '📊'
+          icon: 'icon:document'
         }),
         file('clippy_suggestions.txt', {
           size: '1.8 KB',
@@ -124,7 +200,7 @@
             '[00:19] Clippy was removed from the system.',
             '[00:19] Clippy reinstalled itself.'
           ].join('\n'),
-          icon: '📎'
+          icon: 'icon:help'
         }),
         file('procrastination_timeline.txt', {
           size: '3.3 KB',
@@ -138,11 +214,11 @@
             'Mar 25  watched Jensen Huang keynote for research purposes',
             'Mar 30  "tomorrow"',
             'Mar 31  wrote 13,455 words',
-            'Apr 01  submitted',
-            '',
-            'no further notes'
-          ].join('\n'),
-          icon: '📅'
+          'Apr 01  submitted',
+          '',
+          'no further notes'
+        ].join('\n'),
+          icon: 'icon:text'
         }),
         file('why_jensen_wears_leather.txt', {
           size: '1.1 KB',
@@ -160,7 +236,7 @@
             'Not included in final paper.',
             '(It was included in the final paper.)'
           ].join('\n'),
-          icon: '🧥'
+          icon: 'icon:document'
         }),
         file('hinton_letter_draft.txt', {
           size: '0.9 KB',
@@ -178,7 +254,7 @@
             '',
             '[draft — not sent]'
           ].join('\n'),
-          icon: '✉️'
+          icon: 'icon:paper'
         }),
         file('sources_ranked_by_credibility.txt', {
           size: '1.2 KB',
@@ -192,7 +268,7 @@
             '4. YouTube comment, 11 likes  primary source energy',
             '5. Bonzi, 3am                 personal communication'
           ].join('\n'),
-          icon: '📚'
+          icon: 'icon:document'
         }),
         file('primary_source.mp4', {
           size: '2.7 MB',
@@ -203,13 +279,13 @@
             'watched: 47 times',
             'citations extracted: 0'
           ].join('\n'),
-          icon: '🎞️'
+          icon: 'icon:video'
         }),
         file('movie.mp4', {
           size: '2.7 MB',
           modified: '2026-04-01',
           url: './assets/media/videos/movie.mp4',
-          icon: '🎞️'
+          icon: 'icon:video'
         }),
         file('IDS2891_survival_guide.txt', {
           size: '1.6 KB',
@@ -228,7 +304,7 @@
             '   typed at 11:45 PM. that\'s the topic now.',
             '6. just submit something.'
           ].join('\n'),
-          icon: '📖'
+          icon: 'icon:text'
         }),
         file('grade_calculator.csv', {
           size: '512 B',
@@ -250,7 +326,7 @@
             '"definitely fine",do NOT check canvas',
             '"do NOT",seriously do not open canvas right now'
           ].join('\n'),
-          icon: '📈'
+          icon: 'icon:document'
         }),
         buildNestedBackupFolders(17)
       ]),
@@ -258,47 +334,47 @@
     ]),
     folder('Media', [
       folder('Audio', [
-        file('00-default.mp3', { size: '9 KB', url: './assets/media/audio/00-default.mp3', icon: '🎵' }),
-        file('boot.mp3', { size: '59 KB', url: './assets/media/audio/boot.mp3', icon: '🎵' }),
-        file('startup-chime.mp3', { size: '9 KB', url: './assets/media/audio/startup-chime.mp3', icon: '🎶' })
+        file('00-default.mp3', { size: '9 KB', url: './assets/media/audio/00-default.mp3', icon: 'icon:audio' }),
+        file('boot.mp3', { size: '59 KB', url: './assets/media/audio/boot.mp3', icon: 'icon:audio' }),
+        file('startup-chime.mp3', { size: '9 KB', url: './assets/media/audio/startup-chime.mp3', icon: 'icon:audio' })
       ]),
       folder('Photos', [
-        file('wallpaper-pixel.png', { size: '27 KB', url: './assets/media/photos/wallpaper-pixel.png', icon: '🖼️' }),
-        file('assignment-2-interest-web.png', { size: '123.9 KB', url: '../IDS2891/assignment-2-interest-web.png', icon: '🖼️' }),
-        file('bonzi-real-still.png', { size: '48 KB', url: './assets/media/photos/bonzi-real-still.png', icon: '🖼️' }),
-        file('clippy-real.png', { size: '11 KB', url: './assets/media/photos/clippy-real.png', icon: '🖼️' }),
+        file('wallpaper-pixel.png', { size: '27 KB', url: './assets/media/photos/wallpaper-pixel.png', icon: 'icon:document' }),
+        file('assignment-2-interest-web.png', { size: '123.9 KB', url: '../IDS2891/assignment-2-interest-web.png', icon: 'icon:document' }),
+        file('bonzi-real-still.png', { size: '48 KB', url: './assets/media/photos/bonzi-real-still.png', icon: 'icon:document' }),
+        file('clippy-real.png', { size: '11 KB', url: './assets/media/photos/clippy-real.png', icon: 'icon:document' }),
         folder('Bonzi', [
-          file('bonzi-real-still.png', { size: '48 KB', url: './assets/media/photos/bonzi-real-still.png', icon: '🖼️' }),
-          file('bonzi-real.gif', { size: '195 KB', url: './assets/media/photos/bonzi-real.gif', icon: '🖼️' }),
+          file('bonzi-real-still.png', { size: '48 KB', url: './assets/media/photos/bonzi-real-still.png', icon: 'icon:document' }),
+          file('bonzi-real.gif', { size: '195 KB', url: './assets/media/photos/bonzi-real.gif', icon: 'icon:document' }),
           folder('frames', [
-            file('frame-00.png', { size: '47.2 KB', url: './assets/media/photos/bonzi-frames/frame-00.png', icon: '🖼️' }),
-            file('frame-01.png', { size: '46.0 KB', url: './assets/media/photos/bonzi-frames/frame-01.png', icon: '🖼️' }),
-            file('frame-02.png', { size: '47.2 KB', url: './assets/media/photos/bonzi-frames/frame-02.png', icon: '🖼️' }),
-            file('frame-03.png', { size: '46.9 KB', url: './assets/media/photos/bonzi-frames/frame-03.png', icon: '🖼️' })
+            file('frame-00.png', { size: '47.2 KB', url: './assets/media/photos/bonzi-frames/frame-00.png', icon: 'icon:document' }),
+            file('frame-01.png', { size: '46.0 KB', url: './assets/media/photos/bonzi-frames/frame-01.png', icon: 'icon:document' }),
+            file('frame-02.png', { size: '47.2 KB', url: './assets/media/photos/bonzi-frames/frame-02.png', icon: 'icon:document' }),
+            file('frame-03.png', { size: '46.9 KB', url: './assets/media/photos/bonzi-frames/frame-03.png', icon: 'icon:document' })
           ])
         ]),
         folder('Clippy', [
-          file('clippy-real.png', { size: '11 KB', url: './assets/media/photos/clippy-real.png', icon: '🖼️' }),
-          file('clippy-body.png', { size: '2.8 KB', url: './assets/media/photos/clippy-body.png', icon: '🖼️' }),
+          file('clippy-real.png', { size: '11 KB', url: './assets/media/photos/clippy-real.png', icon: 'icon:document' }),
+          file('clippy-body.png', { size: '2.8 KB', url: './assets/media/photos/clippy-body.png', icon: 'icon:document' }),
           folder('models', [
-            file('rigged_microsoft_clippyclippit_fbx_and_blend.zip', { size: '124 KB', url: './assets/media/photos/clippy-models/rigged_microsoft_clippyclippit_fbx_and_blend.zip', icon: '🗜️' })
+            file('rigged_microsoft_clippyclippit_fbx_and_blend.zip', { size: '124 KB', url: './assets/media/photos/clippy-models/rigged_microsoft_clippyclippit_fbx_and_blend.zip', icon: 'icon:file' })
           ])
         ]),
         folder('portraits', [
-          file('altman.jpg', { size: '24.7 KB', url: './assets/media/photos/portraits/altman.jpg', icon: '🖼️' }),
-          file('amodei.jpg', { size: '21.0 KB', url: './assets/media/photos/portraits/amodei.jpg', icon: '🖼️' }),
-          file('feifei.jpg', { size: '24.6 KB', url: './assets/media/photos/portraits/feifei.jpg', icon: '🖼️' }),
-          file('hinton.jpg', { size: '14.6 KB', url: './assets/media/photos/portraits/hinton.jpg', icon: '🖼️' }),
-          file('jensen.jpg', { size: '22.3 KB', url: './assets/media/photos/portraits/jensen.jpg', icon: '🖼️' }),
-          file('karpathy.jpg', { size: '100.4 KB', url: './assets/media/photos/portraits/karpathy.jpg', icon: '🖼️' }),
-          file('keller.jpg', { size: '25.5 KB', url: './assets/media/photos/portraits/keller.jpg', icon: '🖼️' }),
-          file('lisasu.jpg', { size: '19.6 KB', url: './assets/media/photos/portraits/lisasu.jpg', icon: '🖼️' }),
-          file('moore.jpg', { size: '171.9 KB', url: './assets/media/photos/portraits/moore.jpg', icon: '🖼️' })
+          file('altman.jpg', { size: '24.7 KB', url: './assets/media/photos/portraits/altman.jpg', icon: 'icon:document' }),
+          file('amodei.jpg', { size: '21.0 KB', url: './assets/media/photos/portraits/amodei.jpg', icon: 'icon:document' }),
+          file('feifei.jpg', { size: '24.6 KB', url: './assets/media/photos/portraits/feifei.jpg', icon: 'icon:document' }),
+          file('hinton.jpg', { size: '14.6 KB', url: './assets/media/photos/portraits/hinton.jpg', icon: 'icon:document' }),
+          file('jensen.jpg', { size: '22.3 KB', url: './assets/media/photos/portraits/jensen.jpg', icon: 'icon:document' }),
+          file('karpathy.jpg', { size: '100.4 KB', url: './assets/media/photos/portraits/karpathy.jpg', icon: 'icon:document' }),
+          file('keller.jpg', { size: '25.5 KB', url: './assets/media/photos/portraits/keller.jpg', icon: 'icon:document' }),
+          file('lisasu.jpg', { size: '19.6 KB', url: './assets/media/photos/portraits/lisasu.jpg', icon: 'icon:document' }),
+          file('moore.jpg', { size: '171.9 KB', url: './assets/media/photos/portraits/moore.jpg', icon: 'icon:document' })
         ])
       ]),
       folder('Videos', [
-        file('CPUvsGPUvsTPUvsDPUvsQPU.mp4', { size: '2.7 MB', url: './assets/media/videos/CPUvsGPUvsTPUvsDPUvsQPU.mp4', icon: '🎞️' }),
-        file('movie.mp4', { size: '2.7 MB', url: './assets/media/videos/movie.mp4', icon: '🎞️' })
+        file('CPUvsGPUvsTPUvsDPUvsQPU.mp4', { size: '2.7 MB', url: './assets/media/videos/CPUvsGPUvsTPUvsDPUvsQPU.mp4', icon: 'icon:video' }),
+        file('movie.mp4', { size: '2.7 MB', url: './assets/media/videos/movie.mp4', icon: 'icon:video' })
       ])
     ]),
     folder('Website Source', [], { dynamicWebsite: true }),
@@ -306,10 +382,10 @@
       file('README.txt', {
         size: '1 KB',
         content: 'AI 98 OS Education Edition\nUser: Guest\n',
-        icon: '📜'
+        icon: 'icon:text'
       }),
-      file('grades.exe', { size: '1 KB', content: 'grades.exe', icon: '⚙️' }),
-      file('bsod.exe', { size: '1 KB', content: 'bsod.exe', icon: '⚙️' })
+      file('grades.exe', { size: '1 KB', content: 'grades.exe', icon: 'icon:apps' }),
+      file('bsod.exe', { size: '1 KB', content: 'bsod.exe', icon: 'icon:apps' })
     ])
   ]);
 
@@ -337,22 +413,22 @@
 
   function fileIcon(node) {
     if (typeof shared.fileIcon === 'function') return shared.fileIcon(node);
-    if (!node) return '📄';
-    if (node.type === 'folder') return '📁';
+    if (!node) return 'icon:file';
+    if (node.type === 'folder') return 'icon:folderClosed';
     const ext = fallbackGetExt(node.name);
-    if (ext === 'txt') return '📝';
-    if (ext === 'md') return '📘';
-    if (ext === 'pdf') return '📄';
-    if (['png', 'jpg', 'jpeg', 'gif', 'webp'].includes(ext)) return '🖼️';
-    if (['mp3', 'wav', 'ogg'].includes(ext)) return '🎵';
-    if (['mp4', 'webm', 'mov'].includes(ext)) return '🎞️';
-    if (ext === 'js') return '📜';
-    if (ext === 'css') return '🎨';
-    if (ext === 'json') return '🧩';
-    if (ext === 'lnk') return '↗️';
-    if (ext === 'exe') return '⚙️';
-    if (ext === 'csv') return '📈';
-    return '📄';
+    if (ext === 'txt') return 'icon:text';
+    if (ext === 'md') return 'icon:text';
+    if (ext === 'pdf') return 'icon:document';
+    if (['png', 'jpg', 'jpeg', 'gif', 'webp'].includes(ext)) return 'icon:document';
+    if (['mp3', 'wav', 'ogg'].includes(ext)) return 'icon:audio';
+    if (['mp4', 'webm', 'mov'].includes(ext)) return 'icon:video';
+    if (ext === 'js') return 'icon:file';
+    if (ext === 'css') return 'icon:file';
+    if (ext === 'json') return 'icon:file';
+    if (ext === 'lnk') return 'icon:file';
+    if (ext === 'exe') return 'icon:apps';
+    if (ext === 'csv') return 'icon:file';
+    return 'icon:file';
   }
 
   function pathString(pathParts) {
